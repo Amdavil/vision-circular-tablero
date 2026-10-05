@@ -1,0 +1,10 @@
+-- Datos de partida reales, pendientes de validación (fuentes en cada fila)
+INSERT OR IGNORE INTO reportes (id, v, anio, corte, valor, material, territorio, quien, fuente, nota, por, ts) VALUES
+('ini-v01-2025-plastico','V01',2025,'2025-12-31',24425,'Plástico',NULL,'IMP','Nota de prensa de Visión Circular, 8 jul 2026','Por confirmar contra el informe de avance radicado ante la ANLA.','Carga inicial','2026-10-05T14:00:00.000Z'),
+('ini-v01-2025-noplastico','V01',2025,'2025-12-31',43477,'No plástico (agregado)',NULL,'IMP','Nota de prensa de Visión Circular, 8 jul 2026','Por confirmar contra el informe de avance radicado ante la ANLA. Desagregar por papel y cartón, vidrio y metal.','Carga inicial','2026-10-05T14:00:01.000Z'),
+('ini-v02-2025-plastico','V02',2025,'2025-12-31',12975,'Plástico',NULL,'LB','Nota de prensa de Visión Circular, 8 jul 2026','Meta 2025 del grupo plástico. Confirmar con el cálculo versionado de línea base.','Carga inicial','2026-10-05T14:00:02.000Z'),
+('ini-v02-2025-noplastico','V02',2025,'2025-12-31',36612,'No plástico (agregado)',NULL,'LB','Nota de prensa de Visión Circular, 8 jul 2026','Meta 2025 del grupo no plástico. Confirmar con el cálculo versionado de línea base.','Carga inicial','2026-10-05T14:00:03.000Z'),
+('ini-v06-2025','V06',2025,'2025-12-31',167,NULL,'Nacional','IMP','Informe 2025 de Visión Circular y sesiones de Implementación','Incluye 73 organizaciones de recicladores. Confirmar que todos certificaron al menos 1 t en 2025.','Carga inicial','2026-10-05T14:00:04.000Z'),
+('ini-v07-2025','V07',2025,'2025-12-31',59,NULL,'Nacional','IMP','Nota de prensa de Visión Circular, 8 jul 2026 (dato 2025)',NULL,'Carga inicial','2026-10-05T14:00:05.000Z'),
+('ini-v07-2026','V07',2026,'2026-08-28',61,NULL,'Nacional','IMP','Sesión de Implementación, 28 ago 2026',NULL,'Carga inicial','2026-10-05T14:00:06.000Z'),
+('ini-v29-2026','V29',2026,'2026-09-03',389,NULL,NULL,'FIN','ARCO, sesión de Línea Base 3 sep 2026','Otras cifras en circulación: más de 380 (Informe 2025) y cerca de 400 (Implementación). Fijar una sola con fecha de corte.','Carga inicial','2026-10-05T14:00:07.000Z');

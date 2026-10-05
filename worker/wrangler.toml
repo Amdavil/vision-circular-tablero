@@ -1,0 +1,14 @@
+name = "vc-tablero"
+main = "worker.js"
+compatibility_date = "2026-01-01"
+preview_urls = false
+
+# Base de datos del tablero: reportes, validaciones, metas y bitácora.
+# Los hashes de los códigos de acceso van como secretos:
+#   wrangler secret put HASH_EQUIPO
+#   wrangler secret put HASH_VALIDADOR
+[[d1_databases]]
+binding = "DB"
+database_name = "vc-tablero"
+database_id = "51cdeb23-271e-471e-b809-e4a9ea449350"
+migrations_dir = "migrations"
