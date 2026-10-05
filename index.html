@@ -307,10 +307,10 @@ footer.end{border-top:1px solid var(--rule);padding-block:18px;font-size:12.5px;
   </div>
 
   <div class="flow" aria-label="Cómo funciona">
-    <div class="step"><span class="n">1</span><h3>Cada área reporta sus datos</h3><p>Implementación, Línea Base, Innovación, Inclusión, Territoriales, Consumo, Comunicaciones y Financiera. Cada una ve solo lo que le toca.</p><button class="btn small" type="button" data-go="reportar">Ir a reportar</button></div>
+    <div class="step"><span class="n">1</span><h3>Cada área reporta sus datos</h3><p>Implementación, Línea Base, Innovación, Inclusión, Territoriales, Consumo, Comunicaciones y Financiera. Cada una entra con su propio código y solo puede reportar lo suyo.</p><button class="btn small" type="button" data-go="reportar">Ir a reportar</button></div>
     <div class="step"><span class="n">2</span><h3>Se calculan los indicadores</h3><p>Nadie escribe el indicador a mano: la herramienta lo calcula con la fórmula publicada en su ficha.</p><button class="btn small" type="button" data-go="metodologia" data-anchor="m-fichas">Ver fórmulas</button></div>
     <div class="step"><span class="n">3</span><h3>Sistemas de Información valida</h3><p>Todo dato entra como pendiente. Se valida o se observa, y cada cambio queda en la bitácora.</p><button class="btn small" type="button" data-go="validar">Ir a validar</button></div>
-    <div class="step"><span class="n">4</span><h3>El tablero se actualiza</h3><p>Doce indicadores, con semáforo frente a la meta, de dónde sale cada cifra y qué área está al día.</p><button class="btn small" type="button" data-go="tablero">Ver tablero</button></div>
+    <div class="step"><span class="n">4</span><h3>El tablero se actualiza</h3><p>Doce indicadores y el panorama de línea base, abiertos para todo el equipo, con semáforo, origen de cada cifra y qué área está al día.</p><button class="btn small" type="button" data-go="tablero">Ver tablero</button></div>
   </div>
 
   <div class="two">
@@ -326,7 +326,7 @@ footer.end{border-top:1px solid var(--rule);padding-block:18px;font-size:12.5px;
       <h2>Los 12 indicadores priorizados</h2>
       <p class="small muted" style="margin:6px 0 14px">Toca uno para ver qué mide, con qué fórmula y quién lo reporta.</p>
       <div id="prior-list"></div>
-      <div style="margin-top:18px"><h3>Y 7 complementarios</h3><p class="small muted" style="margin:2px 0 0">Explican o refinan a un titular. Se revisan en los comités de línea.</p><div class="comp-list" id="comp-list"></div></div>
+      <div style="margin-top:18px"><h3 id="comp-h">Y 8 complementarios</h3><p class="small muted" style="margin:2px 0 0">Explican o refinan a un titular. Se revisan en los comités de línea.</p><div class="comp-list" id="comp-list"></div></div>
     </div>
   </div>
 
@@ -340,18 +340,18 @@ footer.end{border-top:1px solid var(--rule);padding-block:18px;font-size:12.5px;
 <!-- ================= TABLERO ================= -->
 <section class="tab" id="tab-tablero" role="tabpanel" aria-labelledby="t-tablero" hidden>
   <div class="sec-head">
-    <div><h1>¿Cómo va el colectivo?</h1><p class="lede">Los 12 indicadores priorizados, agrupados por tema. Las cifras rayadas o con la etiqueta "pendiente" aún no están validadas.</p></div>
-    <div class="toolbar" data-needs="codigo">
+    <div><h1>¿Cómo va el colectivo?</h1><p class="lede">Los 12 indicadores priorizados, agrupados por tema, y el panorama de línea base. Abierto para todo el equipo. Las cifras rayadas o con la etiqueta "pendiente" aún no están validadas.</p></div>
+    <div class="toolbar">
       <label class="field-inline" for="sel-anio">Año <select id="sel-anio"></select></label>
       <label class="field-inline check" for="chk-pend"><input type="checkbox" id="chk-pend" checked> Incluir pendientes</label>
       <button class="btn small" id="btn-csv" type="button">Descargar datos (CSV)</button>
     </div>
   </div>
-  <div class="panel lock-slot" data-lock="tablero" hidden></div>
-  <div class="tsec" data-needs="codigo" id="tablero-body">
+  <div class="tsec" id="tablero-body">
     <div class="status-line" id="status-line"><span class="dot"></span><span>Cargando…</span></div>
     <div class="ctx" id="ctx"></div>
     <div class="panel anchor" id="anchor"></div>
+    <div class="panel" id="lb-panel"></div>
     <div id="themes" style="display:grid;gap:26px"></div>
     <div class="panel">
       <div class="sec-head" style="margin-bottom:10px"><h2>Indicadores complementarios</h2><span class="small muted">Explican o refinan a un titular.</span></div>
@@ -372,7 +372,8 @@ footer.end{border-top:1px solid var(--rule);padding-block:18px;font-size:12.5px;
   <div class="panel wiz" data-needs="codigo">
     <div class="wstep" id="ws1"><span class="n">1</span><div class="body"><h2>¿Quién reporta?</h2>
       <div class="form-grid" style="grid-template-columns:minmax(0,320px)"><div class="fld"><label for="f-nombre">Tu nombre</label><input type="text" id="f-nombre" autocomplete="name" placeholder="Nombre y apellido"><span class="hint">Queda registrado en cada reporte que envíes.</span></div></div>
-      <div class="fld"><label>Tu área</label><div class="parties" id="parties" role="group" aria-label="Área que reporta"></div></div>
+      <div class="msg info" id="party-fixed" hidden></div>
+      <div class="fld" id="party-pick" hidden><label>¿En nombre de qué área reportas?</label><div class="parties" id="parties" role="group" aria-label="Área que reporta"></div><span class="hint">Solo el código de validación puede elegir el área.</span></div>
     </div></div>
     <div class="wstep" id="ws2"><span class="n">2</span><div class="body">
       <div class="sec-head"><div><h2 id="ws2-title">Lo que te toca reportar</h2><p class="small muted" style="margin:2px 0 0" id="ws2-sub">Elige tu área para ver tu lista.</p></div><label class="field-inline" for="r-anio">Año <select id="r-anio"></select></label></div>
@@ -387,19 +388,19 @@ footer.end{border-top:1px solid var(--rule);padding-block:18px;font-size:12.5px;
 
 <!-- ================= VALIDAR ================= -->
 <section class="tab" id="tab-validar" role="tabpanel" aria-labelledby="t-validar" hidden>
-  <div><h1>Validar y fijar metas</h1><p class="lede">Un dato entra como pendiente y queda firme cuando se valida. Un dato observado sale del cálculo hasta que el área envíe la corrección. Esta sección es de Sistemas de Información.</p></div>
+  <div><h1>Validar y fijar metas</h1><p class="lede">Un dato entra como pendiente y queda firme cuando se valida. Un dato observado sale del cálculo hasta que el área envíe la corrección. Todo el equipo ve la cola y la bitácora; solo Sistemas de Información valida.</p></div>
   <div class="panel lock-slot" data-lock="validar" hidden></div>
   <div class="msg info" id="val-note" hidden></div>
-  <div class="panel" data-needs="codigo">
+  <div class="panel">
     <div class="sec-head" style="margin-bottom:10px"><h2>Pendientes de validación</h2><span class="small muted" id="pend-count"></span></div>
     <div class="tw"><table><thead><tr><th>Enviado</th><th>Quién</th><th>Dato</th><th>Año · corte</th><th class="num">Valor</th><th>Detalle</th><th>Fuente y evidencia</th><th>Acción</th></tr></thead><tbody id="pend-body"></tbody></table></div>
   </div>
-  <div class="panel" data-needs="codigo">
+  <div class="panel">
     <h2 style="margin-bottom:6px">Metas por indicador</h2>
     <p class="small muted" style="margin:0 0 10px">K01 usa 100 % (meta legal) mientras no se fije otra. El valor que pongas para K01 es la meta interna con factor de seguridad. Se guarda solo al salir del campo.</p>
     <div class="tw"><table><thead><tr><th>Indicador</th><th>Unidad</th><th>Sentido</th><th class="num">Meta 2026</th><th class="num">Meta 2027</th></tr></thead><tbody id="metas-body"></tbody></table></div>
   </div>
-  <div class="panel" data-needs="codigo">
+  <div class="panel">
     <h2 style="margin-bottom:10px">Bitácora</h2>
     <div class="tw"><table><thead><tr><th>Enviado</th><th>Quién</th><th>Dato</th><th>Año · corte</th><th class="num">Valor</th><th>Estado</th><th>Validación</th></tr></thead><tbody id="log-body"></tbody></table></div>
   </div>
@@ -408,8 +409,18 @@ footer.end{border-top:1px solid var(--rule);padding-block:18px;font-size:12.5px;
 <!-- ================= METODOLOGÍA ================= -->
 <section class="tab" id="tab-metodologia" role="tabpanel" aria-labelledby="t-metodologia" hidden>
   <div><h1>Cómo se priorizó</h1><p class="lede">El cruce de los 46 registros trazadores de la Matriz de Disponibilidad con las visiones y los resultados que cada línea presentó a la Junta Directiva.</p></div>
-  <div class="subnav"><a href="#m-hallazgos">Hallazgos</a><a href="#m-cotejo">Líneas × resultados</a><a href="#m-ranking">Puntaje</a><a href="#m-trazadores">Destino de los 46 trazadores</a><a href="#m-fichas">Fichas</a><a href="#m-diccionario">Datos de entrada</a></div>
-  <div id="m-hallazgos"><h2 style="margin-bottom:12px">Lo que encontramos</h2><div class="findings" id="findings"></div></div>
+  <div class="subnav"><a href="#m-auditoria">Auditoría</a><a href="#m-hallazgos">Hallazgos</a><a href="#m-cotejo">Líneas × resultados</a><a href="#m-ranking">Puntaje</a><a href="#m-trazadores">Destino de los 46 trazadores</a><a href="#m-fichas">Fichas</a><a href="#m-diccionario">Datos de entrada</a></div>
+  <div class="panel" id="m-auditoria">
+    <p class="eyebrow">Auditoría · 5 oct 2026</p>
+    <h2>¿Cada dato está en el área correcta, sin repetirse, con la frecuencia y la unidad adecuadas?</h2>
+    <p class="small muted" style="margin:6px 0 14px">Cada dato de entrada se contrastó con la Matriz de Disponibilidad: responsable o custodio, frecuencia de actualización, unidad y fuente. Lo que no cuadraba se corrigió en la herramienta; lo que depende de una decisión del área queda "por confirmar".</p>
+    <div class="health" id="aud-sum"></div>
+    <h3 style="margin:6px 0 8px">Hallazgos</h3>
+    <div class="tw"><table><thead><tr><th>Severidad</th><th>Tipo</th><th>Dónde</th><th>Problema</th><th>Evidencia</th><th>Corrección</th><th>Estado</th></tr></thead><tbody id="aud-body"></tbody></table></div>
+    <h3 style="margin:18px 0 8px">Dato por dato: herramienta frente a la matriz</h3>
+    <div class="tw"><table><thead><tr><th>Código</th><th>Dato</th><th>Lo reporta (herramienta)</th><th>Responsable en la matriz</th><th>Frecuencia</th><th>Unidad</th><th>Registros de la matriz</th><th>Estado</th><th>Nota</th></tr></thead><tbody id="aud-vars"></tbody></table></div>
+  </div>
+  <div id="m-hallazgos"><h2 style="margin-bottom:12px">Lo que encontramos al cotejar</h2><div class="findings" id="findings"></div></div>
   <div class="panel" id="m-cotejo">
     <h2>Líneas de la Junta × resultados estratégicos</h2>
     <p class="small muted" style="margin:4px 0 10px">Arriba, la cifra que la línea reportó a la Junta; abajo, los trazadores de la matriz (con * los que no están marcados como trazador). En ámbar, cruces donde la estrategia existe y no hay indicador.</p>
@@ -435,7 +446,7 @@ footer.end{border-top:1px solid var(--rule);padding-block:18px;font-size:12.5px;
   </div>
 </section>
 
-<footer class="end"><span>Prototipo de trabajo v2 · octubre 2026 · Consultoría Soluciones PAL para Visión Circular ANDI (contrato CO3113).</span><span>Fuentes: Matriz de Disponibilidad alineada (17 ago 2026) y planeación para Junta Directiva (12 feb 2026).</span></footer>
+<footer class="end"><span>Prototipo de trabajo v3 · octubre 2026 · Consultoría Soluciones PAL para Visión Circular ANDI (contrato CO3113).</span><span>Fuentes: Matriz de Disponibilidad alineada (17 ago 2026) y planeación para Junta Directiva (12 feb 2026).</span></footer>
 </main>
 
 <dialog id="dlg" aria-labelledby="dlg-title"><div class="dlg-head"><div id="dlg-title-wrap"></div><button class="btn small" type="button" data-close="dlg">Cerrar</button></div><div class="dlg-body" id="dlg-body"></div></dialog>
@@ -448,14 +459,15 @@ footer.end{border-top:1px solid var(--rule);padding-block:18px;font-size:12.5px;
       <div class="form-grid">
         <div class="fld"><label for="f-anio">Año del dato</label><select id="f-anio"></select></div>
         <div class="fld"><label for="f-corte">Fecha de corte</label><input type="date" id="f-corte" required><span class="hint">Hasta qué día cubre la cifra. Si es acumulado del año, el último día que incluye.</span></div>
-        <div class="fld wide"><label for="f-valor">Valor</label><div class="unit-wrap"><input type="number" id="f-valor" step="any" inputmode="decimal" required><span class="mono" id="f-unit"></span></div><span class="hint">Solo el número, sin puntos de miles ni símbolo de pesos.</span></div>
+        <div class="fld wide"><label for="f-valor">Valor</label><div class="unit-wrap"><input type="number" id="f-valor" step="any" inputmode="decimal" required><span class="mono" id="f-unit"></span><select id="f-u-sel" aria-label="Unidad" hidden></select></div><span class="hint">Solo el número, sin puntos de miles ni símbolo de pesos.</span></div>
         <div class="fld" id="w-material" hidden><label for="f-material">Material</label><select id="f-material"></select></div>
-        <div class="fld" id="w-linea" hidden><label for="f-linea">¿De qué línea sale la cifra?</label><select id="f-linea"></select></div>
+        <div class="fld" id="w-linea" hidden><label for="f-linea">Línea a la que se atribuye</label><select id="f-linea"></select><span class="hint" id="f-linea-hint"></span></div>
+        <div class="fld" id="w-programa" hidden><label for="f-programa">Programa o proyecto</label><select id="f-programa"></select><span class="hint">Sirve para no contar dos veces la misma organización.</span></div>
         <div class="fld" id="w-territorio" hidden><label for="f-territorio">Territorio o región</label><input type="text" id="f-territorio" list="dl-terr" placeholder="Nacional, Cartagena/Bolívar…"><datalist id="dl-terr"></datalist></div>
         <div class="fld" id="w-nivel" hidden><label for="f-nivel">Nivel de la jerarquía</label><select id="f-nivel"></select></div>
-        <div class="fld" id="w-cat" hidden><label for="f-cat">Desagregación</label><select id="f-cat"></select></div>
+        <div class="fld" id="w-cat" hidden><label for="f-cat" id="f-cat-lab">Desagregación</label><select id="f-cat"></select></div>
         <div class="fld wide" id="w-metodo" hidden><label for="f-metodo">Método y factor de emisión</label><input type="text" id="f-metodo" placeholder="p. ej. EPA WARM v16, factor por material"></div>
-        <div class="fld wide" id="w-incluido" hidden><label class="check" for="f-incluido"><input type="checkbox" id="f-incluido"> Esta cifra ya está dentro del consolidado de Traza. Se mostrará como atribución de tu línea y no se sumará dos veces.</label></div>
+        <div class="fld wide" id="w-incluido" hidden><label class="check" for="f-incluido"><input type="checkbox" id="f-incluido"> <span id="f-incluido-txt"></span></label></div>
         <div class="fld"><label for="f-fuente">Fuente</label><input type="text" id="f-fuente" required></div>
         <div class="fld"><label for="f-evid">Evidencia</label><input type="text" id="f-evid" placeholder="Enlace a SharePoint o nombre del soporte"></div>
         <div class="fld wide"><label for="f-nota">Nota (opcional)</label><textarea id="f-nota" placeholder="Supuestos, alcance o por qué cambió frente al periodo anterior"></textarea></div>

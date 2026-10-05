@@ -25,12 +25,15 @@ La priorización parte del cruce de la Matriz de Disponibilidad (17 ago 2026) co
 
 ## Acceso
 
-Los datos requieren código de acceso:
+- **Ver** el tablero, el panorama de línea base, la cola de validación y la bitácora: abierto para todo el equipo, sin código.
+- **Reportar:** un código por área (Implementación, Línea Base, Innovación y PMO, Inclusión, Territoriales, Consumo responsable, Comunicaciones, Administrativa y financiera). Cada código solo puede enviar los datos de su área; el servidor lo verifica.
+- **Validar, observar y fijar metas:** código de validación de Sistemas de Información, que además puede reportar en nombre de cualquier área.
 
-- **Código de equipo:** ver el tablero y reportar.
-- **Código de validación:** además validar, observar y fijar metas.
+Los códigos **no están en este repositorio**. El Worker guarda el secreto `CODIGOS`: un JSON `{"<sha256 del código en MAYÚSCULAS>": "IMP" | ... | "VALIDADOR"}`.
 
-Los códigos **no están en este repositorio**. El Worker solo guarda sus hashes SHA-256 como secretos (`HASH_EQUIPO`, `HASH_VALIDADOR`).
+## Auditoría
+
+La pestaña "Cómo se priorizó" incluye la auditoría del 5 oct 2026: cada dato de entrada contrastado con la matriz (responsable, frecuencia, unidad, fuente), con hallazgos y correcciones.
 
 ## Operación
 
@@ -38,7 +41,9 @@ Los códigos **no están en este repositorio**. El Worker solo guarda sus hashes
 cd worker
 npx wrangler deploy                                   # publicar cambios de la API
 npx wrangler d1 migrations apply vc-tablero --remote  # aplicar migraciones
-npx wrangler secret put HASH_EQUIPO                   # cambiar un código (pegar el SHA-256 del código en MAYÚSCULAS)
+npx wrangler secret put CODIGOS                       # cambiar códigos (pegar el JSON de hashes)
 ```
+
+Si cambia qué área reporta cada dato en `assets/catalogo.js`, hay que regenerar `VAR_AREAS`, `CAT_POR_AREA` y `LINEAS_POR_AREA` en `worker/worker.js` y volver a desplegar.
 
 La versión definitiva debe migrar al ecosistema Microsoft 365 / Power BI de ANDI, según los términos de referencia de la plataforma unificada.

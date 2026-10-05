@@ -40,7 +40,7 @@ function fmtNum(v,u){
 function unitLabel(u,v){if(u==='COP')return v!=null&&Math.abs(v)>=1e9?'millones de pesos':'pesos';if(u==='$ por $1')return 'por cada $1 de VC';if(u==='COP/t')return 'por tonelada';return u;}
 const fecha=iso=>{if(!iso)return '—';const d=new Date(iso.length===10?iso+'T12:00:00':iso);return isNaN(d)?'—':d.toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'});};
 const dias=iso=>Math.round((HOY-new Date(iso.length===10?iso+'T12:00:00':iso))/864e5);
-function desagTxt(r){const a=[];if(r.material)a.push(r.material);if(r.linea)a.push(r.linea);if(r.territorio)a.push(r.territorio);if(r.nivel)a.push(r.nivel);if(r.cat)a.push(r.cat);if(r.metodo)a.push('Método: '+r.metodo);if(r.incluido)a.push('ya incluida en Traza');return a.join(' · ')||'Sin desagregar';}
+function desagTxt(r){const a=[];if(r.material)a.push(r.material);if(r.linea)a.push(r.linea);if(r.programa)a.push(r.programa);if(r.territorio)a.push(r.territorio);if(r.nivel)a.push(r.nivel);if(r.cat)a.push(r.cat);if(r.metodo)a.push('Método: '+r.metodo);if(r.incluido)a.push(r.v==='V03'?'ya incluida en Traza':'ya reportada por otra área');return a.join(' · ')||'Sin desagregar';}
 function estadoDe(r){const v=S.valid[r.id];return v?v.estado:'pendiente';}
 function chipEstado(e){return e==='validado'?'<span class="chip c-ok">Validado</span>':e==='observado'?'<span class="chip c-bad">Observado</span>':e==='reemplazado'?'<span class="chip c-none">Reemplazado</span>':'<span class="chip c-pend">Pendiente</span>';}
 const areaN=q=>PARTES[q]?PARTES[q].n:(q||'');
@@ -50,7 +50,7 @@ function quienReportaK(k){const a=new Set();varsDeK(k).forEach(v=>VARS[v].q.forE
 
 /* ---------------- API ---------------- */
 async function api(path,body){
-  const opt={method:body?'POST':'GET',headers:{'X-Codigo':S.codigo}};
+  const opt={method:body?'POST':'GET',headers:{}};if(S.codigo)opt.headers['X-Codigo']=S.codigo;
   if(body){opt.headers['Content-Type']='application/json';opt.body=JSON.stringify(body);}
   let r;try{r=await fetch(API+path,opt);}catch(e){const er=new Error('No hay conexión con la base de datos. Revisa tu internet e intenta de nuevo.');er.code='red';throw er;}
   let j=null;try{j=await r.json();}catch(e){}
@@ -60,34 +60,41 @@ async function api(path,body){
 function clean(x){if(!x||!VARS[x.v]||typeof x.valor!=='number'||!isFinite(x.valor)||typeof x.anio!=='number')return null;x.corte=x.corte||'';x.ts=x.ts||'';return x;}
 async function cargar(){
   const d=await api('/api/estado');
-  S.rol=d.rol;S.reportes=(d.reportes||[]).map(clean).filter(Boolean);
+  S.reportes=(d.reportes||[]).map(clean).filter(Boolean);
   const v={};Object.keys(d.validaciones||{}).forEach(id=>{const x=d.validaciones[id];if(x.estado==='validado'||x.estado==='observado')v[id]=x;});S.valid=v;
   const m={};Object.keys(d.metas||{}).forEach(id=>{const x=d.metas[id];if(typeof x.valor==='number')m[id]=x;});S.metas=m;
   S.live=true;S.error=null;S.ultimaCarga=new Date();
 }
 async function refrescar(){
-  if(!S.codigo)return;
-  try{await cargar();}catch(e){if(e.status===401){salir('El código guardado ya no es válido. Ingrésalo de nuevo.');return;}S.error=e.message;}
+  try{await cargar();}catch(e){S.error=e.message;}
   renderTodo();
+}
+async function verificarCodigo(){
+  if(!S.codigo){S.rol=null;return;}
+  try{const q=await api('/api/quien');S.rol=q.rol;if(PARTES[S.rol])S.party=S.rol;}
+  catch(e){if(e.status===401){S.codigo='';S.rol=null;ls.del('vc-codigo');S.lockMsg='El código guardado ya no es válido. Ingrésalo de nuevo.';}}
 }
 async function ingresar(code,msgEl){
   const prev=S.codigo;S.codigo=code.trim().toUpperCase();
-  try{await cargar();ls.set('vc-codigo',S.codigo);renderTodo();}
+  try{const q=await api('/api/quien');S.rol=q.rol;if(PARTES[S.rol]){S.party=S.rol;ls.set('vc-party',S.party);}ls.set('vc-codigo',S.codigo);S.lockMsg='';renderTodo();}
   catch(e){S.codigo=prev;msgEl.innerHTML='<div class="msg bad">'+esc(e.status===401?'Ese código no es válido. Revísalo o pídelo a Sistemas de Información.':e.message)+'</div>';}
 }
-function salir(msg){S.codigo='';S.rol=null;S.live=false;S.reportes=[];S.valid={};S.metas={};ls.del('vc-codigo');S.lockMsg=msg||'';renderTodo();}
+function salir(msg){S.codigo='';S.rol=null;ls.del('vc-codigo');S.lockMsg=msg||'';renderTodo();}
+const esValidador=()=>S.rol==='VALIDADOR';
+const rolN=()=>S.rol==='VALIDADOR'?'Validación (Sistemas de Información)':PARTES[S.rol]?PARTES[S.rol].n:'';
 
 /* ---------------- motor de cálculo ---------------- */
 function superseded(){return new Set(S.reportes.filter(r=>r.corrige).map(r=>r.corrige));}
 function efectivos(){const sup=superseded();return S.reportes.filter(r=>!sup.has(r.id)).map(r=>Object.assign({},r,{estado:estadoDe(r)})).filter(r=>r.estado!=='observado'&&(S.incluirPend||r.estado==='validado'));}
-function keyOf(r){return [r.material||'',r.linea||'',r.territorio||'',r.cat||'',r.nivel||'',r.metodo||''].join('|');}
-function varsDeK(k){const c=K[k].calc;if(c.t==='k01')return['V01','V02'];if(c.t==='var')return[c.v];if(c.t==='ratio')return[c.num,c.den];if(c.t==='red')return[c.a,c.b];if(c.t==='multi')return c.vs.concat([c.extra]);return[];}
+const KEY_VACIA='||||||';
+function keyOf(r){return [r.material||'',r.linea||'',r.programa||'',r.territorio||'',r.cat||'',r.nivel||'',r.metodo||''].join('|');}
+function varsDeK(k){const c=K[k].calc;if(c.t==='k01')return['V01','V02'];if(c.t==='k02')return['V01','V03'];if(c.t==='var')return[c.v];if(c.t==='ratio')return[c.num,c.den];if(c.t==='red'||c.t==='par')return[c.a,c.b];if(c.t==='multi')return c.vs.concat([c.extra]);return[];}
 function valVar(v,y,recs){
   const def=VARS[v];const rs=recs.filter(r=>r.v===v&&r.anio===y);if(!rs.length)return null;
   const by={};for(const r of rs){const k=keyOf(r),c=by[k];if(!c||r.corte>c.corte||(r.corte===c.corte&&r.ts>c.ts))by[k]=r;}
   let list=Object.values(by);
   if(def.agg==='last')list=[list.slice().sort((a,b)=>(b.corte+b.ts).localeCompare(a.corte+a.ts))[0]];
-  else{const spc=list.filter(r=>keyOf(r)!=='|||||');if(spc.length)list=spc;}
+  else{const spc=list.filter(r=>keyOf(r)!==KEY_VACIA);if(spc.length)list=spc;}
   if(def.ds.indexOf('material')>=0){const np=list.filter(r=>r.material&&r.material!=='Plástico'&&r.material!=='No plástico (agregado)');if(np.length)list=list.filter(r=>r.material!=='No plástico (agregado)');}
   const cuenta=list.filter(r=>!r.incluido),atr=list.filter(r=>r.incluido);
   let total=null;if(cuenta.length){const s=cuenta.reduce((a,r)=>a+r.valor,0);total=def.agg==='prom'?s/cuenta.length:s;}
@@ -97,6 +104,12 @@ const grupo=m=>m==='Plástico'?'Plástico':'No plástico';
 function calcK(k,y,recs){
   const c=K[k].calc;let out=null;
   if(c.t==='var'){const a=valVar(c.v,y,recs);if(!a)return null;out={valor:a.total,parts:[a],atrib:a.atrib,natrib:a.natrib};}
+  else if(c.t==='k02'){const t=valVar('V01',y,recs),f=valVar('V03',y,recs);if(!t&&!f)return null;
+    const vt=t&&t.total!=null?t.total:null,vf=f&&f.total!=null?f.total:null;
+    out={valor:(vt==null&&vf==null)?null:(vt||0)+(vf||0),traza:vt,fuera:vf,parts:[t,f].filter(Boolean),atrib:f?f.atrib:0,natrib:f?f.natrib:0};}
+  else if(c.t==='par'){const a=valVar(c.a,y,recs),b=valVar(c.b,y,recs);if(!a&&!b)return null;
+    let sa=0,sb=0,np=0;if(a&&b){const mb={};b.cuenta.forEach(r=>{mb[keyOf(r)]=r;});a.cuenta.forEach(r=>{const x=mb[keyOf(r)];if(x){sa+=r.valor;sb+=x.valor;np++;}});}
+    out={valor:np&&sa?(c.modo==='crec'?(sb-sa)/sa*100:(sa-sb)/sa*100):null,parts:[a,b].filter(Boolean),pares:np,falta:!a?c.a:!b?c.b:(!np?'pareja':null)};}
   else if(c.t==='ratio'){const n=valVar(c.num,y,recs),d=valVar(c.den,y,recs);if(!n&&!d)return null;out={valor:(n&&d&&n.total!=null&&d.total)?n.total/d.total*c.m:null,parts:[n,d].filter(Boolean),falta:!n?c.num:!d?c.den:null};}
   else if(c.t==='red'){const a=valVar(c.a,y,recs),b=valVar(c.b,y,recs);if(!a&&!b)return null;out={valor:(a&&b&&a.total)?(a.total-b.total)/a.total*100:null,parts:[a,b].filter(Boolean),falta:!a?c.a:!b?c.b:null};}
   else if(c.t==='multi'){const ps=c.vs.map(v=>valVar(v,y,recs));const ex=valVar(c.extra,y,recs);if(ps.every(p=>!p)&&!ex)return null;
@@ -160,30 +173,32 @@ function barrasK01(res,y){
 
 /* ---------------- acceso ---------------- */
 function lockHTML(which){
-  const need=which==='validar'?'el código de validación de Sistemas de Información':'el código del equipo';
-  return '<div class="lock"><h2>Ingresa '+esc(need)+'</h2><p class="small muted" style="margin:0">'+(which==='validar'?'Validar y fijar metas está reservado a Sistemas de Información.':'Los datos del programa son de uso interno. Pide el código a Sistemas de Información o al equipo consultor.')+'</p>'+
+  const val=which==='validar';
+  const t=val?'¿Eres de Sistemas de Información? Ingresa el código de validación':'Ingresa el código de tu área para reportar';
+  const p=val?'La cola y la bitácora están abiertas para todo el equipo. Validar, observar y fijar metas requiere el código de validación.':'El tablero está abierto para todo el equipo. Para reportar, cada área tiene su propio código y solo ve y envía sus datos. Pídelo a Sistemas de Información.';
+  return '<div class="lock"><h2>'+esc(t)+'</h2><p class="small muted" style="margin:0">'+esc(p)+'</p>'+
     (S.lockMsg?'<div class="msg warn">'+esc(S.lockMsg)+'</div>':'')+
-    '<form class="row" data-login><input type="password" autocomplete="off" placeholder="VC-XXXXXX-XXXX-XXXX" aria-label="Código de acceso" required><button class="btn primary" type="submit">Entrar</button></form><div data-login-msg></div></div>';
+    '<form class="row" data-login><input type="password" autocomplete="off" placeholder="VC-XXX-XXXX-XXXX" aria-label="Código de acceso" required><button class="btn primary" type="submit">Entrar</button></form><div data-login-msg></div></div>';
 }
 function renderAcceso(){
   const ok=!!S.rol;
   $$('[data-needs="codigo"]').forEach(el=>{el.hidden=!ok;});
-  $$('.lock-slot').forEach(el=>{const w=el.dataset.lock;const show=!ok||(w==='validar'&&S.rol!=='validador'&&false);el.hidden=!show;if(show)el.innerHTML=lockHTML(w);});
-  const vn=$('#val-note');vn.hidden=!(ok&&S.rol!=='validador');
-  if(ok&&S.rol!=='validador')vn.innerHTML='Entraste con el código de equipo: puedes ver la bitácora. Para validar y fijar metas, <a href="#" data-cambiar>entra con el código de validación</a>.';
-  $('#acc').innerHTML=ok?'<span class="dot'+(S.error?'':' live')+'"></span><span>'+(S.rol==='validador'?'Validación':'Equipo')+(S.nombre?' · '+esc(S.nombre):'')+'</span><button class="btn small" type="button" data-salir>Salir</button>':'<button class="btn small primary" type="button" data-go="reportar">Ingresar</button>';
+  $$('.lock-slot').forEach(el=>{const w=el.dataset.lock;const show=w==='validar'?!esValidador():!ok;el.hidden=!show;if(show)el.innerHTML=lockHTML(w);});
+  $('#val-note').hidden=true;
+  $('#acc').innerHTML=ok?'<span class="dot'+(S.error?'':' live')+'"></span><span>'+esc(rolN())+(S.nombre?' · '+esc(S.nombre):'')+'</span><button class="btn small" type="button" data-salir>Salir</button>':'<span class="small muted">Tablero abierto</span><button class="btn small primary" type="button" data-go="reportar">Ingresar para reportar</button>';
 }
 
 /* ---------------- INICIO ---------------- */
 function renderInicio(){
-  const fun=[[180,'registros en la Matriz de Disponibilidad','var(--ink-3)'],[46,'marcados como trazadores','var(--sky)'],[19,'indicadores en el catálogo (12 titulares + 7 complementarios)','var(--green)'],[12,'indicadores en el tablero de Junta','var(--brand)']];
+  const fun=[[180,'registros en la Matriz de Disponibilidad','var(--ink-3)'],[46,'marcados como trazadores','var(--sky)'],[TITULARES.length+COMPLEMENTARIOS.length,'indicadores en el catálogo ('+TITULARES.length+' titulares + '+COMPLEMENTARIOS.length+' complementarios)','var(--green)'],[12,'indicadores en el tablero de Junta','var(--brand)']];
   $('#funnel').innerHTML=fun.map(f=>'<div class="frow"><div class="lab"><span>'+esc(f[1])+'</span><b>'+f[0]+'</b></div><div class="track"><div class="fill" style="width:'+Math.max(4,f[0]/180*100).toFixed(1)+'%;background:'+f[2]+'"></div></div></div>').join('');
   $('#prior-list').innerHTML=TEMAS.map(t=>'<div class="theme"><div class="theme-h"><h3>'+esc(t.n)+'</h3><span>'+esc(t.d)+'</span></div>'+t.ks.map(k=>{const d=K[k];
     const chip=d.brecha?'<span class="chip c-warn">En brecha</span>':d.rol==='Ancla REP'?'<span class="chip c-acc">Ancla REP</span>':d.rol==='Titular propuesto'?'<span class="chip c-green">Propuesto</span>':'';
     return '<button class="kitem" type="button" data-k="'+k+'"><span class="num">'+numK(k)+'</span><span><span class="nm">'+esc(d.n)+'</span><span class="qq" style="display:block">'+esc(d.q)+'</span><span class="who" style="display:block">Lo reporta: '+esc(quienReportaK(k).join(' · '))+'</span></span><span class="side"><span class="re-tag">'+esc(d.re==='ANCLA'?'Ancla':d.re)+'</span>'+chip+'</span></button>';}).join('')+'</div>').join('');
+  $('#comp-h').textContent='Y '+COMPLEMENTARIOS.length+' complementarios';
   $('#comp-list').innerHTML=COMPLEMENTARIOS.map(k=>'<button type="button" data-k="'+k+'">'+esc(K[k].n)+'</button>').join('');
   $('#areas').innerHTML=Object.keys(PARTES).map(p=>{const vs=Object.keys(VARS).filter(v=>VARS[v].q.indexOf(p)>=0);
-    return '<div class="area"><h3>'+esc(PARTES[p].n)+'</h3><p>'+esc(PARTES[p].d)+'</p><ul>'+vs.map(v=>'<li>'+esc(VARS[v].n)+' <span class="muted small">('+VARS[v].fr.toLowerCase()+')</span></li>').join('')+'</ul><button class="btn small" type="button" data-area="'+p+'">Reportar como esta área</button></div>';}).join('');
+    return '<div class="area"><h3>'+esc(PARTES[p].n)+'</h3><p>'+esc(PARTES[p].d)+'</p><ul>'+vs.map(v=>'<li>'+esc(VARS[v].n)+' <span class="muted small">('+VARS[v].fr.toLowerCase()+')</span></li>').join('')+'</ul><button class="btn small" type="button" data-area="'+p+'">Reportar como esta área</button><span class="small muted">Requiere el código del área.</span></div>';}).join('');
 }
 
 /* ---------------- TABLERO ---------------- */
@@ -201,18 +216,19 @@ function cardHTML(k,recs,y){
       if((r.corte||'').slice(5)>='12-31'){const dv=(r.valor-prev.valor)/Math.abs(prev.valor)*100;cmp=(dv>=0?'▲ ':'▼ ')+nf(Math.abs(dv),0)+' % frente a '+(y-1);}
       else cmp='Corte '+fecha(r.corte)+' · '+(y-1)+' completo: '+fmt(prev.valor,d.u);}
     const meta=metaDe(k,y);if(meta!=null&&k!=='K01')cmp+=(cmp?' · ':'')+'meta '+fmt(meta,d.u);
-    if(r.atrib)cmp+=(cmp?' · ':'')+nf(r.atrib,0)+' '+d.u+' atribuidas a líneas';
+    if(k==='K02'&&r.fuera)cmp+=(cmp?' · ':'')+nf(r.traza||0,0)+' t de Traza + '+nf(r.fuera,0)+' t fuera de Traza';
+    if(r.atrib)cmp+=(cmp?' · ':'')+nf(r.atrib,0)+' '+d.u+' identificadas por línea';
+    if(r.pares)cmp+=(cmp?' · ':'')+r.pares+' programa(s) con dato de inicio y actual';
     if(k==='K05'&&r.extra!=null)cmp+=(cmp?' · ':'')+nf(r.extra,0)+' municipios';
     if(r.incompleto)cmp+=(cmp?' · ':'')+'falta parte de la red en '+y;}
   else if(u){num='—';cmp='Último dato: '+fmt(u.r.valor,d.u)+' ('+u.y+')';}
-  else{num='—';cmp=r&&r.falta?'Falta: '+VARS[r.falta].n.toLowerCase():r&&r.atrib?nf(r.atrib,0)+' '+d.u+' reportadas solo como atribución':'Nadie ha reportado este dato todavía';}
+  else{num='—';cmp=r&&r.falta==='pareja'?'Faltan datos de inicio y actual del mismo programa':r&&r.falta?'Falta: '+VARS[r.falta].n.toLowerCase():r&&r.atrib?nf(r.atrib,0)+' '+d.u+' reportadas solo como atribución':'Nadie ha reportado este dato todavía';}
   return '<button class="card" type="button" data-k="'+k+'"><div class="top"><span class="re-tag">'+numK(k)+' · '+esc(d.re==='ANCLA'?'Ancla':d.re)+'</span>'+statusChip(k,r,y,u)+'</div>'+
     '<div><h3>'+esc(d.n)+'</h3><div class="q">'+esc(d.q)+'</div></div>'+
     '<div><div class="big">'+esc(num)+(num!=='—'?'<span class="u">'+esc(unitLabel(d.u,r&&r.valor))+'</span>':'')+'</div><div class="cmp">'+esc(cmp)+'</div></div>'+
     '<div class="foot"><div class="base">Punto de partida: <b>'+esc(d.baseRef||'—')+'</b></div>'+sparkline(serie(k,recs),d.u)+'</div></button>';
 }
 function renderTablero(){
-  if(!S.rol)return;
   const recs=efectivos(),y=S.year;
   $('#status-line').innerHTML='<span class="dot'+(S.error?'':' live')+'"></span><span>'+esc(S.error?S.error:'Datos en vivo · '+S.reportes.length+' reportes · actualizado '+(S.ultimaCarga?S.ultimaCarga.toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'}):''))+'</span> <button class="btn small" type="button" data-refrescar>Actualizar</button>';
   $('#ctx').innerHTML=CONTEXTO.map(k=>{const d=K[k];let r=calcK(k,y,recs),yy=y;if(!r||r.valor==null){const u=ultimo(k,recs,y);if(u){r=u.r;yy=u.y;}}
@@ -226,11 +242,34 @@ function renderTablero(){
     '<p class="small muted" style="margin:12px 0 0">La norma se evalúa grupo por grupo: basta que uno quede bajo la meta para incumplir.'+(r1&&r1.total!=null?' Ambos grupos juntos: '+nf(r1.total,0)+' %.':'')+'</p>'+
     '<button class="btn small" type="button" data-k="K01" style="margin-top:12px">Ver fórmula y datos</button></div>'+
     '<div>'+(r1?barrasK01(r1,y1):'<p class="muted small">Cuando Implementación reporte toneladas certificadas y Línea Base la meta del año, aquí aparece el avance por grupo de material.</p>')+'</div>';
+  renderLB(recs,y);
   $('#themes').innerHTML=TEMAS.map(t=>{const ks=t.ks.filter(k=>k!=='K01');if(!ks.length)return '';return '<div class="tsec"><div class="sec-head"><div><h2>'+esc(t.n)+'</h2><p class="small muted" style="margin:2px 0 0">'+esc(t.d)+'</p></div></div><div class="cards">'+ks.map(k=>cardHTML(k,recs,y)).join('')+'</div></div>';}).join('');
   $('#comp-body').innerHTML=COMPLEMENTARIOS.map(k=>{const d=K[k];const r=calcK(k,y,recs);const u=(!r||r.valor==null)?ultimo(k,recs,y):null;
     const val=r&&r.valor!=null?fmt(r.valor,d.u):u?fmt(u.r.valor,d.u):'—';const yy=r&&r.valor!=null?y:u?u.y:'—';
     return '<tr class="click" data-k="'+k+'"><td><b>'+esc(d.n)+'</b></td><td class="small">'+esc(RES[d.re])+'</td><td class="num">'+esc(val)+'</td><td>'+yy+'</td><td>'+statusChip(k,r,y,u)+'</td><td class="small">'+esc(d.baseRef||'—')+'</td></tr>';}).join('');
   renderSalud(recs);
+}
+
+/* Panorama de línea base y metas: por material, para el año elegido (o el último con datos) */
+function renderLB(recs,y){
+  const vs=['V05','V02','V01','V04'];let yy=y;
+  const tiene=yr=>vs.some(v=>recs.some(r=>r.v===v&&r.anio===yr));
+  if(!tiene(y)){for(let i=ANIOS.indexOf(y)-1;i>=0;i--){if(tiene(ANIOS[i])){yy=ANIOS[i];break;}}}
+  const el=$('#lb-panel');if(!el)return;
+  if(!tiene(yy)){el.innerHTML='<div class="sec-head"><div><h2>Panorama de línea base y metas</h2><p class="small muted" style="margin:2px 0 0">Toneladas puestas en el mercado, meta del año y toneladas aprovechadas, por material.</p></div></div><p class="muted small">Aún no hay datos de línea base. Los reporta Gestión de Línea Base (puestas en el mercado, meta y BAU) e Implementación (toneladas certificadas).</p>';return;}
+  const by={};const add=(v,r)=>{const m=r.material||'Sin material';by[m]=by[m]||{};by[m][v]=(by[m][v]||0)+r.valor;by[m]['p'+v]=by[m]['p'+v]||r.estado!=='validado';};
+  vs.forEach(v=>{const a=valVar(v,yy,recs);if(a)a.cuenta.forEach(r=>add(v,r));});
+  const orden=C.MATERIALES.concat(['Sin material']).filter(m=>by[m]);
+  const tot={};vs.forEach(v=>{tot[v]=orden.some(m=>by[m][v]!=null)?orden.reduce((s,m)=>s+(by[m][v]||0),0):null;});
+  const cel=(x,v)=>x[v]==null?'<td class="num muted">—</td>':'<td class="num">'+nf(x[v],0)+(x['p'+v]?' <span class="chip c-pend" title="Pendiente de validar">P</span>':'')+'</td>';
+  const pct=x=>x.V01!=null&&x.V02?'<td class="num"><b>'+nf(x.V01/x.V02*100,0)+' %</b></td>':'<td class="num muted">—</td>';
+  const tasa=x=>x.V01!=null&&x.V05?'<td class="num">'+nf(x.V01/x.V05*100,1)+' %</td>':'<td class="num muted">—</td>';
+  const red=x=>x.V04&&x.V05!=null?'<td class="num">'+nf((x.V04-x.V05)/x.V04*100,1)+' %</td>':'<td class="num muted">—</td>';
+  const fila=(n,x,b)=>'<tr'+(b?' style="font-weight:700"':'')+'><td>'+esc(n)+'</td>'+cel(x,'V05')+cel(x,'V02')+cel(x,'V01')+pct(x)+tasa(x)+cel(x,'V04')+red(x)+'</tr>';
+  el.innerHTML='<div class="sec-head" style="margin-bottom:10px"><div><h2>Panorama de línea base y metas</h2><p class="small muted" style="margin:2px 0 0">'+(yy!==y?'Sin datos de '+y+'; se muestra '+yy+'. ':'')+'Toneladas por material. "P" = pendiente de validar.</p></div></div>'+
+    '<div class="tw"><table><thead><tr><th>Material</th><th class="num">Puestas en el mercado (t)</th><th class="num">Meta del año (t)</th><th class="num">Aprovechadas certificadas (t)</th><th class="num">Cumplimiento de la meta</th><th class="num">Aprovechado / puesto en el mercado</th><th class="num">Escenario BAU (t)</th><th class="num">Reducción frente al BAU</th></tr></thead><tbody>'+
+    orden.map(m=>fila(m,by[m])).join('')+(orden.length>1?fila('Total',tot,true):'')+'</tbody></table></div>'+
+    '<p class="small muted" style="margin:8px 0 0">Responsables: Gestión de Línea Base (puestas en el mercado, meta, BAU) e Implementación (certificadas). La línea base puede tener un cierre de hasta dos años: revisa en la nota si la cifra es provisional.</p>';
 }
 function renderSalud(recs){
   const y=S.year,all=S.reportes,sup=superseded();
@@ -249,7 +288,7 @@ function fichaDL(k){const d=K[k];const rows=[['Pregunta',d.q],['Fórmula',d.f],[
 function abrirDetalle(k){
   const d=K[k];$('#dlg-title-wrap').innerHTML='<span class="re-tag">'+(numK(k)>0?'Indicador '+numK(k)+' · ':'')+esc(d.rol)+' · '+esc(d.re==='CTX'?'Contexto':d.re+' '+RES[d.re])+'</span><h2 id="dlg-title" style="margin-top:2px">'+esc(d.n)+'</h2><p class="small muted" style="margin:2px 0 0">'+esc(d.q)+'</p>';
   let h='';
-  if(S.rol){const recs=efectivos();let y=S.year,r=calcK(k,y,recs);const pts=serie(k,recs);
+  {const recs=efectivos();let y=S.year,r=calcK(k,y,recs);const pts=serie(k,recs);
     if(!r||r.valor==null){const u=ultimo(k,recs,y);if(u){h+='<div class="msg info">No hay dato para '+y+'. Se muestra '+u.y+', el último año con dato.</div>';y=u.y;r=u.r;}}
     const prev=calcK(k,y-1,recs),meta=metaDe(k,y);
     h+='<div class="kpis"><div><b>'+esc(r&&r.valor!=null?fmt(r.valor,d.u):'—')+'</b><span>Valor '+y+(r&&r.pend?' · incluye pendientes':'')+'</span></div><div><b>'+esc(prev&&prev.valor!=null?fmt(prev.valor,d.u):'—')+'</b><span>Valor '+(y-1)+'</span></div><div><b>'+esc(meta!=null?fmt(meta,d.u):'Por definir')+'</b><span>Meta '+y+'</span></div><div><b>'+esc(d.baseRef||'—')+'</b><span>Punto de partida</span></div></div>';
@@ -260,7 +299,7 @@ function abrirDetalle(k){
     const vs=varsDeK(k),sup=superseded();const orig=S.reportes.filter(x=>vs.indexOf(x.v)>=0&&x.anio===y).sort((a,b)=>b.ts.localeCompare(a.ts));
     h+='<div><h3 style="margin-bottom:8px">Reportes de origen ('+y+')</h3>'+(orig.length?'<div class="tw"><table><thead><tr><th>Dato</th><th>Corte</th><th class="num">Valor</th><th>Detalle</th><th>Fuente y evidencia</th><th>Quién</th><th>Estado</th></tr></thead><tbody>'+
       orig.map(x=>'<tr><td class="small">'+esc(VARS[x.v].n)+'</td><td>'+fecha(x.corte)+'</td><td class="num">'+esc(fmt(x.valor,VARS[x.v].u))+'</td><td class="small">'+esc(desagTxt(x))+'</td><td class="small">'+esc(x.fuente||'')+(x.evidencia?'<br><span class="muted">'+esc(x.evidencia)+'</span>':'')+(x.nota?'<br><span class="muted">'+esc(x.nota)+'</span>':'')+'</td><td class="small">'+esc(x.por||'')+'<br><span class="muted">'+esc(areaN(x.quien))+'</span></td><td>'+chipEstado(sup.has(x.id)?'reemplazado':estadoDe(x))+'</td></tr>').join('')+'</tbody></table></div>':'<p class="small muted">No hay reportes para '+y+'.</p>')+'</div>';
-  } else h+='<div class="msg info">Para ver las cifras vivas, ingresa con el código del equipo. La ficha está abajo.</div>';
+  }
   if(d.base&&d.base.length)h+='<div><h3 style="margin-bottom:8px">Cifras de partida</h3><div class="tw"><table><tbody>'+d.base.map(b=>'<tr><td>'+esc(b[0])+'</td><td class="num">'+esc(b[1])+'</td></tr>').join('')+'</tbody></table></div><p class="small muted" style="margin:6px 0 0">'+esc(d.baseFu)+(d.junta?' '+esc(d.junta):'')+'</p></div>';
   h+='<div><h3 style="margin-bottom:8px">Ficha</h3><div class="tw">'+fichaDL(k)+'</div></div>';
   $('#dlg-body').innerHTML=h;abrir('#dlg');
@@ -274,7 +313,7 @@ function initReportar(){
   $('#parties').innerHTML=Object.keys(PARTES).map(p=>'<button type="button" class="party" data-p="'+p+'" aria-pressed="'+(S.party===p)+'">'+esc(PARTES[p].n)+'</button>').join('');
   const yrs=ANIOS.slice().reverse().map(a=>'<option'+(a===S.rYear?' selected':'')+'>'+a+'</option>').join('');
   $('#r-anio').innerHTML=yrs;$('#f-anio').innerHTML=yrs;$('#sel-anio').innerHTML=ANIOS.slice().reverse().map(a=>'<option'+(a===S.year?' selected':'')+'>'+a+'</option>').join('');
-  $('#f-material').innerHTML=opts(C.MATERIALES);$('#f-linea').innerHTML=opts(C.LINEAS);$('#f-nivel').innerHTML='<option value="">Sin especificar</option>'+opts(C.NIVELES);
+  $('#f-material').innerHTML=opts(C.MATERIALES);$('#f-nivel').innerHTML='<option value="">Sin especificar</option>'+opts(C.NIVELES);
   $('#dl-terr').innerHTML=C.TERR.map(t=>'<option value="'+esc(t)+'">').join('');
   $('#f-nombre').value=S.nombre;
 }
@@ -285,57 +324,85 @@ function estadoDato(v,area,y){
   return {st:dias(last.corte)<=FREQ_DIAS[VARS[v].fr]?'ok':'vencido',last,n:rs.length};
 }
 function renderReportar(){
+  /* Un código de área fija el área. Solo el código de validación puede elegir otra. */
+  if(S.rol&&PARTES[S.rol])S.party=S.rol;
+  $('#party-pick').hidden=!esValidador();
+  $('#party-fixed').hidden=!(S.rol&&PARTES[S.rol]);
+  if(S.rol&&PARTES[S.rol])$('#party-fixed').innerHTML='Reportas como <b>'+esc(PARTES[S.rol].n)+'</b>. Tu código solo permite enviar los datos de esta área.';
   $$('.party').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.p===S.party)));
-  $('#ws2').classList.toggle('off',!S.party);
-  if(!S.party){$('#ws2-title').textContent='Lo que te toca reportar';$('#ws2-sub').textContent='Elige tu área arriba para ver tu lista.';$('#todo-body').innerHTML='<tr><td colspan="5" class="empty">Elige tu área para ver los datos que te corresponden.</td></tr>';}
-  else{const y=S.rYear;const vs=Object.keys(VARS).filter(v=>VARS[v].q.indexOf(S.party)>=0);
-    $('#ws2-title').textContent='Lo que le toca reportar a '+PARTES[S.party].n;$('#ws2-sub').textContent=vs.length+' datos. Toca "Reportar" en cada uno; cada dato alimenta uno o varios indicadores.';
-    $('#todo-body').innerHTML=vs.map(v=>{const e=estadoDato(v,S.party,y);const ks=C.TITULARES.concat(C.COMPLEMENTARIOS,C.CONTEXTO).filter(k=>varsDeK(k).indexOf(v)>=0);
+  const area=S.rol?S.party:null;
+  $('#ws2').classList.toggle('off',!area);
+  if(!area){$('#ws2-title').textContent='Lo que te toca reportar';$('#ws2-sub').textContent=esValidador()?'Elige el área en nombre de la cual vas a reportar.':'Ingresa el código de tu área para ver tu lista.';$('#todo-body').innerHTML='<tr><td colspan="5" class="empty">Aquí aparece la lista de datos de tu área.</td></tr>';}
+  else{const y=S.rYear;const vs=Object.keys(VARS).filter(v=>VARS[v].q.indexOf(area)>=0);
+    $('#ws2-title').textContent='Lo que le toca reportar a '+PARTES[area].n;$('#ws2-sub').textContent=vs.length+' datos. Toca "Reportar" en cada uno; cada dato alimenta uno o varios indicadores.';
+    $('#todo-body').innerHTML=vs.map(v=>{const e=estadoDato(v,area,y);const ks=C.TITULARES.concat(C.COMPLEMENTARIOS,C.CONTEXTO).filter(k=>varsDeK(k).indexOf(v)>=0);
       const st=e.st==='falta'?'<span class="chip c-warn">Sin reporte '+y+'</span>':e.st==='vencido'?'<span class="chip c-warn">Toca actualizar</span>':'<span class="chip c-ok">Al día</span>';
-      return '<tr><td><b>'+esc(VARS[v].n)+'</b><br><span class="small muted">Alimenta: '+esc(ks.map(k=>K[k].n).join(' · '))+'</span></td><td class="small">'+VARS[v].fr+'</td><td class="small">'+(e.last?esc(fmt(e.last.valor,VARS[v].u))+'<br><span class="muted">corte '+fecha(e.last.corte)+(e.n>1?' · '+e.n+' reportes':'')+'</span>':'—')+'</td><td>'+st+(e.last?' '+chipEstado(estadoDe(e.last)):'')+'</td><td><button class="btn small primary" type="button" data-rep="'+v+'">Reportar</button></td></tr>';}).join('');}
+      return '<tr><td><b>'+esc(VARS[v].n)+'</b> <span class="small muted">('+esc(VARS[v].u)+')</span><br><span class="small muted">Alimenta: '+esc(ks.map(k=>K[k].n).join(' · '))+'</span></td><td class="small">'+VARS[v].fr+'</td><td class="small">'+(e.last?esc(fmt(e.last.valor,VARS[v].u))+'<br><span class="muted">corte '+fecha(e.last.corte)+(e.n>1?' · '+e.n+' reportes':'')+'</span>':'—')+'</td><td>'+st+(e.last?' '+chipEstado(estadoDe(e.last)):'')+'</td><td><button class="btn small primary" type="button" data-rep="'+v+'">Reportar</button></td></tr>';}).join('');}
   const mine=S.reportes.filter(r=>S.nombre&&r.por===S.nombre).sort((a,b)=>b.ts.localeCompare(a.ts)).slice(0,15);const sup=superseded();
   $('#mine-body').innerHTML=mine.length?mine.map(r=>'<tr><td>'+fecha(r.ts)+'</td><td>'+esc(VARS[r.v].n)+'</td><td>'+r.anio+' · '+fecha(r.corte)+'</td><td class="num">'+esc(fmt(r.valor,VARS[r.v].u))+'</td><td class="small">'+esc(desagTxt(r))+'</td><td>'+chipEstado(sup.has(r.id)?'reemplazado':estadoDe(r))+(S.valid[r.id]&&S.valid[r.id].comentario?'<br><span class="small muted">'+esc(S.valid[r.id].comentario)+'</span>':'')+'</td></tr>').join(''):'<tr><td colspan="6" class="empty">'+(S.nombre?'Aún no has enviado reportes con el nombre "'+esc(S.nombre)+'".':'Escribe tu nombre arriba para ver tus reportes.')+'</td></tr>';
 }
 function abrirReporte(v){
-  const def=VARS[v];if(!def)return;
+  const def=VARS[v];if(!def||!S.rol||!S.party)return;
   if(!S.nombre){$('#f-nombre').focus();$('#f-nombre').setAttribute('placeholder','Escribe tu nombre antes de reportar');return;}
-  S.repVar=v;$('#rep-code').textContent=PARTES[S.party].n;$('#rep-title').textContent=def.n;
+  const P=PARTES[S.party];
+  S.repVar=v;$('#rep-code').textContent=P.n;$('#rep-title').textContent=def.n;
   const ks=C.TITULARES.concat(C.COMPLEMENTARIOS,C.CONTEXTO).filter(k=>varsDeK(k).indexOf(v)>=0);
   $('#rep-explain').innerHTML='<div><b>Qué es:</b> '+esc(def.def)+'</div><div><b>Ejemplo:</b> '+esc(def.ej)+'</div><div class="small muted">Unidad: '+esc(def.u)+' · Frecuencia: '+esc(def.fr.toLowerCase())+' · Alimenta: '+esc(ks.map(k=>K[k].n).join(', '))+'</div>';
-  ['material','linea','territorio','nivel','cat','metodo','incluido'].forEach(f=>{$('#w-'+f).hidden=def.ds.indexOf(f)<0;});
-  if(def.cat)$('#f-cat').innerHTML='<option value="">Sin desagregar</option>'+opts(def.cat);
+  ['material','linea','programa','territorio','nivel','cat','metodo','incluido'].forEach(f=>{$('#w-'+f).hidden=def.ds.indexOf(f)<0;});
+  /* línea: solo las de tu área; si hay una sola, se asigna sola */
+  const lineas=P.lineas||[];$('#f-linea').innerHTML=opts(lineas);$('#f-linea').disabled=lineas.length<2;
+  $('#f-linea-hint').textContent=lineas.length<2?'Se asigna sola según tu área.':'Elige a qué línea se atribuye la cifra.';
+  /* programa: solo los de tu área */
+  const progs=P.programas||[];if(def.ds.indexOf('programa')>=0&&!progs.length)$('#w-programa').hidden=true;
+  $('#f-programa').innerHTML=(def.req==='programa'?'':'<option value="">Sin programa específico</option>')+opts(progs);
+  /* categoría: la de tu área si el dato la restringe */
+  const cats=def.catPor?(def.catPor[S.party]||[]):(def.cat||[]);
+  $('#f-cat').innerHTML=(def.catPor||def.req==='cat'?'':'<option value="">Sin desagregar</option>')+opts(cats);
+  $('#f-cat-lab').textContent=v==='V23'?'Canal':v==='V10'?'Tipo de solución':v==='V18'?'Género':v==='V26'?'Tipo de gasto':'Desagregación';
+  $('#f-incluido-txt').textContent=def.inclLabel||'Esta cifra ya fue reportada por otra fuente. Se mostrará sin sumarse dos veces.';
+  /* unidad: toneladas con opción de escribir en kg */
+  $('#f-u-sel').hidden=!def.kg;$('#f-u-sel').innerHTML=def.kg?'<option value="1">'+esc(def.u)+'</option><option value="0.001">'+(def.u==='t/año'?'kg/año':'kg')+' (se convierte a '+esc(def.u)+')</option>':'';
+  $('#f-unit').textContent=def.kg?'':def.u;
   $('#f-anio').value=String(S.rYear);$('#f-corte').value=S.rYear<ANIO_ACT?S.rYear+'-12-31':HOY_ISO;$('#f-corte').max=HOY_ISO;
-  $('#f-valor').value='';$('#f-unit').textContent=def.u;$('#f-fuente').value=def.fu;$('#f-evid').value='';$('#f-nota').value='';$('#f-territorio').value='';$('#f-metodo').value='';$('#f-incluido').checked=false;
-  if(S.party==='IMP'&&v==='V03')$('#f-linea').value='Consolidado del colectivo (Traza)';
+  $('#f-valor').value='';$('#f-fuente').value=def.fu;$('#f-evid').value='';$('#f-nota').value='';$('#f-territorio').value='';$('#f-metodo').value='';$('#f-incluido').checked=false;
   fillCorrige();$('#rep-msg').innerHTML='';$('#btn-send').disabled=false;$('#btn-send').textContent='Enviar reporte';
   abrir('#dlg-rep');setTimeout(()=>{try{$('#f-valor').focus();}catch(e){}},50);
 }
 function fillCorrige(){
   const v=S.repVar,a=+$('#f-anio').value,sup=superseded();
-  const prev=S.reportes.filter(r=>r.v===v&&r.anio===a&&!sup.has(r.id)).sort((x,y)=>y.ts.localeCompare(x.ts));
+  const prev=S.reportes.filter(r=>r.v===v&&r.anio===a&&r.quien===S.party&&!sup.has(r.id)).sort((x,y)=>y.ts.localeCompare(x.ts));
   $('#f-corrige').innerHTML='<option value="">No, es un reporte nuevo</option>'+prev.map(r=>'<option value="'+esc(r.id)+'">'+esc(fecha(r.corte)+' · '+fmt(r.valor,VARS[r.v].u)+' · '+desagTxt(r)+' · '+(r.por||'')+' · '+estadoDe(r))+'</option>').join('');
 }
 async function enviar(e){
   e.preventDefault();const msg=$('#rep-msg'),v=S.repVar,def=VARS[v];
-  const valor=parseFloat(String($('#f-valor').value).replace(',','.')),anio=+$('#f-anio').value,corte=$('#f-corte').value,fuente=$('#f-fuente').value.trim();
+  const factor=def.kg?parseFloat($('#f-u-sel').value||'1'):1;
+  const bruto=parseFloat(String($('#f-valor').value).replace(',','.'));const valor=isFinite(bruto)?Math.round(bruto*factor*1e6)/1e6:NaN;
+  const anio=+$('#f-anio').value,corte=$('#f-corte').value,fuente=$('#f-fuente').value.trim();
   const errs=[];
   if(!isFinite(valor))errs.push('Escribe el valor como número, sin puntos de miles.');else if(valor<0&&!def.neg)errs.push('Este dato no puede ser negativo.');
   if(!corte)errs.push('Indica la fecha de corte.');else if(corte>HOY_ISO)errs.push('La fecha de corte no puede ser futura.');else if(+corte.slice(0,4)<anio)errs.push('La fecha de corte es anterior al año del dato.');
   if(!fuente)errs.push('Indica la fuente.');
+  if(def.req==='metodo'&&!$('#f-metodo').value.trim())errs.push('Indica el método y el factor de emisión.');
+  if(def.req==='programa'&&!$('#f-programa').value)errs.push('Elige el programa: el inicio y el actual se comparan programa por programa.');
+  if(def.req==='cat'&&!$('#f-cat').value)errs.push('Elige la desagregación.');
   if(errs.length){msg.innerHTML='<div class="msg bad">'+errs.map(esc).join('<br>')+'</div>';return;}
   const o={v,anio,corte,valor,quien:S.party,fuente,por:S.nombre};const put=(f,val)=>{if(val!==''&&val!=null&&val!==false)o[f]=val;};
-  if(def.ds.indexOf('material')>=0)put('material',$('#f-material').value);
-  if(def.ds.indexOf('linea')>=0)put('linea',$('#f-linea').value);
-  if(def.ds.indexOf('territorio')>=0)put('territorio',$('#f-territorio').value.trim());
-  if(def.ds.indexOf('nivel')>=0)put('nivel',$('#f-nivel').value);
-  if(def.ds.indexOf('cat')>=0)put('cat',$('#f-cat').value);
-  if(def.ds.indexOf('metodo')>=0)put('metodo',$('#f-metodo').value.trim());
-  if(def.ds.indexOf('incluido')>=0)put('incluido',$('#f-incluido').checked);
-  put('evidencia',$('#f-evid').value.trim());put('nota',$('#f-nota').value.trim());put('corrige',$('#f-corrige').value);
-  let aviso='';const pv=valVar(v,anio-1,efectivos());if(pv){const same=pv.list.find(r=>keyOf(r)===keyOf(o));if(same&&same.valor&&Math.abs(valor-same.valor)/Math.abs(same.valor)>.5&&!o.nota)aviso='Este valor cambia más de 50 % frente a '+(anio-1)+' ('+fmt(same.valor,def.u)+'). Si no es un error, explica el cambio en una corrección.';}
+  const usa=f=>def.ds.indexOf(f)>=0&&!$('#w-'+f).hidden;
+  if(usa('material'))put('material',$('#f-material').value);
+  if(usa('linea'))put('linea',$('#f-linea').value);
+  if(usa('programa'))put('programa',$('#f-programa').value);
+  if(usa('territorio'))put('territorio',$('#f-territorio').value.trim());
+  if(usa('nivel'))put('nivel',$('#f-nivel').value);
+  if(usa('cat'))put('cat',$('#f-cat').value);
+  if(usa('metodo'))put('metodo',$('#f-metodo').value.trim());
+  if(usa('incluido'))put('incluido',$('#f-incluido').checked);
+  put('evidencia',$('#f-evid').value.trim());
+  put('nota',[$('#f-nota').value.trim(),factor!==1?'(Escrito en kg y convertido a '+def.u+')':''].filter(Boolean).join(' '));
+  put('corrige',$('#f-corrige').value);
+  let aviso='';const pv=valVar(v,anio-1,efectivos());if(pv){const same=pv.list.find(r=>keyOf(r)===keyOf(o));if(same&&same.valor&&Math.abs(valor-same.valor)/Math.abs(same.valor)>.5&&!$('#f-nota').value.trim())aviso='Este valor cambia más de 50 % frente a '+(anio-1)+' ('+fmt(same.valor,def.u)+'). Si no es un error, explica el cambio en una corrección.';}
   $('#btn-send').disabled=true;$('#btn-send').textContent='Enviando…';
   try{await api('/api/reportes',o);await cargar();renderTodo();
-    msg.innerHTML='<div class="msg ok">Listo: reporte enviado. Queda pendiente de validación y ya cuenta en el tablero como dato pendiente.</div>'+(aviso?'<div class="msg warn" style="margin-top:8px">'+esc(aviso)+'</div>':'')+'<div class="toolbar" style="margin-top:10px"><button class="btn primary" type="button" data-close="dlg-rep">Volver a mi lista</button></div>';
+    msg.innerHTML='<div class="msg ok">Listo: se guardó '+esc(fmt(valor,def.u))+'. Queda pendiente de validación y ya cuenta en el tablero como dato pendiente.</div>'+(aviso?'<div class="msg warn" style="margin-top:8px">'+esc(aviso)+'</div>':'')+'<div class="toolbar" style="margin-top:10px"><button class="btn primary" type="button" data-close="dlg-rep">Volver a mi lista</button></div>';
     $('#btn-send').textContent='Enviado';
   }catch(err){msg.innerHTML='<div class="msg bad">'+esc(err.message)+'</div>';$('#btn-send').disabled=false;$('#btn-send').textContent='Enviar reporte';}
 }
@@ -343,9 +410,8 @@ async function enviar(e){
 /* ---------------- VALIDAR ---------------- */
 function renderValidar(){
   const sup=superseded();const pend=S.reportes.filter(r=>!sup.has(r.id)&&estadoDe(r)==='pendiente').sort((a,b)=>b.ts.localeCompare(a.ts));
-  const c=$('#cnt-pend');c.hidden=!pend.length||!S.rol;c.textContent=pend.length;
-  if(!S.rol)return;
-  $('#pend-count').textContent=pend.length?pend.length+' por revisar':'';const dis=S.rol==='validador'?'':' disabled';
+  const c=$('#cnt-pend');c.hidden=!pend.length;c.textContent=pend.length;
+  $('#pend-count').textContent=pend.length?pend.length+' por revisar':'';const dis=esValidador()?'':' disabled';
   $('#pend-body').innerHTML=pend.length?pend.map(r=>'<tr><td>'+fecha(r.ts)+'</td><td class="small">'+esc(r.por||'')+'<br><span class="muted">'+esc(areaN(r.quien))+'</span></td><td>'+esc(VARS[r.v].n)+(r.corrige?'<br><span class="small muted">Corrige un reporte anterior</span>':'')+'</td><td>'+r.anio+' · '+fecha(r.corte)+'</td><td class="num">'+esc(fmt(r.valor,VARS[r.v].u))+'</td><td class="small">'+esc(desagTxt(r))+'</td><td class="small">'+esc(r.fuente||'')+(r.evidencia?'<br><span class="muted">'+esc(r.evidencia)+'</span>':'<br><span class="chip c-warn">Sin evidencia</span>')+(r.nota?'<br><span class="muted">'+esc(r.nota)+'</span>':'')+'</td><td><div style="display:grid;gap:6px;min-width:180px"><input type="text" id="obs-'+esc(r.id)+'" placeholder="Comentario (obligatorio para observar)" aria-label="Comentario de validación"'+dis+'><div style="display:flex;gap:6px"><button class="btn small ok" type="button" data-val="validado" data-id="'+esc(r.id)+'"'+dis+'>Validar</button><button class="btn small bad" type="button" data-val="observado" data-id="'+esc(r.id)+'"'+dis+'>Observar</button></div></div></td></tr>').join(''):'<tr><td colspan="8" class="empty">No hay reportes pendientes.</td></tr>';
   $('#metas-body').innerHTML=TITULARES.concat(COMPLEMENTARIOS).map(k=>{const d=K[k];return '<tr><td><b>'+esc(d.n)+'</b></td><td class="small">'+esc(d.u)+'</td><td class="small">'+(d.pol>0?'Más es mejor':'Menos es mejor')+'</td>'+[2026,2027].map(a=>{const m=S.metas[k+'-'+a];return '<td class="num"><input type="number" step="any" style="width:120px;text-align:right" data-meta="'+k+'-'+a+'" value="'+(m?m.valor:'')+'" placeholder="'+(k==='K01'?'100':'—')+'" aria-label="Meta '+esc(d.n)+' '+a+'"'+dis+'></td>';}).join('')+'</tr>';}).join('');
   const all=S.reportes.slice().sort((a,b)=>b.ts.localeCompare(a.ts));
@@ -374,8 +440,16 @@ function renderMetodologia(){
   $('#cotejo').innerHTML=t;
   const lab={A:'Alineación con la visión',R:'Relevancia REP y ANLA',D:'Disponibilidad del dato',C:'Comparabilidad',T:'Atribución sin doble conteo'};
   $('#weights').innerHTML=Object.keys(lab).map(c=>'<label for="w-'+c+'"><span>'+c+' · '+lab[c]+'<output id="wo-'+c+'">'+S.w[c]+'</output></span><input type="range" id="w-'+c+'" min="0" max="40" step="5" value="'+S.w[c]+'" data-w="'+c+'"></label>').join('');
-  renderRank();renderTZ();renderFichas();
+  renderAuditoria();renderRank();renderTZ();renderFichas();
   $('#dic-body').innerHTML=Object.keys(VARS).map(v=>{const d=VARS[v];const ks=TITULARES.concat(COMPLEMENTARIOS,CONTEXTO).filter(k=>varsDeK(k).indexOf(v)>=0);return '<tr><td class="code">'+v+'</td><td><b>'+esc(d.n)+'</b><br><span class="small muted">'+esc(d.def)+'</span></td><td class="small">'+esc(d.u)+'</td><td class="small">'+esc(d.q.map(areaN).join(', '))+'</td><td class="small">'+d.fr+'</td><td class="small">'+esc(d.ds.map(x=>({material:'material',linea:'línea',territorio:'territorio',nivel:'nivel de jerarquía',cat:(d.cat||[]).join(' / '),metodo:'método',incluido:'¿incluida en Traza?'})[x]).join(' · ')||'—')+'</td><td class="small">'+esc(ks.map(k=>K[k].n).join(' · '))+'</td></tr>';}).join('');
+}
+function renderAuditoria(){
+  const A=C.AUD||[];const sev={'Crítica':'c-bad','Alta':'c-warn','Media':'c-pend','Baja':'c-none'};const est={'OK':'c-ok','Corregido':'c-acc','Por confirmar':'c-warn'};
+  const n=x=>A.filter(a=>a[0]===x).length,vk=Object.keys(VARS).sort((a,b)=>+a.slice(1)-+b.slice(1)),nv=x=>vk.filter(v=>VARS[v].aud===x).length;
+  $('#aud-sum').innerHTML='<div class="h"><b>'+A.length+'</b><span>hallazgos ('+n('Crítica')+' críticos, '+n('Alta')+' altos, '+n('Media')+' medios, '+n('Baja')+' bajos)</span></div>'+
+    '<div class="h"><b>'+vk.length+'</b><span>datos de entrada revisados contra la matriz</span></div><div class="h"><b>'+nv('Corregido')+'</b><span>datos corregidos</span></div><div class="h"><b>'+nv('OK')+'</b><span>datos que ya estaban bien</span></div><div class="h"><b>'+nv('Por confirmar')+'</b><span>datos por confirmar con el área</span></div>';
+  $('#aud-body').innerHTML=A.map(a=>'<tr><td><span class="chip '+(sev[a[0]]||'c-none')+'">'+esc(a[0])+'</span></td><td class="small">'+esc(a[1])+'</td><td><b>'+esc(a[2])+'</b></td><td class="small">'+esc(a[3])+'</td><td class="small muted">'+esc(a[4])+'</td><td class="small">'+esc(a[5])+'</td><td><span class="chip '+(est[a[6]]||'c-none')+'">'+esc(a[6])+'</span></td></tr>').join('');
+  $('#aud-vars').innerHTML=vk.map(v=>{const d=VARS[v];return '<tr><td class="code">'+v+'</td><td><b>'+esc(d.n)+'</b></td><td class="small">'+esc(d.q.map(areaN).join(', '))+'</td><td class="small muted">'+esc(d.mxR||'—')+'</td><td class="small">'+esc(d.fr)+'<br><span class="muted">matriz: '+esc(d.mxF||'—')+'</span></td><td class="small">'+esc(d.u)+'<br><span class="muted">matriz: '+esc(d.mxU||'—')+'</span></td><td class="code" style="white-space:normal">'+esc(d.mx||'—')+'</td><td><span class="chip '+(est[d.aud]||'c-none')+'">'+esc(d.aud||'—')+'</span></td><td class="small">'+esc(d.audN||'')+'</td></tr>';}).join('');
 }
 function renderRank(){
   const rows=RANKED.map(k=>({k,s:score(k)})).sort((a,b)=>b.s-a.s);
@@ -397,9 +471,9 @@ function renderFichas(){
 
 /* ---------------- CSV ---------------- */
 function exportarCSV(){
-  const sup=superseded();const head=['id','fecha_reporte','area','persona','dato_codigo','dato','unidad','anio','fecha_corte','valor','material','linea','territorio','nivel_jerarquia','desagregacion','incluida_en_traza','metodo','fuente','evidencia','nota','estado','validado_por','fecha_validacion','comentario_validacion','corrige_a'];
+  const sup=superseded();const head=['id','fecha_reporte','area','persona','dato_codigo','dato','unidad','anio','fecha_corte','valor','material','linea','programa','territorio','nivel_jerarquia','desagregacion','incluida_en_traza','metodo','fuente','evidencia','nota','estado','validado_por','fecha_validacion','comentario_validacion','corrige_a'];
   const q=s=>{s=String(s==null?'':s);return /[";\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;};
-  const lines=[head.join(';')].concat(S.reportes.slice().sort((a,b)=>a.ts.localeCompare(b.ts)).map(r=>{const v=S.valid[r.id]||{};return [r.id,r.ts,areaN(r.quien),r.por,r.v,VARS[r.v].n,VARS[r.v].u,r.anio,r.corte,String(r.valor).replace('.',','),r.material,r.linea,r.territorio,r.nivel,r.cat,r.incluido?'sí':'',r.metodo,r.fuente,r.evidencia,r.nota,sup.has(r.id)?'reemplazado':estadoDe(r),v.por,v.ts,v.comentario,r.corrige].map(q).join(';');}));
+  const lines=[head.join(';')].concat(S.reportes.slice().sort((a,b)=>a.ts.localeCompare(b.ts)).map(r=>{const v=S.valid[r.id]||{};return [r.id,r.ts,areaN(r.quien),r.por,r.v,VARS[r.v].n,VARS[r.v].u,r.anio,r.corte,String(r.valor).replace('.',','),r.material,r.linea,r.programa,r.territorio,r.nivel,r.cat,r.incluido?'sí':'',r.metodo,r.fuente,r.evidencia,r.nota,sup.has(r.id)?'reemplazado':estadoDe(r),v.por,v.ts,v.comentario,r.corrige].map(q).join(';');}));
   const blob=new Blob(['﻿'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='vision-circular-reportes-'+HOY_ISO+'.csv';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
 }
 
@@ -413,13 +487,12 @@ document.addEventListener('click',e=>{
   const close=t.closest('[data-close]');if(close){cerrar('#'+close.dataset.close);return;}
   const tb=t.closest('.tab-btn');if(tb){setTab(tb.dataset.tab);return;}
   const go=t.closest('[data-go]');if(go){e.preventDefault();cerrar('#dlg');setTab(go.dataset.go,go.dataset.anchor);return;}
-  const ar=t.closest('[data-area]');if(ar){S.party=ar.dataset.area;ls.set('vc-party',S.party);renderReportar();setTab('reportar');return;}
-  const pb=t.closest('.party');if(pb){S.party=pb.dataset.p;ls.set('vc-party',S.party);renderReportar();return;}
+  const ar=t.closest('[data-area]');if(ar){if(!S.rol||esValidador()){S.party=ar.dataset.area;ls.set('vc-party',S.party);}if(S.rol&&!esValidador()&&S.rol!==ar.dataset.area)S.lockMsg='';renderReportar();setTab('reportar');return;}
+  const pb=t.closest('.party');if(pb){if(!esValidador())return;S.party=pb.dataset.p;ls.set('vc-party',S.party);renderReportar();return;}
   const rp=t.closest('[data-rep]');if(rp){abrirReporte(rp.dataset.rep);return;}
   const vb=t.closest('[data-val]');if(vb){validar(vb.dataset.id,vb.dataset.val,vb);return;}
   const fb=t.closest('.filt');if(fb){S.tzFilter=fb.dataset.f;renderTZ();return;}
   if(t.closest('[data-salir]')){salir();return;}
-  if(t.closest('[data-cambiar]')){e.preventDefault();salir('Ingresa el código de validación.');setTab('validar');return;}
   if(t.closest('[data-refrescar]')){refrescar();return;}
   const kb=t.closest('[data-k]');if(kb){abrirDetalle(kb.dataset.k);return;}
 });
@@ -434,15 +507,15 @@ $('#btn-csv').addEventListener('click',exportarCSV);
 $('#f-buscar').addEventListener('input',renderFichas);
 $('#weights').addEventListener('input',e=>{const c=e.target.dataset.w;if(!c)return;S.w[c]=+e.target.value;$('#wo-'+c).textContent=S.w[c];ls.set('vc-w',JSON.stringify(S.w));renderRank();});
 $('#btn-wreset').addEventListener('click',()=>{S.w=Object.assign({},W0);ls.set('vc-w',JSON.stringify(S.w));renderMetodologia();});
-document.addEventListener('change',e=>{const m=e.target.dataset&&e.target.dataset.meta;if(m&&S.rol==='validador')guardarMeta(m,e.target.value,e.target);});
+document.addEventListener('change',e=>{const m=e.target.dataset&&e.target.dataset.meta;if(m&&esValidador())guardarMeta(m,e.target.value,e.target);});
 $$('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d)cerrar('#'+d.id);}));
 const tip=$('#tip');
 document.addEventListener('pointermove',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');if(!t){tip.hidden=true;return;}tip.textContent=t.getAttribute('data-tip');tip.hidden=false;const x=Math.min(e.clientX+14,window.innerWidth-tip.offsetWidth-8),y=e.clientY+16+tip.offsetHeight>window.innerHeight?e.clientY-tip.offsetHeight-10:e.clientY+16;tip.style.left=x+'px';tip.style.top=y+'px';});
 window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(TABS.indexOf(h)>=0&&h!==S.tab)setTab(h);});
-setInterval(()=>{if(S.rol&&!document.hidden&&!$('#dlg-rep').open)refrescar();},60000);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.rol&&S.ultimaCarga&&(new Date()-S.ultimaCarga)>60000)refrescar();});
+setInterval(()=>{if(!document.hidden&&!$('#dlg-rep').open)refrescar();},60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.ultimaCarga&&(new Date()-S.ultimaCarga)>60000)refrescar();});
 
 /* ---------------- arranque ---------------- */
 initReportar();renderInicio();renderMetodologia();setTab(S.tab);renderTodo();
-if(S.codigo)refrescar();
+(async()=>{await verificarCodigo();await refrescar();})();
 })();
