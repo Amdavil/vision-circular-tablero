@@ -34,7 +34,7 @@ Los códigos **no están en este repositorio**. El Worker guarda el secreto `COD
 
 ## Preformulación de proyectos
 
-https://amdavil.github.io/vision-circular-tablero/preformulacion.html — ficha de preformulación del taller ejecutivo (oct 2026), con el diseño del `index.html` de la carpeta de la consultoría. Acceso libre, sin código; una ficha por idea. Cada ficha queda en la tabla `preformulaciones`, llega por correo (Formspree) y como fila a la pestaña "Preformulación taller VC" del archivo madre de resultados. La pestaña "Banco de fichas" las muestra todas, con búsqueda y descarga a Word. Si se despliega el `Code.gs` de la consultoría (correo con copia a Pahola y hoja propia), pegar su URL en la constante `RECEPTOR` de la página.
+https://amdavil.github.io/vision-circular-tablero/preformulacion.html — ficha de preformulación del taller ejecutivo (oct 2026), con el diseño del `index.html` de la carpeta de la consultoría. Acceso libre, sin código; una ficha por idea. Cada ficha queda en la tabla `preformulaciones`, llega por correo (Formspree) y como fila a la pestaña "Preformulación taller VC" del archivo madre de resultados. La pestaña "Banco de fichas" las muestra todas, con búsqueda y descarga a Word. desplegar `receptor/Code.gs` (correo con copia a Pahola y hoja propia) y pegar su URL en la constante `RECEPTOR` de la página.
 
 ## Auditoría
 

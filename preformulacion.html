@@ -113,6 +113,12 @@ footer.f{margin-top:28px;color:var(--muted);font-size:13px;text-align:center}
 .live{background:var(--warnbg);color:var(--warn);border-radius:8px;padding:7px 10px;font-size:13.5px;margin-top:6px}
 .bank-tools .btn{padding:9px 16px}
 #t-banco .lede{margin:0 0 14px;color:var(--muted);font-size:15px}
+.fase{margin:22px 0 8px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);display:flex;align-items:center;gap:10px}
+.fase::after{content:"";flex:1;height:2px;background:var(--line)}
+section.blk.who{grid-template-columns:minmax(0,1fr);border:2px solid var(--blue);background:var(--soft)}
+section.blk.who .n{background:var(--lime);color:#1E305D}
+.idea{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center}
+.idea .nn{font-size:12px;font-weight:700;color:var(--teal);min-width:44px}
 .foot-note{font-size:13px;color:var(--muted);margin-top:6px}
 </style></head><body>
 <div class="wrap">
@@ -121,7 +127,7 @@ footer.f{margin-top:28px;color:var(--muted);font-size:13px;text-align:center}
   <div class="tx">
     <div class="kick">Taller ejecutivo · Siguiente paso</div>
     <h1>Preformulación de proyectos</h1>
-    <p>Una ficha por idea. Escribe lo que ya sabes; lo demás lo trabajamos juntos. No necesitas cuenta ni registro.</p>
+    <p>Del problema al proyecto: una ficha por cada problema u oportunidad. Escribe lo que ya sabes; lo demás lo trabajamos juntos. No necesitas cuenta ni registro.</p>
   </div>
 </header>
 
@@ -135,52 +141,81 @@ footer.f{margin-top:28px;color:var(--muted);font-size:13px;text-align:center}
   <div class="intro">
     <h2>Antes de empezar</h2>
     <ol>
-      <li>Piensa en una idea concreta que quieras impulsar. Si tienes varias, llena una ficha por cada una.</li>
+      <li>Empieza por el problema, no por la idea. Primero entiende qué pasa y por qué; después abre varias soluciones posibles, y solo entonces define el proyecto.</li>
       <li>Escribe con tus palabras. Lo que escribes se conserva en este navegador mientras terminas.</li>
-      <li>Si dudas si tu idea es un proyecto, una alianza o un proceso, hazte las cuatro preguntas de la ficha del taller. Aquí puedes marcar "No estoy seguro".</li>
+      <li>Si tienes varios problemas u oportunidades, llena una ficha por cada uno.</li>
     </ol>
-    <div class="meta">Toma unos 20 minutos. Cada bloque tiene una guía y un ejemplo ilustrativo.</div>
+    <div class="meta">Toma unos 30 minutos. Cada bloque tiene una guía y un ejemplo ilustrativo.</div>
   </div>
-  <div class="prog"><div class="row"><span>Avance de la ficha</span><span id="pt">0 de 12</span></div><div class="bar"><i id="pb"></i></div></div>
-  <section class="blk"><div class="main">
-    <div class="sec-h"><div class="n">1</div><div><h2>Datos de la idea</h2><p>Para que el equipo sepa de quién es y de qué trata.</p></div></div>
-    <div><label for="nombre">Nombre provisional del proyecto</label><input type="text" id="nombre" maxlength="120" placeholder="Un nombre corto que se entienda solo"></div>
+
+  <section class="blk who"><div class="main">
+    <div class="sec-h"><div class="n">✎</div><div><h2>¿Quién diligencia la ficha?</h2><p>Para que el equipo sepa de quién es y a qué línea aporta.</p></div></div>
     <div class="g2">
-      <div><label for="area">Línea o área</label><input type="text" id="area" maxlength="80" placeholder="Ej.: Innovación" list="areas-vc"><datalist id="areas-vc"><option>Implementación (Traza)</option><option>Gestión de Línea Base (ARCO)</option><option>Innovación y PMO</option><option>Inclusión social y productiva</option><option>Proyectos territoriales y sectoriales</option><option>Consumo responsable</option><option>Comunicaciones y relacionamiento</option><option>Administrativa y financiera</option></datalist></div>
-      <div><label for="responsable">Quién la diligencia</label><input type="text" id="responsable" maxlength="80" placeholder="Nombre y rol"></div>
+      <div><label for="responsable">Tu nombre</label><input type="text" id="responsable" maxlength="80" placeholder="Nombre y rol" autocomplete="name"></div>
+      <div><label for="area">Línea estratégica o área</label><input type="text" id="area" maxlength="80" placeholder="Ej.: Innovación y PMO" list="areas-vc"><datalist id="areas-vc"><option>Implementación (Traza)</option><option>Gestión de Línea Base (ARCO)</option><option>Innovación y PMO</option><option>Inclusión social y productiva</option><option>Proyectos territoriales y sectoriales</option><option>Consumo responsable</option><option>Comunicaciones y relacionamiento</option><option>Administrativa y financiera</option></datalist></div>
     </div>
+  </div></section>
+
+  <div class="prog"><div class="row"><span>Avance de la ficha</span><span id="pt">0 de 0</span></div><div class="bar"><i id="pb"></i></div></div>
+
+  <p class="fase">Primero, entender</p>
+  <section class="blk"><div class="main">
+    <div class="sec-h"><div class="n">1</div><div><h2>Análisis del problema o la necesidad</h2><p>Qué está pasando, a quién le pasa, por qué y qué ocurre si nadie lo atiende.</p></div></div>
+    <div><label for="problema">¿Qué está pasando hoy?</label><textarea id="problema" maxlength="1200" placeholder="Describe la situación tal como se ve hoy, sin mencionar todavía la solución."></textarea><div class="cnt" data-for="problema"></div><div class="live" id="lv-problema" hidden></div></div>
+    <div><label for="afectados">¿A quién afecta y en qué magnitud?</label><textarea id="afectados" maxlength="600" style="min-height:72px" placeholder="Personas, organizaciones o territorios. Si tienes una cifra, aunque sea aproximada, inclúyela."></textarea><div class="cnt" data-for="afectados"></div></div>
+    <div><label for="causas">¿Por qué está pasando?</label><textarea id="causas" maxlength="800" style="min-height:84px" placeholder="Las dos o tres causas principales que explican el problema."></textarea><div class="cnt" data-for="causas"></div></div>
+    <div><label for="consecuencias">¿Qué pasa si no se atiende? <span class="opt">(opcional)</span></label><textarea id="consecuencias" maxlength="600" style="min-height:72px"></textarea><div class="cnt" data-for="consecuencias"></div></div>
+  </div><div class="side"><div class="hint"><b class="t">Guía</b><ul><li>Un problema se puede ver y le pasa a alguien. "Falta de X" es una solución disfrazada.</li><li>Las causas son las raíces: si las atiendes, el problema baja.</li><li>Las consecuencias muestran por qué vale la pena actuar.</li></ul>
+    <details><summary>Ver ejemplo</summary><p><b>Qué pasa:</b> los pequeños comercios del municipio generan empaques que hoy se mezclan con otros residuos.<br><b>A quién:</b> unos 300 comercios y los recicladores de la zona, que reciben material contaminado.<br><b>Por qué:</b> nadie les ha explicado cuáles se aprovechan, no hay ruta de recolección diferenciada y no ven qué ganan al separar.<br><b>Si no se atiende:</b> el material termina en el relleno y los recicladores pierden ingresos.</p></details></div></div></section>
+
+  <p class="fase">Después, abrir opciones</p>
+  <section class="blk"><div class="main">
+    <div class="sec-h"><div class="n">2</div><div><h2>Posibles soluciones</h2><p>Antes de decidir, pon sobre la mesa al menos dos caminos distintos para atender las causas.</p></div></div>
+    <div id="ideas" style="display:grid;gap:8px"></div>
+    <div><button class="btn sec" id="addidea" type="button">+ Agregar otra idea</button></div>
+    <div class="g2">
+      <div><label for="elegida">¿Cuál vas a trabajar?</label><select id="elegida"></select></div>
+    </div>
+    <div><label for="porque">¿Por qué esa y no las otras?</label><textarea id="porque" maxlength="600" style="min-height:72px" placeholder="Impacto esperado, qué tan factible es, costo, quién más ya lo hace…"></textarea><div class="cnt" data-for="porque"></div></div>
+  </div><div class="side"><div class="hint"><b class="t">Guía</b><ul><li>Cada idea debería atacar al menos una de las causas.</li><li>Incluye una opción sencilla o barata: a veces es la mejor.</li><li>Para escoger, piensa en impacto, factibilidad, costo y quién más trabaja en lo mismo.</li></ul>
+    <details><summary>Ver ejemplo</summary><p>1. Campaña de separación puerta a puerta con los comercios.<br>2. Ruta de recolección diferenciada con una organización de recicladores, con días fijos.<br>3. Incentivo por material bien separado.<br><b>Escogida:</b> la 2, porque ataca dos causas a la vez y ya hay una organización de recicladores interesada.</p></details></div></div></section>
+
+  <p class="fase">Luego, definir el proyecto</p>
+  <section class="blk"><div class="main">
+    <div class="sec-h"><div class="n">3</div><div><h2>Definición del proyecto</h2><p>Ponle nombre a la solución escogida y marca sus límites: qué incluye y qué no.</p></div></div>
+    <div><label for="nombre">Nombre provisional del proyecto</label><input type="text" id="nombre" maxlength="120" placeholder="Un nombre corto que se entienda solo"></div>
     <div><label for="tipo">¿Cómo la clasificarías hoy?</label>
       <select id="tipo"><option value="">Elige una opción</option><option>Proyecto</option><option>Iniciativa</option><option>Alianza</option><option>Programa</option><option>Proceso continuo</option><option>No estoy seguro</option></select></div>
-  </div><div class="side"><div class="hint"><b class="t">Para decidir el tipo</b><ul>
-    <li>¿Es nuevo o ya sabemos hacerlo?</li><li>¿El valor está en lo que entrega o en el cambio que deja?</li><li>¿Depende de otra organización que decide por sí misma?</li><li>¿Cuánto cuesta equivocarnos frente a cuánto cuesta planear?</li></ul></div></div></section>
-
+    <div class="g2">
+      <div><label for="incluye">Qué incluye</label><textarea id="incluye" maxlength="600" style="min-height:96px" placeholder="Lo que sí hará: dónde, con quién, hasta dónde llega."></textarea><div class="cnt" data-for="incluye"></div></div>
+      <div><label for="noincluye">Qué no incluye</label><textarea id="noincluye" maxlength="600" style="min-height:96px" placeholder="Lo que queda por fuera, aunque esté relacionado."></textarea><div class="cnt" data-for="noincluye"></div></div>
+    </div>
+  </div><div class="side" style="display:grid;gap:12px;align-content:start"><div class="hint"><b class="t">Para decidir el tipo</b><ul>
+    <li>¿Es nuevo o ya sabemos hacerlo?</li><li>¿El valor está en lo que entrega o en el cambio que deja?</li><li>¿Depende de otra organización que decide por sí misma?</li><li>¿Cuánto cuesta equivocarnos frente a cuánto cuesta planear?</li></ul></div>
+    <div class="hint"><b class="t">Qué incluye y qué no</b><ul><li>Decir qué queda por fuera evita que el proyecto crezca sin control.</li></ul>
+    <details><summary>Ver ejemplo</summary><p><b>Incluye:</b> 50 comercios del centro, una organización de recicladores, prueba de tres meses.<br><b>No incluye:</b> residuos orgánicos, otros barrios ni infraestructura nueva de acopio.</p></details></div></div></section>
+  <p class="fase">Por último, formular</p>
   <section class="blk"><div class="main">
-    <div class="sec-h"><div class="n">2</div><div><h2>Problema o necesidad</h2><p>Qué situación quieres atender y por qué importa.</p></div></div>
-    <div><label for="problema">Planteamiento</label><textarea id="problema" maxlength="1200" placeholder="Describe la situación actual, a quién afecta y qué pasa si no se atiende."></textarea><div class="cnt" data-for="problema"></div><div class="live" id="lv-problema" hidden></div></div>
-  </div><div class="side"><div class="hint"><b class="t">Guía</b><ul><li>¿Qué está pasando hoy?</li><li>¿A quién afecta o quién lo necesita?</li><li>¿Qué cambia si lo atendemos?</li></ul>
-    <details><summary>Ver ejemplo</summary><p>Los pequeños comercios del municipio generan empaques que hoy se mezclan con otros residuos. Quien los recoge no sabe cuáles se aprovechan, y los comerciantes no ven qué ganan al separarlos.</p></details></div></div></section>
-
-  <section class="blk"><div class="main">
-    <div class="sec-h"><div class="n">3</div><div><h2>Propósito superior</h2><p>El cambio de fondo al que tu idea aporta.</p></div></div>
+    <div class="sec-h"><div class="n">4</div><div><h2>Propósito superior</h2><p>El cambio de fondo al que tu idea aporta.</p></div></div>
     <div><label for="proposito">Propósito</label><textarea id="proposito" maxlength="600" placeholder="El cambio de largo plazo que buscamos, más allá de este proyecto."></textarea><div class="cnt" data-for="proposito"></div></div>
   </div><div class="side"><div class="hint"><b class="t">Guía</b><ul><li>Es un cambio, no una actividad.</li><li>Debería poder compartirlo otra área que trabaje en lo suyo.</li><li>Una o dos frases bastan.</li></ul>
     <details><summary>Ver ejemplo</summary><p>Aumentar el aprovechamiento verificable de los materiales posconsumo en el país.</p></details></div></div></section>
 
   <section class="blk"><div class="main">
-    <div class="sec-h"><div class="n">4</div><div><h2>Objetivo general</h2><p>Lo que este proyecto se propone lograr.</p></div></div>
+    <div class="sec-h"><div class="n">5</div><div><h2>Objetivo general</h2><p>Lo que este proyecto se propone lograr.</p></div></div>
     <div><label for="general">Objetivo general</label><textarea id="general" maxlength="400" style="min-height:84px" placeholder="Verbo en infinitivo + qué + para quién o dónde."></textarea><div class="cnt" data-for="general"></div><div class="live" id="lv-general" hidden></div></div>
   </div><div class="side"><div class="hint"><b class="t">Guía</b><ul><li>Un solo objetivo, con un resultado que se pueda comprobar.</li><li>Empieza con un verbo: diseñar, validar, implementar, consolidar.</li></ul>
     <details><summary>Ver ejemplo</summary><p>Diseñar y validar un esquema de separación de empaques con pequeños comercios de un municipio, que pueda replicarse en otros.</p></details></div></div></section>
 
   <section class="blk"><div class="main">
-    <div class="sec-h"><div class="n">5</div><div><h2>Objetivos específicos y actividades</h2><p>Mínimo tres objetivos, hasta seis. Cada uno con las actividades que necesite, de una a seis.</p></div></div>
+    <div class="sec-h"><div class="n">6</div><div><h2>Objetivos específicos y actividades</h2><p>Mínimo tres objetivos, hasta seis. Cada uno con las actividades que necesite, de una a seis.</p></div></div>
     <div id="objs" style="display:grid;gap:14px"></div>
     <div><button class="btn sec" id="addobj" type="button">+ Agregar objetivo específico</button></div>
   </div><div class="side"><div class="hint"><b class="t">Guía</b><ul><li>Cada objetivo específico aporta una parte del general.</li><li>Una actividad es trabajo que se ejecuta; un objetivo es lo que queda logrado.</li><li>Si una actividad no ayuda a un objetivo, probablemente sobra.</li></ul>
     <details><summary>Ver ejemplo</summary><p><b>Objetivo:</b> Validar la ruta de recolección con los comercios.<br><b>Actividades:</b> mapear los comercios participantes; acordar días y puntos de entrega; ejecutar la prueba durante un mes.</p></details></div></div></section>
 
   <section class="blk"><div class="main">
-    <div class="sec-h"><div class="n">6</div><div><h2>Con quién se conecta</h2><p>Opcional, pero ayuda a evitar trabajo repetido.</p></div></div>
+    <div class="sec-h"><div class="n">7</div><div><h2>Con quién se conecta</h2><p>Opcional, pero ayuda a evitar trabajo repetido.</p></div></div>
     <div><label for="conexiones">Áreas, líneas o aliados <span class="opt">(opcional)</span></label><textarea id="conexiones" maxlength="500" style="min-height:84px" placeholder="¿Quién más trabaja en algo parecido o necesitaría enterarse?"></textarea><div class="cnt" data-for="conexiones"></div></div>
   </div><div class="side"><div class="hint"><b class="t">Por qué importa</b><ul><li>Las ideas que se conectan entre áreas suman más que las que van solas.</li></ul></div></div></section>
 
@@ -273,6 +308,42 @@ objs.addEventListener('click',function(e){
 });
 $('addobj').onclick=function(){addObj('',[]);var t=objs.querySelectorAll('.ot');t[t.length-1].focus();refresh()};
 
+/* ---------- posibles soluciones (mínimo dos, hasta cinco) ---------- */
+var MIN_IDEAS=2, MAX_IDEAS=5, ideas=$('ideas');
+function addIdea(text){
+  if(ideas.children.length>=MAX_IDEAS)return;
+  var id='idea'+(++seq), r=document.createElement('div'); r.className='idea';
+  r.innerHTML='<label class="nn" for="'+id+'"></label><input type="text" class="ii" id="'+id+'" maxlength="250"><button type="button" class="rm" data-idea="rm" aria-label="Quitar idea">Quitar</button>';
+  r.querySelector('input').value=text||''; ideas.appendChild(r); renumIdeas();
+}
+function renumIdeas(){
+  var rs=ideas.children;
+  for(var i=0;i<rs.length;i++){
+    rs[i].querySelector('.nn').textContent='Idea '+(i+1);
+    rs[i].querySelector('input').placeholder=i===0?'Una forma de atender las causas':i===1?'Otra forma distinta':'Otra opción';
+    rs[i].querySelector('.rm').hidden=rs.length<=MIN_IDEAS;
+  }
+  $('addidea').hidden=rs.length>=MAX_IDEAS;
+  opcionesElegida();
+}
+function textosIdeas(){return [].map.call(ideas.querySelectorAll('.ii'),function(x){return (x.value||'').trim()})}
+function opcionesElegida(){
+  var sel=$('elegida'), prev=sel.value, t=textosIdeas(), h='<option value="">Elige una de tus ideas</option>';
+  t.forEach(function(x,i){if(x)h+='<option value="'+i+'">Idea '+(i+1)+': '+esc(x.length>70?x.slice(0,70)+'…':x)+'</option>'});
+  h+='<option value="combinada">Una combinación de varias</option>';
+  sel.innerHTML=h; sel.value=prev; if(sel.value!==prev)sel.value='';
+}
+ideas.addEventListener('click',function(e){
+  var b=e.target.closest('[data-idea]'); if(!b)return;
+  if(ideas.children.length>MIN_IDEAS){b.closest('.idea').remove();$('elegida').value='';renumIdeas();refresh();persist()}
+});
+$('addidea').onclick=function(){addIdea('');var t=ideas.querySelectorAll('.ii');t[t.length-1].focus();refresh()};
+function elegidaTxt(o){
+  var v=$('elegida').value;
+  if(v==='combinada')return 'Una combinación de varias ideas';
+  return v===''?'':(textosIdeas()[+v]||'');
+}
+
 /* ---------- pistas de redacción mientras escriben ---------- */
 var norm=function(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim()};
 var DEBILES=['apoyar','fomentar','promover','propiciar','contribuir','impulsar','incentivar','buscar','procurar','intentar','sensibilizar','concientizar','coadyuvar','propender','acompanar'];
@@ -296,7 +367,11 @@ function pistas(){
 
 function val(id){return ($(id).value||'').trim()}
 function read(){
-  var o={nombre:val('nombre'),area:val('area'),responsable:val('responsable'),tipo:val('tipo'),problema:val('problema'),proposito:val('proposito'),objetivoGeneral:val('general'),conexiones:val('conexiones'),objetivos:[]};
+  var o={responsable:val('responsable'),area:val('area'),
+    problema:val('problema'),afectados:val('afectados'),causas:val('causas'),consecuencias:val('consecuencias'),
+    alternativas:textosIdeas().filter(Boolean),elegidaN:$('elegida').value,elegida:elegidaTxt(),porque:val('porque'),
+    nombre:val('nombre'),tipo:val('tipo'),incluye:val('incluye'),noIncluye:val('noincluye'),
+    proposito:val('proposito'),objetivoGeneral:val('general'),conexiones:val('conexiones'),objetivos:[]};
   objs.querySelectorAll('.obj').forEach(function(el){
     var acts=[].map.call(el.querySelectorAll('.ai'),function(x){return (x.value||'').trim()}).filter(Boolean);
     o.objetivos.push({texto:(el.querySelector('.ot').value||'').trim(),actividades:acts});
@@ -305,14 +380,18 @@ function read(){
 }
 function write(o){
   o=o||{};
-  $('nombre').value=o.nombre||'';$('area').value=o.area||'';$('responsable').value=o.responsable||'';$('tipo').value=o.tipo||'';
-  $('problema').value=o.problema||'';$('proposito').value=o.proposito||'';$('general').value=o.objetivoGeneral||'';$('conexiones').value=o.conexiones||'';
+  var campos={responsable:'responsable',area:'area',problema:'problema',afectados:'afectados',causas:'causas',consecuencias:'consecuencias',
+    porque:'porque',nombre:'nombre',tipo:'tipo',incluye:'incluye',noincluye:'noIncluye',proposito:'proposito',general:'objetivoGeneral',conexiones:'conexiones'};
+  Object.keys(campos).forEach(function(id){$(id).value=o[campos[id]]||''});
+  ideas.innerHTML=''; var al=(o.alternativas||[]).slice(0,MAX_IDEAS);
+  for(var k=0;k<Math.max(MIN_IDEAS,al.length);k++)addIdea(al[k]||'');
+  opcionesElegida(); $('elegida').value=o.elegidaN||''; if($('elegida').value!==(o.elegidaN||''))$('elegida').value='';
   objs.innerHTML=''; var list=(o.objetivos||[]).slice(0,MAX_OBJ);
   for(var i=0;i<Math.max(MIN_OBJ,list.length);i++){var ob=list[i]||{};addObj(ob.texto||'',ob.actividades||[]);}
   refresh();
 }
 function checks(o){
-  var c=[o.nombre,o.area,o.responsable,o.problema,o.proposito,o.objetivoGeneral];
+  var c=[o.responsable,o.area,o.problema,o.afectados,o.causas,o.alternativas.length>=MIN_IDEAS?'x':'',o.elegida,o.nombre,o.incluye,o.proposito,o.objetivoGeneral];
   for(var i=0;i<3;i++)c.push(o.objetivos[i].texto);
   for(var i=0;i<3;i++)c.push(o.objetivos[i].actividades.length>=1?'x':'');
   return c;
@@ -327,21 +406,43 @@ function refresh(){
 var tm=null;
 function persist(){clearTimeout(tm); tm=setTimeout(function(){try{localStorage.setItem(LS,JSON.stringify(read()))}catch(_){}},500)}
 document.addEventListener('input',function(e){ if(!e.target.closest('#v-form'))return; refresh(); persist(); });
-document.addEventListener('change',function(e){ if(e.target.id==='tipo'){refresh();persist();} });
+document.addEventListener('change',function(e){ if(e.target.closest('#v-form')){refresh();persist();} });
+ideas.addEventListener('input',opcionesElegida);
 function say(t,k){var m=$('msg');m.textContent=t;m.className='msg'+(k?' '+k:'')}
 
 /* ---------- copia descargable ---------- */
+/* Las mismas secciones, en el mismo orden, para la copia, el correo, el banco y el Word.
+   Cada una es [título, texto] o [título, null, lista]. */
+function secciones(o){
+  var an=[['Qué está pasando',o.problema],['A quién afecta y en qué magnitud',o.afectados],['Por qué está pasando',o.causas],['Qué pasa si no se atiende',o.consecuencias]]
+    .filter(function(x){return x[1]}).map(function(x){return x[0]+': '+x[1]}).join('\n');
+  var alc=[['Incluye',o.incluye],['No incluye',o.noIncluye]].filter(function(x){return x[1]}).map(function(x){return x[0]+': '+x[1]}).join('\n');
+  var ideasTxt=(o.alternativas||[]).map(function(x,i){return (i+1)+'. '+x}).join('\n');
+  var esc_=[o.elegida?'Escogida: '+o.elegida:'',o.porque?'Por qué: '+o.porque:''].filter(Boolean).join('\n');
+  return [
+    ['Análisis del problema o la necesidad',an],
+    ['Posibles soluciones',[ideasTxt,esc_].filter(Boolean).join('\n\n')],
+    ['Alcance del proyecto',alc],
+    ['Propósito superior',o.proposito],
+    ['Objetivo general',o.objetivoGeneral],
+    ['Objetivos específicos y actividades',null,(o.objetivos||[]).filter(function(x){return x.texto||(x.actividades||[]).length})],
+    ['Con quién se conecta',o.conexiones]
+  ];
+}
 function fichaTxt(o){
   var L=['PREFORMULACIÓN DE PROYECTO · VISIÓN CIRCULAR','',
-   'Proyecto: '+(o.nombre||''),'Línea o área: '+(o.area||''),'Quién la diligencia: '+(o.responsable||''),'Clasificación: '+(o.tipo||''),'',
-   'PROBLEMA O NECESIDAD',o.problema||'','','PROPÓSITO SUPERIOR',o.proposito||'','','OBJETIVO GENERAL',o.objetivoGeneral||'','','OBJETIVOS ESPECÍFICOS Y ACTIVIDADES'];
-  (o.objetivos||[]).forEach(function(x,i){
-    if(!x.texto&&!(x.actividades||[]).length)return;
-    L.push('Objetivo '+(i+1)+': '+(x.texto||''));
-    (x.actividades||[]).forEach(function(a,j){L.push('   '+(i+1)+'.'+(j+1)+' '+a)});L.push('');
+   'Quién la diligencia: '+(o.responsable||''),'Línea o área: '+(o.area||''),'Proyecto: '+(o.nombre||''),'Clasificación: '+(o.tipo||'')];
+  secciones(o).forEach(function(s){
+    if(s[2]){L.push('',s[0].toUpperCase());s[2].forEach(function(x,i){L.push('Objetivo '+(i+1)+': '+(x.texto||''));(x.actividades||[]).forEach(function(a,j){L.push('   '+(i+1)+'.'+(j+1)+' '+a)})});}
+    else if(s[1])L.push('',s[0].toUpperCase(),s[1]);
   });
-  L.push('CON QUIÉN SE CONECTA',o.conexiones||'');
   return L.join('\r\n');
+}
+function seccionesHtml(o,h4){
+  return secciones(o).map(function(s){
+    if(s[2])return '<div><'+h4+'>'+s[0]+'</'+h4+'><ol>'+s[2].map(function(x){return '<li>'+esc(x.texto)+'<ul>'+(x.actividades||[]).map(function(a){return '<li>'+esc(a)+'</li>'}).join('')+'</ul></li>'}).join('')+'</ol></div>';
+    return s[1]?'<div><'+h4+'>'+s[0]+'</'+h4+'><p>'+esc(s[1]).replace(/\n/g,'<br>')+'</p></div>':'';
+  }).join('');
 }
 function bajar(nombre,contenido,tipo){
   var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+contenido],{type:tipo}));a.download=nombre;
@@ -358,8 +459,12 @@ $('again').onclick=function(){write({});try{localStorage.removeItem(LS)}catch(_)
 
 /* ---------- envío ---------- */
 function falta(o){
-  var m=[['nombre','el nombre del proyecto',o.nombre],['area','la línea o área',o.area],['responsable','quién diligencia',o.responsable],['problema','el problema o necesidad',o.problema],['proposito','el propósito superior',o.proposito],['general','el objetivo general',o.objetivoGeneral]];
+  var m=[['responsable','tu nombre',o.responsable],['area','la línea o área',o.area],['problema','qué está pasando',o.problema],['afectados','a quién afecta',o.afectados],['causas','por qué está pasando',o.causas]];
   for(var i=0;i<m.length;i++)if(!m[i][2])return {id:m[i][0],t:m[i][1]};
+  var ii=ideas.querySelectorAll('.ii');
+  for(var q=0;q<MIN_IDEAS;q++)if(!(ii[q].value||'').trim())return {el:ii[q],t:'la idea '+(q+1)+' de posibles soluciones (pon al menos dos)'};
+  m=[['elegida','cuál de las ideas vas a trabajar',o.elegida],['nombre','el nombre del proyecto',o.nombre],['incluye','qué incluye el proyecto',o.incluye],['proposito','el propósito superior',o.proposito],['general','el objetivo general',o.objetivoGeneral]];
+  for(i=0;i<m.length;i++)if(!m[i][2])return {id:m[i][0],t:m[i][1]};
   var ot=objs.querySelectorAll('.ot');
   for(var k=0;k<3;k++){ if(!o.objetivos[k].texto)return {el:ot[k],t:'el objetivo específico '+(k+1)}; if(!o.objetivos[k].actividades.length)return {el:objs.querySelectorAll('.obj')[k].querySelector('.ai'),t:'al menos una actividad del objetivo '+(k+1)}; }
   return null;
@@ -371,7 +476,7 @@ function avisar(o,ts){
     body:JSON.stringify({_subject:'Preformulación de proyecto: '+o.nombre+' · '+o.area,tipo:'Preformulación de proyecto',nombre:o.responsable,area:o.area,proyecto:o.nombre,ficha:texto,fecha:ts})}).catch(silencio)}catch(_){}
   try{fetch(SHEET,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
     body:JSON.stringify({herramienta:'Preformulación taller VC',nombre:o.responsable,empresa:o.area,sector:o.tipo,resumen:o.nombre+' — '+o.objetivoGeneral,respuestas:texto,notas:o.conexiones,fecha:ts})}).catch(silencio)}catch(_){}
-  if(RECEPTOR.indexOf('http')===0){try{fetch(RECEPTOR,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(o)}).catch(silencio)}catch(_){}}
+  if(RECEPTOR.indexOf('http')===0){try{fetch(RECEPTOR,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(o)}).catch(silencio)}catch(_){}} /* receptor/Code.gs del repo */
 }
 $('send').onclick=function(){
   if(busy)return;
@@ -414,12 +519,9 @@ function pintarBanco(){
   if(!lista.length){box.innerHTML='<div class="empty">Ninguna ficha coincide con la búsqueda.</div>';return}
   box.innerHTML=lista.map(function(f){
     var tuya=m.indexOf(f.id)>=0;
-    var bl=function(t,c){return c?'<div><h4>'+t+'</h4><p>'+esc(c)+'</p></div>':''};
     return '<details class="pc"><summary><span class="h"><b>'+esc(f.nombre)+'</b>'+(f.tipo?'<span class="pill ok">'+esc(f.tipo)+'</span>':'')+(tuya?'<span class="pill mine">Tuya</span>':'')+'</span>'+
       '<span class="sub">'+esc([f.area,f.responsable,fecha(f.ts)].filter(Boolean).join(' · '))+'</span></summary>'+
-      '<div class="body">'+bl('Problema o necesidad',f.problema)+bl('Propósito superior',f.proposito)+bl('Objetivo general',f.objetivoGeneral)+
-      '<div><h4>Objetivos específicos y actividades</h4><ol>'+(f.objetivos||[]).map(function(x){return '<li>'+esc(x.texto)+'<ul>'+(x.actividades||[]).map(function(a){return '<li>'+esc(a)+'</li>'}).join('')+'</ul></li>'}).join('')+'</ol></div>'+
-      bl('Con quién se conecta',f.conexiones)+'</div></details>';
+      '<div class="body">'+seccionesHtml(f,'h4')+'</div></details>';
   }).join('');
   pintarBanco.lista=lista;
 }
@@ -427,12 +529,8 @@ $('q').addEventListener('input',pintarBanco);
 $('solo').addEventListener('change',pintarBanco);
 $('dl').onclick=function(){
   var lista=pintarBanco.lista||[];
-  var p=function(t,c){return c?'<h3>'+t+'</h3><p>'+esc(c).replace(/\n/g,'<br>')+'</p>':''};
   var cuerpo=lista.map(function(f){
-    return '<h1>'+esc(f.nombre)+'</h1><p class="m">'+esc([f.area,f.responsable,f.tipo,fecha(f.ts)].filter(Boolean).join(' · '))+'</p>'+
-      p('Problema o necesidad',f.problema)+p('Propósito superior',f.proposito)+p('Objetivo general',f.objetivoGeneral)+
-      '<h3>Objetivos específicos y actividades</h3><ol>'+(f.objetivos||[]).map(function(x){return '<li>'+esc(x.texto)+'<ul>'+(x.actividades||[]).map(function(a){return '<li>'+esc(a)+'</li>'}).join('')+'</ul></li>'}).join('')+'</ol>'+
-      p('Con quién se conecta',f.conexiones);
+    return '<h1>'+esc(f.nombre)+'</h1><p class="m">'+esc([f.area,f.responsable,f.tipo,fecha(f.ts)].filter(Boolean).join(' · '))+'</p>'+seccionesHtml(f,'h3');
   }).join('<br style="page-break-before:always">');
   bajar('Preformulaciones_Vision_Circular_'+new Date().toISOString().slice(0,10)+'.doc',
     '<html><head><meta charset="utf-8"><title>Preformulaciones</title><style>body{font-family:"Trebuchet MS",Arial,sans-serif;font-size:11pt;color:#1E305D}h1{font-size:16pt;color:#2C67B0;margin:0}.m{color:#5A6B85;margin:2pt 0 10pt}h3{font-size:10pt;color:#006F63;text-transform:uppercase;letter-spacing:.06em;margin:12pt 0 2pt}ul{color:#5A6B85}</style></head><body>'+cuerpo+'</body></html>',

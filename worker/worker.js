@@ -32,13 +32,18 @@ const MAX_REPORTES = 20000;
 const MAX_PREF = 5000;
 const txt = (v, n = 600) => (v == null ? null : String(v).trim().slice(0, n) || null);
 
-/* Deja solo los campos esperados de una ficha de preformulación, con largo y cantidad acotados. */
+/* Deja solo los campos esperados de una ficha de preformulación, con largo y cantidad acotados.
+   Orden de la ficha: quién la diligencia, análisis del problema, posibles soluciones, definición y alcance,
+   propósito, objetivo general, objetivos específicos con actividades y conexiones. */
 function limpiarPref(d) {
   d = d && typeof d === "object" ? d : {};
   return {
-    nombre: txt(d.nombre, 150), area: txt(d.area, 100), responsable: txt(d.responsable, 100), tipo: txt(d.tipo, 40),
-    problema: txt(d.problema, 1500), proposito: txt(d.proposito, 800), objetivoGeneral: txt(d.objetivoGeneral, 500),
-    conexiones: txt(d.conexiones, 700),
+    responsable: txt(d.responsable, 100), area: txt(d.area, 100),
+    problema: txt(d.problema, 1500), afectados: txt(d.afectados, 800), causas: txt(d.causas, 1000), consecuencias: txt(d.consecuencias, 800),
+    alternativas: (Array.isArray(d.alternativas) ? d.alternativas.slice(0, 5) : []).map((x) => txt(x, 300)).filter(Boolean),
+    elegida: txt(d.elegida, 300), elegidaN: txt(d.elegidaN, 12), porque: txt(d.porque, 800),
+    nombre: txt(d.nombre, 150), tipo: txt(d.tipo, 40), incluye: txt(d.incluye, 800), noIncluye: txt(d.noIncluye, 800),
+    proposito: txt(d.proposito, 800), objetivoGeneral: txt(d.objetivoGeneral, 500), conexiones: txt(d.conexiones, 700),
     objetivos: (Array.isArray(d.objetivos) ? d.objetivos.slice(0, 6) : []).map((o) => ({
       texto: txt(o && o.texto, 400),
       actividades: (o && Array.isArray(o.actividades) ? o.actividades.slice(0, 6) : []).map((x) => txt(x, 250)).filter(Boolean),
@@ -102,10 +107,14 @@ export default {
         if (txt(b.web)) return json({ ok: true, id: "x", ts: new Date().toISOString() }); // campo trampa para robots
         const o = limpiarPref(b);
         const falta = [];
-        if (!o.nombre) falta.push("el nombre del proyecto");
-        if (!o.area) falta.push("la línea o área");
         if (!o.responsable) falta.push("quién diligencia");
-        if (!o.problema) falta.push("el problema o necesidad");
+        if (!o.area) falta.push("la línea o área");
+        if (!o.problema) falta.push("qué está pasando");
+        if (!o.causas) falta.push("por qué está pasando");
+        if (o.alternativas.length < 2) falta.push("al menos dos posibles soluciones");
+        if (!o.elegida) falta.push("cuál solución se va a trabajar");
+        if (!o.nombre) falta.push("el nombre del proyecto");
+        if (!o.incluye) falta.push("qué incluye el proyecto");
         if (!o.proposito) falta.push("el propósito superior");
         if (!o.objetivoGeneral) falta.push("el objetivo general");
         if (o.objetivos.filter((x) => x.texto && x.actividades.length).length < 3) falta.push("tres objetivos específicos con al menos una actividad");
