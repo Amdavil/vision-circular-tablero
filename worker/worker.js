@@ -98,25 +98,42 @@ export default {
         return json({ reportes: r.results.map((x) => ({ ...x, incluido: !!x.incluido })), validaciones, metas, ahora: new Date().toISOString() });
       }
 
-      /* ---------- preformulaciones: estado abierto, contenido con código ---------- */
-      if (req.method === "GET" && url.pathname === "/api/preformulaciones") {
-        const rolLee = await rolDe(req.headers.get("X-Codigo") || "", env);
-        const [ult, conEnvio] = await Promise.all([
-          env.DB.prepare(
-            `SELECT p.* FROM preformulaciones p
-             JOIN (SELECT area, MAX(ts) AS m FROM preformulaciones GROUP BY area) x ON p.area = x.area AND p.ts = x.m`
-          ).all(),
-          env.DB.prepare("SELECT area, MAX(ts) AS ts, COUNT(*) AS n FROM preformulaciones WHERE estado = 'enviada' GROUP BY area").all(),
-        ]);
-        const enviadas = {}; conEnvio.results.forEach((x) => (enviadas[x.area] = x));
-        const areas = {};
-        ult.results.forEach((x) => {
-          areas[x.area] = {
-            estado: x.estado, ts: x.ts, enviada: enviadas[x.area] ? enviadas[x.area].ts : null,
-            ...(rolLee ? { por: x.por, datos: JSON.parse(x.datos) } : {}),
-          };
-        });
-        return json({ areas, rol: rolLee, ahora: new Date().toISOString() });
+      /* ---------- preformulaciones: libre acceso ---------- */
+      if (url.pathname === "/api/preformulaciones" && req.method === "GET") {
+        const r = await env.DB.prepare(
+          `SELECT p.* FROM preformulaciones p
+           JOIN (SELECT area, por, MAX(ts) AS m FROM preformulaciones GROUP BY area, por) x
+             ON p.area = x.area AND p.por = x.por AND p.ts = x.m
+           ORDER BY p.ts DESC`
+        ).all();
+        return json({ envios: r.results.map((x) => ({ id: x.id, area: x.area, por: x.por, ts: x.ts, datos: JSON.parse(x.datos) })), ahora: new Date().toISOString() });
+      }
+      if (url.pathname === "/api/preformulaciones" && req.method === "POST") {
+        let b;
+        try { b = await req.json(); } catch { return json({ error: "json", mensaje: "El cuerpo no es JSON." }, 400); }
+        const por = txt(b.por, 120);
+        if (!por) return json({ error: "datos", mensaje: "Escribe tu nombre." }, 400);
+        const otra = txt(b.otra, 80);
+        const area = AREAS.includes(b.area) ? b.area : b.area === "OTRA" && otra ? "Otra: " + otra : null;
+        if (!area) return json({ error: "datos", mensaje: "Elige tu área o línea estratégica." }, 400);
+        const datos = limpiarPref(b.datos);
+        const falta = [];
+        if (!datos.nombre) falta.push("nombre del proyecto");
+        if (!datos.problema.hoy) falta.push("problema");
+        if (!datos.proposito) falta.push("propósito superior");
+        if (!datos.general) falta.push("objetivo general");
+        const esp = datos.especificos.filter((o) => o.texto);
+        if (esp.length < 3) falta.push("al menos 3 objetivos específicos");
+        else if (esp.some((o) => !o.actividades.some((a) => a.texto))) falta.push("actividades en cada objetivo");
+        if (falta.length) return json({ error: "datos", mensaje: "Para enviar falta: " + falta.join(", ") + "." }, 400);
+        const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM preformulaciones").first();
+        if (n && n.n >= MAX_PREF) return json({ error: "cupo", mensaje: "La base llegó a su límite de envíos." }, 507);
+        const id = "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+        const ts = new Date().toISOString();
+        await env.DB.prepare("INSERT INTO preformulaciones (id, area, estado, datos, por, ts) VALUES (?, ?, 'enviada', ?, ?, ?)")
+          .bind(id, area, JSON.stringify(datos), por, ts).run();
+        await bitacora(env, "preformulacion", { id, area, nombre: datos.nombre }, por, "libre");
+        return json({ ok: true, id, ts });
       }
 
       /* ---------- todo lo demás exige código ---------- */
@@ -162,34 +179,6 @@ export default {
           b.incluido ? 1 : 0, b.quien, txt(b.fuente), txt(b.evidencia), txt(b.nota, 1200), txt(b.por, 120) || "Sin nombre", ts, txt(b.corrige, 40)
         ).run();
         await bitacora(env, "reporte", { id, v: b.v, anio, valor, quien: b.quien }, b.por, rol);
-        return json({ ok: true, id, ts });
-      }
-
-      /* ---------- guardar o enviar la preformulación del área ---------- */
-      if (url.pathname === "/api/preformulaciones") {
-        if (!AREAS.includes(b.area)) return json({ error: "datos", mensaje: "Área no válida." }, 400);
-        if (rol !== "VALIDADOR" && rol !== b.area)
-          return json({ error: "rol", mensaje: "Tu código solo permite editar el proyecto de tu área." }, 403);
-        if (!["borrador", "enviada"].includes(b.estado)) return json({ error: "datos", mensaje: "Estado no válido." }, 400);
-        const datos = limpiarPref(b.datos);
-        if (b.estado === "enviada") {
-          const falta = [];
-          if (!datos.nombre) falta.push("nombre del proyecto");
-          if (!datos.problema.hoy) falta.push("problema");
-          if (!datos.proposito) falta.push("propósito superior");
-          if (!datos.general) falta.push("objetivo general");
-          const esp = datos.especificos.filter((o) => o.texto);
-          if (esp.length < 3) falta.push("al menos 3 objetivos específicos");
-          if (esp.some((o) => !o.actividades.some((a) => a.texto))) falta.push("actividades en cada objetivo");
-          if (falta.length) return json({ error: "datos", mensaje: "Para enviar falta: " + falta.join(", ") + "." }, 400);
-        }
-        const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM preformulaciones").first();
-        if (n && n.n >= MAX_PREF) return json({ error: "cupo", mensaje: "La base llegó a su límite de versiones." }, 507);
-        const id = "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-        const ts = new Date().toISOString();
-        await env.DB.prepare("INSERT INTO preformulaciones (id, area, estado, datos, por, ts) VALUES (?, ?, ?, ?, ?, ?)")
-          .bind(id, b.area, b.estado, JSON.stringify(datos), txt(b.por, 120) || "Sin nombre", ts).run();
-        await bitacora(env, "preformulacion", { id, area: b.area, estado: b.estado, nombre: datos.nombre }, b.por, rol);
         return json({ ok: true, id, ts });
       }
 

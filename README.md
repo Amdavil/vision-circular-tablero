@@ -34,7 +34,7 @@ Los códigos **no están en este repositorio**. El Worker guarda el secreto `COD
 
 ## Preformulación de proyectos
 
-https://amdavil.github.io/vision-circular-tablero/preformulacion.html — tarea del taller de formulación (oct 2026). Cada área entra con su mismo código, escribe su proyecto en 5 pasos y lo envía. Qué área va en qué estado es abierto; el contenido solo se ve con un código válido. Cada guardado es una versión nueva en la tabla `preformulaciones` (migración 0004).
+https://amdavil.github.io/vision-circular-tablero/preformulacion.html — tarea del taller de formulación (oct 2026). Acceso libre, sin código: cada persona escribe su proyecto en 5 pasos con su nombre y su área o línea, y lo envía. Cada envío queda en la tabla `preformulaciones` (migración 0004; la lista pública muestra la versión más reciente por persona y área), llega como fila a la pestaña "Preformulación taller VC" del archivo madre de resultados (Google Sheet vía Apps Script) y como correo (Formspree). La pestaña "Proyectos enviados" permite descargarlos todos en Word.
 
 ## Auditoría
 

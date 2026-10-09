@@ -195,6 +195,10 @@ details.ej .nota{font-size:12.5px;color:var(--ink-3)}
 .guardado .estado.sucio i{background:var(--warn)}
 .guardado .estado.limpio i{background:var(--ok)}
 
+.quien{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;padding:14px;border-radius:8px;background:var(--brand-soft)}
+.quien #l-otra{grid-column:1/-1}
+@media (max-width:620px){.quien{grid-template-columns:1fr}}
+.av .nn{font-family:var(--mono);font-size:12px;font-weight:600}
 /* todas las áreas */
 .lista{display:grid;gap:12px}
 .ficha{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:18px 20px;display:grid;gap:12px;min-width:0}
@@ -219,23 +223,21 @@ details.ej .nota{font-size:12.5px;color:var(--ink-3)}
   <div class="intro">
     <p class="eyebrow">Taller de formulación · siguiente paso</p>
     <h1>Preformulación del proyecto de tu área</h1>
-    <p class="lede">Cada área escoge un proyecto y lo deja escrito en cinco pasos: el problema, el propósito superior, el objetivo general, de 3 a 4 objetivos específicos y las actividades de cada uno. Al final verás el proyecto armado como un tren lógico para revisar que todo conecte.</p>
+    <p class="lede">Escojan un proyecto y déjenlo escrito en cinco pasos: el problema, el propósito superior, el objetivo general, de 3 a 4 objetivos específicos y las actividades de cada uno. Al final verás el proyecto armado como un tren lógico para revisar que todo conecte.</p>
   </div>
 
   <div>
-    <p class="eyebrow" style="margin-bottom:8px">Avance de las áreas</p>
+    <p class="eyebrow" style="margin-bottom:8px">Proyectos enviados por área</p>
     <div class="avance" id="avance"></div>
     <p class="small muted" id="avance-msg" style="margin-top:6px"></p>
   </div>
 
   <nav class="tabs" role="tablist">
-    <button class="tab-btn" role="tab" id="tb-form" aria-selected="true" data-tab="form">Proyecto de mi área</button>
-    <button class="tab-btn" role="tab" id="tb-todas" aria-selected="false" data-tab="todas">Las 8 preformulaciones</button>
+    <button class="tab-btn" role="tab" id="tb-form" aria-selected="true" data-tab="form">Mi proyecto</button>
+    <button class="tab-btn" role="tab" id="tb-todas" aria-selected="false" data-tab="todas">Proyectos enviados</button>
   </nav>
 
   <section id="t-form" style="display:grid;gap:18px">
-    <div class="acceso" id="acceso"></div>
-    <div id="aviso"></div>
 
     <div class="form-grid">
       <ol class="pasos" id="pasos"></ol>
@@ -249,9 +251,14 @@ details.ej .nota{font-size:12.5px;color:var(--ink-3)}
             <p class="q">Antes de pensar en la solución, describan lo que pasa hoy. Un buen problema se puede ver, se puede medir y le pasa a alguien.</p>
           </div>
           <div class="campos">
+            <div class="quien">
+              <label class="f"><span>Tu nombre</span><input type="text" id="f-quien" maxlength="120" autocomplete="name"></label>
+              <label class="f"><span>Área o línea estratégica</span><select id="f-area"></select></label>
+              <label class="f" id="l-otra" hidden><span>¿Cuál?</span><input type="text" id="f-otra" maxlength="80"></label>
+            </div>
             <label class="f"><span>Nombre del proyecto</span><small>Corto y reconocible. Lo pueden cambiar después.</small>
               <input type="text" id="f-nombre" data-k="nombre" maxlength="160" placeholder="Ej.: Colegios que separan bien"></label>
-            <label class="f"><span>Personas del área que lo formulan</span>
+            <label class="f"><span>Otras personas que lo formulan contigo</span><small>Opcional.</small>
               <input type="text" id="f-equipo" data-k="equipo" maxlength="300" placeholder="Nombres separados por coma"></label>
             <label class="f"><span>¿Qué pasa hoy?</span><small>La situación tal como se ve, sin mencionar todavía la solución.</small>
               <textarea id="f-hoy" data-k="problema.hoy" maxlength="1500"></textarea></label>
@@ -355,7 +362,7 @@ details.ej .nota{font-size:12.5px;color:var(--ink-3)}
 <div class="guardado">
   <div class="wrap">
     <div class="estado" id="g-estado"><i></i><span>Los cambios se guardan en este equipo mientras escribes.</span></div>
-    <button type="button" class="btn small" id="g-guardar">Guardar borrador en la base</button>
+    <button type="button" class="btn small primary" id="g-ir">Revisar y enviar</button>
   </div>
 </div>
 
@@ -364,41 +371,45 @@ details.ej .nota{font-size:12.5px;color:var(--ink-3)}
 (function(){
 "use strict";
 const API=(window.VC_CONFIG||{}).api||'';
+/* Cada envío llega también al archivo madre de resultados (Google Sheet, una pestaña por herramienta)
+   y por correo (Formspree): los mismos destinos de assets/lead-capture.js en herramientas-y-assessment. */
+const SHEET="https://script.google.com/macros/s/AKfycbwsPJcVWWBIXPebWZkJadjFkflREf_EKf2g-rvAYk_ig7NWbpnPtC6erI0u4OUasFOC_Q/exec";
+const FORMSPREE="https://formspree.io/f/xzdqznry";
+const HERRAMIENTA="Preformulación taller VC";
 const AREAS={IMP:'Implementación (Traza)',LB:'Gestión de Línea Base (ARCO)',INN:'Innovación y PMO',ISP:'Inclusión social y productiva',TER:'Proyectos territoriales y sectoriales',CON:'Consumo responsable',COM:'Comunicaciones y relacionamiento',FIN:'Administrativa y financiera'};
 const COD=Object.keys(AREAS);
-const PASOS=[['Problema','Qué pasa y a quién'],['Propósito','El cambio mayor'],['Objetivo general','Lo que se logra'],['Objetivos y actividades','De 3 a 4 objetivos'],['Revisar y enviar','El tren lógico']];
+const PASOS=[['Problema','Quién formula y qué pasa'],['Propósito','El cambio mayor'],['Objetivo general','Lo que se logra'],['Objetivos y actividades','De 3 a 4 objetivos'],['Revisar y enviar','El tren lógico']];
 const MESES=(()=>{const n=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'],o=[];for(let y=2026,m=10;y<2028;m++){if(m>11){m=0;y++;if(y>2027)break;}o.push([y+'-'+String(m+1).padStart(2,'0'),n[m]+' '+y]);}return o;})();
 const mesTxt=v=>{const x=MESES.find(m=>m[0]===v);return x?x[1]:'';};
 
 /* ---------- utilidades ---------- */
 const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const ls={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},del:k=>{try{localStorage.removeItem(k)}catch(e){}}};
+const ls={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
 const cuando=iso=>{if(!iso)return '';const d=new Date(iso);return d.toLocaleDateString('es-CO',{day:'numeric',month:'short'})+', '+d.toLocaleTimeString('es-CO',{hour:'numeric',minute:'2-digit'});};
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
 const lleno=s=>!!String(s||'').trim();
+const areaTxt=a=>AREAS[a]||String(a||'').replace(/^Otra: /,'');
 async function api(path,body){
-  const opt={method:body?'POST':'GET',headers:{}};if(S.codigo)opt.headers['X-Codigo']=S.codigo;
+  const opt={method:body?'POST':'GET',headers:{}};
   if(body){opt.headers['Content-Type']='application/json';opt.body=JSON.stringify(body);}
-  let r;try{r=await fetch(API+path,opt);}catch(e){const er=new Error('No hay conexión con la base de datos. Revisa tu internet e intenta de nuevo.');er.code='red';throw er;}
+  let r;try{r=await fetch(API+path,opt);}catch(e){throw new Error('No hay conexión con la base de datos. Revisa tu internet e intenta de nuevo.');}
   let j=null;try{j=await r.json();}catch(e){}
-  if(!r.ok){const er=new Error((j&&j.mensaje)||('Error '+r.status));er.status=r.status;throw er;}
+  if(!r.ok)throw new Error((j&&j.mensaje)||('Error '+r.status));
   return j;
 }
 
 /* ---------- estado ---------- */
 const vacio=()=>({nombre:'',equipo:'',problema:{hoy:'',afectados:'',consecuencia:''},proposito:'',general:'',
   especificos:[0,1,2].map(()=>({texto:'',evidencia:'',actividades:[{texto:'',quien:'',cuando:''},{texto:'',quien:'',cuando:''}]}))});
-const S={codigo:ls.get('vc-codigo')||'',nombre:ls.get('vc-nombre')||'',rol:null,area:null,paso:1,tab:'form',
-  D:vacio(),base:null,sucio:false,remoto:{},cargado:false,error:null,msgEnvio:null,conflicto:null};
-const llave=a=>'vc-pref-'+(a||'sin');
-function guardarLocal(){ls.set(llave(S.area),JSON.stringify({D:S.D,base:S.base,sucio:S.sucio,mod:new Date().toISOString()}));}
-function leerLocal(a){try{const x=JSON.parse(ls.get(llave(a))||'null');return x&&x.D?x:null;}catch(e){return null;}}
-function tieneTexto(D){return D&&(lleno(D.nombre)||lleno(D.problema&&D.problema.hoy)||lleno(D.general)||lleno(D.proposito));}
 function completar(D){const v=vacio();D=Object.assign(v,D||{});D.problema=Object.assign(vacio().problema,D.problema||{});['hoy','afectados','consecuencia'].forEach(k=>{if(D.problema[k]==null)D.problema[k]='';});
   D.especificos=(Array.isArray(D.especificos)&&D.especificos.length?D.especificos:v.especificos).map(o=>({texto:o.texto||'',evidencia:o.evidencia||'',actividades:(o.actividades&&o.actividades.length?o.actividades:[{}]).map(a=>({texto:a.texto||'',quien:a.quien||'',cuando:a.cuando||''}))}));
   ['nombre','equipo','proposito','general'].forEach(k=>{if(D[k]==null)D[k]='';});return D;}
-const esValidador=()=>S.rol==='VALIDADOR';
+const S={D:vacio(),Q:{por:'',area:'',otra:''},paso:1,tab:'form',envios:[],cargado:false,error:null,msgEnvio:null,enviado:null,enviando:false};
+try{const x=JSON.parse(ls.get('vc-pref')||'null');if(x){if(x.D)S.D=completar(x.D);if(x.Q)S.Q=Object.assign(S.Q,x.Q);S.enviado=x.enviado||null;}}catch(e){}
+if(!S.Q.por)S.Q.por=ls.get('vc-nombre')||'';
+function guardarLocal(){ls.set('vc-pref',JSON.stringify({D:S.D,Q:S.Q,enviado:S.enviado,mod:new Date().toISOString()}));}
+const areaElegida=()=>S.Q.area==='OTRA'?(lleno(S.Q.otra)?'Otra: '+S.Q.otra.trim():''):S.Q.area;
 
 /* ---------- pistas de redacción ---------- */
 const DEBILES=['apoyar','fomentar','promover','propiciar','contribuir','impulsar','incentivar','buscar','procurar','intentar','sensibilizar','concientizar','gestionar','coadyuvar','propender','acompanar'];
@@ -408,7 +419,7 @@ function pistaObjetivo(t,general){
   const w=norm(t).split(/\s+/)[0].replace(/[^a-zñ]/g,'');
   if(!/(ar|er|ir)(se)?$/.test(w))return ['warn','Empiecen con un verbo en infinitivo (diseñar, certificar, vincular, reducir…).'];
   if(DEBILES.includes(w))return ['warn','"'+w.charAt(0).toUpperCase()+w.slice(1)+'" es difícil de verificar. Prueben un verbo que deje un resultado visible: diseñar, implementar, certificar, vincular, formar, medir.'];
-  if(general&&MAGNITUD.includes(w)&&!/\d/.test(t))return ['warn','Dice qué cambia. Agreguen cuánto o hasta dónde: una cifra, un porcentaje o un umbral.'];
+  if(general&&MAGNITUD.includes(w)&&!/\d|mitad|doble|triple|tercera|cuarta/i.test(t))return ['warn','Dice qué cambia. Agreguen cuánto o hasta dónde: una cifra, un porcentaje o un umbral.'];
   if(general&&!/(20\d\d|mes|año|ano|semestre|trimestre|final de|al cierre|durante)/i.test(t))return ['warn','Falta el para cuándo: un año, un semestre o una fecha.'];
   return ['ok','Bien redactado: empieza con un verbo que se puede verificar.'];
 }
@@ -421,7 +432,7 @@ function pistas(){
   if(lleno(D.problema.afectados))h.afectados=/\d/.test(D.problema.afectados)?['ok','Tiene una cifra. Eso le da tamaño al problema.']:['warn','Agreguen al menos una cifra, aunque sea aproximada.'];
   const p=norm(D.proposito);
   if(p){const nw=p.split(/\s+/).length;
-    h.proposito=p&&p===norm(D.general)?['warn','Es igual al objetivo general. El propósito va un nivel más arriba: el cambio al que aporta.']
+    h.proposito=p===norm(D.general)?['warn','Es igual al objetivo general. El propósito va un nivel más arriba: el cambio al que aporta.']
       :nw<8?['warn','Muy corto. Cuenten a qué cambio mayor aporta y para quién.']:['ok','Va bien. Revisen que no se pueda cumplir solo con este proyecto: si se puede, es un objetivo.'];}
   h.general=pistaObjetivo(D.general,true);
   return h;
@@ -432,6 +443,7 @@ function revisar(){
   const D=S.D, h=pistas(), esp=D.especificos.filter(o=>lleno(o.texto));
   const acts=esp.reduce((a,o)=>a.concat(o.actividades.filter(x=>lleno(x.texto))),[]);
   return [
+    [lleno(S.Q.por)&&!!areaElegida(),'Tiene tu nombre y tu área o línea.'],
     [lleno(D.nombre)&&lleno(D.problema.hoy),'El proyecto tiene nombre y problema.'],
     [!(h.hoy&&h.hoy[0]==='warn')&&lleno(D.problema.hoy),'El problema describe una situación y no una solución que falta.'],
     [/\d/.test(D.problema.afectados||''),'El problema tiene al menos una cifra.'],
@@ -444,42 +456,49 @@ function revisar(){
   ];
 }
 function pasoListo(n){const D=S.D;
-  if(n===1)return lleno(D.nombre)&&lleno(D.problema.hoy)&&lleno(D.problema.afectados);
+  if(n===1)return lleno(S.Q.por)&&!!areaElegida()&&lleno(D.nombre)&&lleno(D.problema.hoy)&&lleno(D.problema.afectados);
   if(n===2)return lleno(D.proposito);
   if(n===3)return lleno(D.general);
   if(n===4){const e=D.especificos.filter(o=>lleno(o.texto));return e.length>=3&&e.every(o=>o.actividades.some(a=>lleno(a.texto)));}
-  if(n===5){const r=S.remoto[S.area];return !!(r&&r.estado==='enviada');}
+  if(n===5)return !!S.enviado;
+}
+
+/* ---------- texto para el correo, la hoja y la descarga ---------- */
+const detalleAct=a=>{const x=[a.quien,mesTxt(a.cuando)].filter(lleno);return x.length?' ('+x.join(', ')+')':'';};
+function textoPlano(D,por,area){
+  const L=[],v=x=>lleno(x)?String(x).trim():'(sin escribir)';
+  L.push('PREFORMULACIÓN: '+v(D.nombre));
+  L.push('Formula: '+v(por)+' · '+areaTxt(area)+(lleno(D.equipo)?' · Con: '+D.equipo.trim():''));
+  L.push('','PROBLEMA','Qué pasa hoy: '+v(D.problema.hoy),'A quién afecta y cuánto: '+v(D.problema.afectados),'Si no se hace nada: '+v(D.problema.consecuencia));
+  L.push('','PROPÓSITO SUPERIOR',v(D.proposito),'','OBJETIVO GENERAL',v(D.general),'','OBJETIVOS ESPECÍFICOS Y ACTIVIDADES');
+  D.especificos.filter(o=>lleno(o.texto)).forEach((o,i)=>{
+    L.push('','OE'+(i+1)+'. '+o.texto.trim());
+    if(lleno(o.evidencia))L.push('   Se sabrá porque: '+o.evidencia.trim());
+    o.actividades.filter(a=>lleno(a.texto)).forEach((a,j)=>L.push('   '+(i+1)+'.'+(j+1)+' '+a.texto.trim()+detalleAct(a)));
+  });
+  return L.join('\n');
+}
+function avisar(D,por,area,ts){
+  const texto=textoPlano(D,por,area);
+  const fila={herramienta:HERRAMIENTA,nombre:por,empresa:areaTxt(area),sector:'Taller de formulación · Visión Circular',
+    resumen:(D.nombre||'')+' — '+(D.general||''),respuestas:texto,notas:D.equipo?'Con: '+D.equipo:'',fecha:ts};
+  try{fetch(SHEET,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(fila)}).catch(()=>{});}catch(e){}
+  try{fetch(FORMSPREE,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},
+    body:JSON.stringify({_subject:'Preformulación taller VC — '+areaTxt(area)+' — '+por,tipo:'Preformulación de proyecto',nombre:por,area:areaTxt(area),proyecto:D.nombre,preformulacion:texto,fecha:ts})}).catch(()=>{});}catch(e){}
 }
 
 /* ---------- render ---------- */
-function renderAcc(){
-  const a=$('#acc');
-  if(S.rol)a.innerHTML='<span class="chip c-acc">'+esc(esValidador()?'Facilitación':S.rol)+'</span><span class="muted">'+esc(S.nombre||'Sin nombre')+'</span><button class="btn small ghost" id="salir">Salir</button>';
-  else a.innerHTML='<span class="muted small">Sin código de área</span>';
-}
-function renderAcceso(){
-  const el=$('#acceso');
-  if(S.rol){
-    let h='<div style="display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center">';
-    if(esValidador()){
-      h+='<label class="f" style="min-width:min(100%,320px)"><span>Área que estás viendo</span><select id="sel-area">'+COD.map(c=>'<option value="'+c+'"'+(c===S.area?' selected':'')+'>'+esc(AREAS[c])+'</option>').join('')+'</select></label>';
-    }else h+='<div><p class="eyebrow">Tu área</p><h3 style="font-size:18px">'+esc(AREAS[S.area])+'</h3></div>';
-    h+='<label class="f" style="min-width:min(100%,260px);flex:1"><span>Tu nombre</span><input type="text" id="f-quien" maxlength="120" value="'+esc(S.nombre)+'" placeholder="Queda registrado en cada guardado"></label></div>';
-    el.innerHTML=h;
-  }else{
-    el.innerHTML='<div><h3>Entren con el código de su área</h3><p class="small muted" style="margin-top:4px">Es el mismo código del Tablero de Resultados. Pueden empezar a escribir sin él: lo que escriban queda en este equipo y se guarda en la base cuando ingresen el código.</p></div>'+
-      '<form class="row" id="f-login"><label class="f"><span>Código del área</span><input type="password" id="f-cod" autocomplete="off" required></label>'+
-      '<label class="f"><span>Tu nombre</span><input type="text" id="f-nom" maxlength="120" value="'+esc(S.nombre)+'" required></label>'+
-      '<button class="btn primary" type="submit">Entrar</button></form><div id="login-msg"></div>';
-  }
+function renderQuien(){
+  const sel=$('#f-area');
+  if(!sel.options.length)sel.innerHTML='<option value="">Elige una</option>'+COD.map(c=>'<option value="'+c+'">'+esc(AREAS[c])+'</option>').join('')+'<option value="OTRA">Otra área o línea</option>';
+  if($('#f-quien').value!==S.Q.por)$('#f-quien').value=S.Q.por;
+  sel.value=S.Q.area;$('#f-otra').value=S.Q.otra;$('#l-otra').hidden=S.Q.area!=='OTRA';
 }
 function renderAvance(){
-  const r=S.remoto;
-  $('#avance').innerHTML=COD.map(c=>{const x=r[c];let cl='s-no',t='Sin iniciar';
-    if(x){if(x.estado==='enviada'){cl='s-enviada';t='Enviada';}else if(x.enviada){cl='s-cambios';t='Enviada, editando';}else{cl='s-borrador';t='En borrador';}}
-    return '<div class="av '+cl+(c===S.area?' mine':'')+'" title="'+esc(AREAS[c])+'"><b>'+c+'</b><span>'+esc(AREAS[c])+'</span><span class="st"><i></i>'+t+'</span></div>';}).join('');
-  const env=COD.filter(c=>r[c]&&r[c].enviada).length;
-  $('#avance-msg').textContent=S.error?S.error:!S.cargado?'Consultando la base…':env+' de 8 áreas han enviado su preformulación.';
+  const cnt={};let otras=0;S.envios.forEach(e=>{if(AREAS[e.area])cnt[e.area]=(cnt[e.area]||0)+1;else otras++;});
+  $('#avance').innerHTML=COD.map(c=>{const n=cnt[c]||0;
+    return '<div class="av '+(n?'s-enviada':'s-no')+(c===S.Q.area?' mine':'')+'" title="'+esc(AREAS[c])+'"><b>'+c+'</b><span>'+esc(AREAS[c])+'</span><span class="st"><i></i>'+(n?n+(n===1?' proyecto':' proyectos'):'Sin envíos')+'</span></div>';}).join('');
+  $('#avance-msg').textContent=S.error?S.error:!S.cargado?'Consultando los envíos…':S.envios.length+(S.envios.length===1?' proyecto enviado':' proyectos enviados')+(otras?' (incluye '+otras+' de otras áreas o líneas)':'')+'.';
 }
 function renderPasos(){
   $('#pasos').innerHTML=PASOS.map((p,i)=>{const n=i+1;return '<li><button type="button" class="paso'+(pasoListo(n)?' done':'')+'" data-go="'+n+'"'+(n===S.paso?' aria-current="step"':'')+'><span class="n">'+(pasoListo(n)&&n!==S.paso?'✓':n)+'</span><span class="l">'+p[0]+'<small>'+p[1]+'</small></span></button></li>';}).join('');
@@ -531,126 +550,104 @@ function trenHTML(D){
 function renderRevision(){
   $('#tren').innerHTML=trenHTML(S.D);
   $('#checklist').innerHTML=revisar().map(c=>'<li class="'+(c[0]?'ok':'no')+'"><i>'+(c[0]?'✓':'!')+'</i><span>'+esc(c[1])+'</span></li>').join('');
-  const r=S.remoto[S.area];
-  let h='<h3>Enviar la preformulación</h3><p class="small muted">Al enviar, el facilitador la ve en la pestaña "Las 8 preformulaciones". Pueden seguir editando y volver a enviar; cada envío queda como una versión nueva.</p>';
-  if(!S.rol)h+='<div class="msg info">Para enviar, ingresen arriba el código de su área.</div>';
-  if(r&&r.enviada)h+='<p class="small"><span class="chip c-ok">Enviada</span> '+esc(cuando(r.enviada))+'</p>';
+  let h='<h3>Enviar la preformulación</h3><p class="small muted">Al enviarla le llega a quien facilita el taller y aparece en la pestaña "Proyectos enviados". Si después la ajustan, pueden volver a enviarla: queda la versión más reciente.</p>';
+  if(S.enviado)h+='<p class="small"><span class="chip c-ok">Enviada</span> '+esc(cuando(S.enviado))+'</p>';
   if(S.msgEnvio)h+='<div class="msg '+S.msgEnvio[0]+'">'+esc(S.msgEnvio[1])+'</div>';
-  h+='<div><button type="button" class="btn green" id="enviar"'+(S.rol?'':' disabled')+'>'+(r&&r.enviada?'Enviar de nuevo':'Enviar preformulación')+'</button></div>';
+  h+='<div><button type="button" class="btn green" id="enviar"'+(S.enviando?' disabled':'')+'>'+(S.enviando?'Enviando…':S.enviado?'Enviar de nuevo':'Enviar preformulación')+'</button></div>';
   $('#envio').innerHTML=h;
 }
 function renderGuardado(){
-  const el=$('#g-estado'),r=S.remoto[S.area];let t,cl;
-  if(!S.rol){t='Guardado solo en este equipo. Ingresen el código del área para guardarlo en la base.';cl='sucio';}
-  else if(S.errBarra){t=S.errBarra;cl='sucio';}
-  else if(S.sucio){t='Hay cambios que aún no están en la base.';cl='sucio';}
-  else if(r){t=(r.estado==='enviada'?'Enviada':'Borrador guardado en la base')+' · '+cuando(r.ts)+(r.por?' por '+r.por:'');cl='limpio';}
-  else{t='Aún no hay nada guardado en la base.';cl='';}
-  el.className='estado '+cl;el.querySelector('span').textContent=t;
-  $('#g-guardar').disabled=!S.rol||!S.sucio;
+  const el=$('#g-estado');
+  el.className='estado '+(S.enviado?'limpio':'');
+  el.querySelector('span').textContent=S.enviado?'Enviada el '+cuando(S.enviado)+'. Lo que cambien queda en este equipo hasta que la envíen de nuevo.':'Lo que escriben se guarda en este equipo. Cuando terminen, revísenlo y envíenlo.';
+  $('#g-ir').hidden=S.paso===5&&S.tab==='form';
 }
-function renderAviso(){
-  const c=S.conflicto;
-  $('#aviso').innerHTML=c?'<div class="msg warn" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span style="flex:1;min-width:200px">Hay una versión guardada en la base ('+esc(cuando(c.ts))+(c.por?', '+esc(c.por):'')+') más reciente que lo que tienen en este equipo.</span><button class="btn small" id="usar-remota">Cargar la versión guardada</button><button class="btn small ghost" id="usar-local">Seguir con la de este equipo</button></div>':'';
-}
+const ordenar=l=>{const o=e=>{const i=COD.indexOf(e.area);return i<0?99:i;};return l.slice().sort((a,b)=>o(a)-o(b)||String(a.por).localeCompare(b.por));};
 function renderTodas(){
   const el=$('#todas');
-  if(!S.rol){el.innerHTML='<div class="msg info">El contenido de las preformulaciones se ve con cualquier código de área o con el de facilitación. Arriba ven qué áreas ya enviaron.</div>';return;}
-  const hay=COD.filter(c=>S.remoto[c]&&S.remoto[c].datos);
-  el.innerHTML='<div class="lista">'+COD.map(c=>{const r=S.remoto[c];
-    if(!r||!r.datos)return '<div class="ficha"><div class="ficha-h"><span class="chip c-none">'+c+'</span><h3>'+esc(AREAS[c])+'</h3></div><p class="vacio">Todavía no ha guardado nada.</p></div>';
-    const D=completar(r.datos),chip=r.estado==='enviada'?'<span class="chip c-ok">Enviada</span>':r.enviada?'<span class="chip c-pend">Enviada, editando</span>':'<span class="chip c-warn">Borrador</span>';
-    return '<div class="ficha"><div class="ficha-h"><span class="chip c-acc">'+c+'</span><h3>'+esc(D.nombre||'Sin nombre')+'</h3>'+chip+'<span class="small muted">'+esc(AREAS[c])+' · '+esc(cuando(r.ts))+(r.por?' · '+esc(r.por):'')+'</span></div>'+
-      (D.equipo?'<p class="small muted">Formulan: '+esc(D.equipo)+'</p>':'')+
-      '<details><summary>Ver el tren lógico</summary>'+trenHTML(D)+(lleno(D.problema.consecuencia)?'<p class="small" style="margin-top:10px"><b>Si no se hace nada:</b> '+esc(D.problema.consecuencia)+'</p>':'')+'</details></div>';}).join('')+'</div>'+
-    (hay.length?'':'<p class="muted small" style="margin-top:8px">Cuando las áreas guarden, aparecerán aquí.</p>');
+  if(!S.cargado){el.innerHTML='<p class="muted">'+esc(S.error||'Consultando los envíos…')+'</p>';return;}
+  if(!S.envios.length){el.innerHTML='<div class="msg info">Todavía no hay proyectos enviados. Cuando alguien envíe el suyo, aparecerá aquí.</div>';return;}
+  const lista=ordenar(S.envios);
+  el.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px"><p class="muted small">'+lista.length+(lista.length===1?' proyecto':' proyectos')+'. Se muestra la versión más reciente de cada persona.</p><button type="button" class="btn small" id="descargar">Descargar todos en Word</button></div>'+
+    '<div class="lista">'+lista.map(e=>{const D=completar(e.datos);
+      return '<div class="ficha"><div class="ficha-h"><span class="chip c-acc">'+esc(AREAS[e.area]?e.area:'Otra')+'</span><h3>'+esc(D.nombre||'Sin nombre')+'</h3><span class="small muted">'+esc(e.por)+' · '+esc(areaTxt(e.area))+' · '+esc(cuando(e.ts))+'</span></div>'+
+        (D.equipo?'<p class="small muted">Con: '+esc(D.equipo)+'</p>':'')+
+        '<details><summary>Ver el tren lógico</summary>'+trenHTML(D)+(lleno(D.problema.consecuencia)?'<p class="small" style="margin-top:10px"><b>Si no se hace nada:</b> '+esc(D.problema.consecuencia)+'</p>':'')+'</details></div>';}).join('')+'</div>';
 }
-function renderTodo(){renderAcc();renderAcceso();renderAvance();renderAviso();renderCampos();renderPasos();renderRevision();renderGuardado();if(S.tab==='todas')renderTodas();}
+function renderTodo(){renderQuien();renderAvance();renderCampos();renderPasos();renderRevision();renderGuardado();if(S.tab==='todas')renderTodas();}
 
 /* ---------- datos ---------- */
-async function cargarRemoto(){
-  try{const d=await api('/api/preformulaciones');S.remoto=d.areas||{};S.cargado=true;S.error=null;
-    if(S.codigo&&!d.rol){S.codigo='';S.rol=null;ls.del('vc-codigo');}
-    else if(d.rol){S.rol=d.rol;}
-  }catch(e){S.error=e.message;}
+async function cargarEnvios(){
+  try{const d=await api('/api/preformulaciones');S.envios=d.envios||[];S.cargado=true;S.error=null;}
+  catch(e){S.error=e.message;}
 }
-function fijarArea(a){
-  S.area=a;const loc=leerLocal(a),r=S.remoto[a];S.conflicto=null;
-  if(!loc&&a){const sin=leerLocal(null);if(sin&&tieneTexto(sin.D)){S.D=completar(sin.D);S.base=null;S.sucio=true;if(r&&r.datos)S.conflicto=r;ls.del(llave(null));guardarLocal();return;}}
-  if(loc){S.D=completar(loc.D);S.base=loc.base;S.sucio=!!loc.sucio;
-    if(r&&r.datos&&(!loc.base||r.ts>loc.base)){if(S.sucio)S.conflicto=r;else{S.D=completar(r.datos);S.base=r.ts;guardarLocal();}}}
-  else if(r&&r.datos){S.D=completar(r.datos);S.base=r.ts;S.sucio=false;guardarLocal();}
-  else{S.D=vacio();S.base=null;S.sucio=false;}
+async function enviar(){
+  const area=areaElegida();
+  if(!lleno(S.Q.por)||!area){S.msgEnvio=['bad','Antes de enviar, escriban su nombre y elijan su área o línea en el paso 1.'];renderRevision();return;}
+  S.enviando=true;S.msgEnvio=null;renderRevision();
+  try{
+    const b={por:S.Q.por.trim(),area:S.Q.area,otra:S.Q.otra,datos:S.D};
+    const j=await api('/api/preformulaciones',b);
+    avisar(S.D,b.por,area,j.ts);
+    S.enviado=j.ts;guardarLocal();
+    S.msgEnvio=['ok','Preformulación enviada. ¡Gracias! Si la ajustan, pueden volver a enviarla.'];
+    cargarEnvios().then(()=>{renderAvance();if(S.tab==='todas')renderTodas();});
+  }catch(err){S.msgEnvio=['bad',err.message];}
+  S.enviando=false;renderPasos();renderRevision();renderGuardado();
 }
-async function guardar(estado){
-  if(!S.rol)return;
-  if(!lleno(S.nombre)){S.msgEnvio=['bad','Escriban su nombre arriba antes de guardar.'];renderRevision();$('#f-quien')&&$('#f-quien').focus();return;}
-  const b=$('#g-guardar'),e=$('#enviar');b.disabled=true;if(e)e.disabled=true;
-  try{const j=await api('/api/preformulaciones',{area:S.area,estado,datos:S.D,por:S.nombre});
-    S.base=j.ts;S.sucio=false;S.conflicto=null;S.errBarra=null;
-    const prev=S.remoto[S.area]||{};
-    S.remoto[S.area]=Object.assign({},prev,{estado,ts:j.ts,por:S.nombre,datos:JSON.parse(JSON.stringify(S.D)),enviada:estado==='enviada'?j.ts:prev.enviada||null});
-    guardarLocal();
-    S.msgEnvio=estado==='enviada'?['ok','Preformulación enviada. ¡Gracias! Pueden seguir ajustándola y volver a enviar.']:null;
-  }catch(err){if(estado==='enviada')S.msgEnvio=['bad',err.message];else S.errBarra=err.message;}
-  renderTodo();
+function descargarWord(){
+  const cuerpo=ordenar(S.envios).map(e=>{const D=completar(e.datos);
+    const p=(t,x)=>'<p><b>'+t+':</b> '+esc(x||'')+'</p>';
+    return '<h1>'+esc(D.nombre||'Sin nombre')+'</h1><p><i>'+esc(e.por)+' · '+esc(areaTxt(e.area))+(D.equipo?' · Con: '+esc(D.equipo):'')+' · '+esc(cuando(e.ts))+'</i></p>'+
+      '<h2>Problema</h2>'+p('Qué pasa hoy',D.problema.hoy)+p('A quién afecta y cuánto',D.problema.afectados)+p('Si no se hace nada',D.problema.consecuencia)+
+      '<h2>Propósito superior</h2><p>'+esc(D.proposito)+'</p><h2>Objetivo general</h2><p>'+esc(D.general)+'</p><h2>Objetivos específicos y actividades</h2>'+
+      D.especificos.filter(o=>lleno(o.texto)).map((o,i)=>'<p><b>OE'+(i+1)+'.</b> '+esc(o.texto)+(lleno(o.evidencia)?'<br><i>Se sabrá porque:</i> '+esc(o.evidencia):'')+'</p><ul>'+
+        o.actividades.filter(a=>lleno(a.texto)).map(a=>'<li>'+esc(a.texto+detalleAct(a))+'</li>').join('')+'</ul>').join('');}).join('<br style="page-break-before:always">');
+  const html='<html><head><meta charset="utf-8"><title>Preformulaciones</title><style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt}h1{font-size:16pt;color:#0B5381}h2{font-size:12pt;color:#00865F;margin-top:14pt}</style></head><body>'+cuerpo+'</body></html>';
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿',html],{type:'application/msword'}));
+  a.download='preformulaciones-taller-vc-'+new Date().toISOString().slice(0,10)+'.doc';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
 }
 
 /* ---------- eventos ---------- */
 let tGuardar=null;
-function cambio(){S.sucio=true;S.msgEnvio=null;S.errBarra=null;clearTimeout(tGuardar);tGuardar=setTimeout(guardarLocal,400);renderPistas();renderPasos();renderGuardado();}
+function cambio(){S.msgEnvio=null;clearTimeout(tGuardar);tGuardar=setTimeout(guardarLocal,400);renderPistas();renderPasos();}
 document.addEventListener('input',e=>{
   const t=e.target;
   if(t.dataset.k){const ks=t.dataset.k.split('.');let o=S.D;for(let i=0;i<ks.length-1;i++)o=o[ks[i]];o[ks[ks.length-1]]=t.value;cambio();return;}
   if(t.dataset.o!=null&&t.dataset.f){const o=S.D.especificos[+t.dataset.o];if(!o)return;
     if(t.dataset.a!=null)o.actividades[+t.dataset.a][t.dataset.f]=t.value;else o[t.dataset.f]=t.value;cambio();return;}
-  if(t.id==='f-quien'){S.nombre=t.value.trim();ls.set('vc-nombre',S.nombre);renderAcc();}
+  if(t.id==='f-quien'){S.Q.por=t.value;ls.set('vc-nombre',t.value.trim());cambio();}
+  if(t.id==='f-otra'){S.Q.otra=t.value;cambio();}
 });
 document.addEventListener('change',e=>{
   const t=e.target;
   if(t.tagName==='SELECT'&&t.dataset.f==='cuando'){S.D.especificos[+t.dataset.o].actividades[+t.dataset.a].cuando=t.value;cambio();}
-  if(t.id==='sel-area'){guardarLocal();fijarArea(t.value);ls.set('vc-party',t.value);S.msgEnvio=null;renderTodo();}
+  if(t.id==='f-area'){S.Q.area=t.value;$('#l-otra').hidden=t.value!=='OTRA';if(t.value==='OTRA')$('#f-otra').focus();renderAvance();cambio();}
 });
+const subir=()=>window.scrollTo({top:$('#t-form').offsetTop-80,behavior:'smooth'});
+function irA(n){S.paso=n;renderPasos();if(n===5)renderRevision();renderGuardado();subir();}
 document.addEventListener('click',e=>{
   const t=e.target.closest('button');if(!t)return;
-  if(t.dataset.go){S.paso=+t.dataset.go;renderPasos();if(S.paso===5)renderRevision();window.scrollTo({top:$('#t-form').offsetTop-80,behavior:'smooth'});return;}
+  if(t.dataset.go){irA(+t.dataset.go);return;}
   if(t.dataset.tab){S.tab=t.dataset.tab;$$('.tab-btn').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===S.tab));$('#t-form').hidden=S.tab!=='form';$('#t-todas').hidden=S.tab!=='todas';
-    if(S.tab==='todas'){renderTodas();cargarRemoto().then(()=>{renderAvance();renderTodas();});}return;}
-  if(t.dataset.addAct!=null){const o=S.D.especificos[+t.dataset.addAct];o.actividades.push({texto:'',quien:'',cuando:''});renderObjs();cambio();const j=o.actividades.length-1;const n=document.getElementById('a-'+t.dataset.addAct+'-'+j);n&&n.focus();return;}
+    renderGuardado();if(S.tab==='todas'){renderTodas();cargarEnvios().then(()=>{renderAvance();renderTodas();});}return;}
+  if(t.dataset.addAct!=null){const o=S.D.especificos[+t.dataset.addAct];o.actividades.push({texto:'',quien:'',cuando:''});renderObjs();cambio();const n=document.getElementById('a-'+t.dataset.addAct+'-'+(o.actividades.length-1));n&&n.focus();return;}
   if(t.dataset.delAct){const [i,j]=t.dataset.delAct.split('-').map(Number);S.D.especificos[i].actividades.splice(j,1);renderObjs();cambio();return;}
   if(t.dataset.delObj!=null){S.D.especificos.splice(+t.dataset.delObj,1);renderObjs();cambio();return;}
   switch(t.id){
     case 'add-obj':if(S.D.especificos.length<4){S.D.especificos.push({texto:'',evidencia:'',actividades:[{texto:'',quien:'',cuando:''},{texto:'',quien:'',cuando:''}]});renderObjs();cambio();const n=document.getElementById('oe-'+(S.D.especificos.length-1));n&&n.focus();}break;
-    case 'prev':if(S.paso>1){S.paso--;renderPasos();window.scrollTo({top:$('#t-form').offsetTop-80,behavior:'smooth'});}break;
-    case 'next':if(S.paso<5){S.paso++;renderPasos();if(S.paso===5)renderRevision();window.scrollTo({top:$('#t-form').offsetTop-80,behavior:'smooth'});}break;
-    case 'g-guardar':guardar('borrador');break;
-    case 'enviar':guardar('enviada');break;
-    case 'usar-remota':S.D=completar(S.conflicto.datos);S.base=S.conflicto.ts;S.sucio=false;S.conflicto=null;guardarLocal();renderTodo();break;
-    case 'usar-local':S.base=S.conflicto.ts;S.conflicto=null;guardarLocal();renderTodo();break;
-    case 'salir':guardarLocal();S.codigo='';S.rol=null;ls.del('vc-codigo');cargarRemoto().then(()=>{fijarArea(null);renderTodo();});break;
+    case 'prev':if(S.paso>1)irA(S.paso-1);break;
+    case 'next':if(S.paso<5)irA(S.paso+1);break;
+    case 'g-ir':if(S.tab!=='form')$('#tb-form').click();irA(5);break;
+    case 'enviar':enviar();break;
+    case 'descargar':descargarWord();break;
   }
-});
-document.addEventListener('submit',async e=>{
-  if(e.target.id!=='f-login')return;e.preventDefault();
-  const code=$('#f-cod').value.trim().toUpperCase(),nom=$('#f-nom').value.trim(),msg=$('#login-msg');
-  const prev=S.codigo;S.codigo=code;
-  try{const q=await api('/api/quien');
-    S.rol=q.rol;S.nombre=nom;ls.set('vc-codigo',code);ls.set('vc-nombre',nom);
-    await cargarRemoto();
-    const pref=ls.get('vc-party');
-    fijarArea(esValidador()?(COD.includes(pref)?pref:COD[0]):S.rol);
-    renderTodo();
-  }catch(err){S.codigo=prev;msg.innerHTML='<div class="msg bad" style="margin-top:4px">'+esc(err.status===401?'Ese código no es válido. Revísenlo o pídanlo a quien facilita el taller.':err.message)+'</div>';}
 });
 window.addEventListener('beforeunload',()=>{clearTimeout(tGuardar);guardarLocal();});
 
 /* ---------- arranque ---------- */
-(function(){const loc=leerLocal(null);if(loc)S.D=completar(loc.D);})();
 renderTodo();
-cargarRemoto().then(()=>{
-  if(S.rol){const pref=ls.get('vc-party');fijarArea(esValidador()?(COD.includes(pref)?pref:COD[0]):S.rol);}
-  renderTodo();
-});
+cargarEnvios().then(()=>{renderAvance();if(S.tab==='todas')renderTodas();});
 })();
 </script>
 </body>
