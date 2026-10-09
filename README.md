@@ -18,6 +18,7 @@ La priorización parte del cruce de la Matriz de Disponibilidad (17 ago 2026) co
 | Ruta | Qué es |
 |---|---|
 | `index.html` | Página (estilos y estructura) |
+| `preformulacion.html` | Tarea del taller de formulación: cada área preformula un proyecto (problema, propósito, objetivos, actividades) |
 | `assets/catalogo.js` | Indicadores, datos de entrada, cotejo y destino de los trazadores |
 | `assets/app.js` | Cálculo, reporte, validación y tablero |
 | `assets/config.js` | URL de la API |
@@ -30,6 +31,10 @@ La priorización parte del cruce de la Matriz de Disponibilidad (17 ago 2026) co
 - **Validar, observar y fijar metas:** código de validación de Sistemas de Información, que además puede reportar en nombre de cualquier área.
 
 Los códigos **no están en este repositorio**. El Worker guarda el secreto `CODIGOS`: un JSON `{"<sha256 del código en MAYÚSCULAS>": "IMP" | ... | "VALIDADOR"}`.
+
+## Preformulación de proyectos
+
+https://amdavil.github.io/vision-circular-tablero/preformulacion.html — tarea del taller de formulación (oct 2026). Cada área entra con su mismo código, escribe su proyecto en 5 pasos y lo envía. Qué área va en qué estado es abierto; el contenido solo se ve con un código válido. Cada guardado es una versión nueva en la tabla `preformulaciones` (migración 0004).
 
 ## Auditoría
 

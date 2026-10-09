@@ -10,6 +10,9 @@
  * Los códigos no están en el repositorio: el secreto CODIGOS guarda un JSON
  * { "<sha256 del código en mayúsculas>": "IMP" | "LB" | ... | "VALIDADOR" }.
  *
+ * Preformulación de proyectos (taller de formulación): cada área guarda un proyecto con su
+ * código. Quién va en qué estado es abierto; el contenido solo se ve con un código válido.
+ *
  * Ningún reporte se sobrescribe: una corrección es un reporte nuevo con `corrige`.
  * Toda escritura queda en la tabla `bitacora`.
  *
@@ -26,7 +29,29 @@ const LINEAS_POR_AREA = {"IMP":["Fortalecimiento de cadenas de valor","Consumo r
 const META_OK = /^(K(0[1-9]|1[0-9]|20))-(20[2-3][0-9])$/;
 const FECHA_OK = /^\d{4}-\d{2}-\d{2}$/;
 const MAX_REPORTES = 20000;
+const MAX_PREF = 5000;
 const txt = (v, n = 600) => (v == null ? null : String(v).trim().slice(0, n) || null);
+
+/* Deja solo los campos esperados de una preformulación, con largo y cantidad acotados. */
+function limpiarPref(d) {
+  d = d && typeof d === "object" ? d : {};
+  const pr = d.problema && typeof d.problema === "object" ? d.problema : {};
+  const lista = (a, n) => (Array.isArray(a) ? a.slice(0, n) : []);
+  return {
+    nombre: txt(d.nombre, 160),
+    equipo: txt(d.equipo, 300),
+    problema: { hoy: txt(pr.hoy, 1500), afectados: txt(pr.afectados, 1000), consecuencia: txt(pr.consecuencia, 1000) },
+    proposito: txt(d.proposito, 800),
+    general: txt(d.general, 600),
+    especificos: lista(d.especificos, 4).map((o) => ({
+      texto: txt(o && o.texto, 500),
+      evidencia: txt(o && o.evidencia, 400),
+      actividades: lista(o && o.actividades, 6).map((a) => ({
+        texto: txt(a && a.texto, 400), quien: txt(a && a.quien, 120), cuando: txt(a && a.cuando, 20),
+      })),
+    })),
+  };
+}
 
 async function sha256(s) {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
@@ -73,6 +98,27 @@ export default {
         return json({ reportes: r.results.map((x) => ({ ...x, incluido: !!x.incluido })), validaciones, metas, ahora: new Date().toISOString() });
       }
 
+      /* ---------- preformulaciones: estado abierto, contenido con código ---------- */
+      if (req.method === "GET" && url.pathname === "/api/preformulaciones") {
+        const rolLee = await rolDe(req.headers.get("X-Codigo") || "", env);
+        const [ult, conEnvio] = await Promise.all([
+          env.DB.prepare(
+            `SELECT p.* FROM preformulaciones p
+             JOIN (SELECT area, MAX(ts) AS m FROM preformulaciones GROUP BY area) x ON p.area = x.area AND p.ts = x.m`
+          ).all(),
+          env.DB.prepare("SELECT area, MAX(ts) AS ts, COUNT(*) AS n FROM preformulaciones WHERE estado = 'enviada' GROUP BY area").all(),
+        ]);
+        const enviadas = {}; conEnvio.results.forEach((x) => (enviadas[x.area] = x));
+        const areas = {};
+        ult.results.forEach((x) => {
+          areas[x.area] = {
+            estado: x.estado, ts: x.ts, enviada: enviadas[x.area] ? enviadas[x.area].ts : null,
+            ...(rolLee ? { por: x.por, datos: JSON.parse(x.datos) } : {}),
+          };
+        });
+        return json({ areas, rol: rolLee, ahora: new Date().toISOString() });
+      }
+
       /* ---------- todo lo demás exige código ---------- */
       const rol = await rolDe(req.headers.get("X-Codigo") || "", env);
       if (!rol) return json({ error: "codigo", mensaje: "Código de acceso no válido." }, 401);
@@ -116,6 +162,34 @@ export default {
           b.incluido ? 1 : 0, b.quien, txt(b.fuente), txt(b.evidencia), txt(b.nota, 1200), txt(b.por, 120) || "Sin nombre", ts, txt(b.corrige, 40)
         ).run();
         await bitacora(env, "reporte", { id, v: b.v, anio, valor, quien: b.quien }, b.por, rol);
+        return json({ ok: true, id, ts });
+      }
+
+      /* ---------- guardar o enviar la preformulación del área ---------- */
+      if (url.pathname === "/api/preformulaciones") {
+        if (!AREAS.includes(b.area)) return json({ error: "datos", mensaje: "Área no válida." }, 400);
+        if (rol !== "VALIDADOR" && rol !== b.area)
+          return json({ error: "rol", mensaje: "Tu código solo permite editar el proyecto de tu área." }, 403);
+        if (!["borrador", "enviada"].includes(b.estado)) return json({ error: "datos", mensaje: "Estado no válido." }, 400);
+        const datos = limpiarPref(b.datos);
+        if (b.estado === "enviada") {
+          const falta = [];
+          if (!datos.nombre) falta.push("nombre del proyecto");
+          if (!datos.problema.hoy) falta.push("problema");
+          if (!datos.proposito) falta.push("propósito superior");
+          if (!datos.general) falta.push("objetivo general");
+          const esp = datos.especificos.filter((o) => o.texto);
+          if (esp.length < 3) falta.push("al menos 3 objetivos específicos");
+          if (esp.some((o) => !o.actividades.some((a) => a.texto))) falta.push("actividades en cada objetivo");
+          if (falta.length) return json({ error: "datos", mensaje: "Para enviar falta: " + falta.join(", ") + "." }, 400);
+        }
+        const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM preformulaciones").first();
+        if (n && n.n >= MAX_PREF) return json({ error: "cupo", mensaje: "La base llegó a su límite de versiones." }, 507);
+        const id = "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+        const ts = new Date().toISOString();
+        await env.DB.prepare("INSERT INTO preformulaciones (id, area, estado, datos, por, ts) VALUES (?, ?, ?, ?, ?, ?)")
+          .bind(id, b.area, b.estado, JSON.stringify(datos), txt(b.por, 120) || "Sin nombre", ts).run();
+        await bitacora(env, "preformulacion", { id, area: b.area, estado: b.estado, nombre: datos.nombre }, b.por, rol);
         return json({ ok: true, id, ts });
       }
 

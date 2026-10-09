@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Preformulación de proyectos · Visión Circular</title>
+<meta name="description" content="Tarea del taller de formulación: cada área preformula un proyecto con problema, propósito superior, objetivos y actividades.">
+<link rel="icon" type="image/png" href="assets/simbolo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Misma paleta del Tablero de Resultados (colores del logo de Visión Circular).
+   Composición: una columna de pasos a la izquierda y el paso abierto a la derecha; al final, el tren lógico. */
+:root{
+  --bg:#F2F5F8; --surface:#FFFFFF; --sunk:#E8EEF3; --ink:#12263D; --ink-2:#53657A; --ink-3:#7B8A9C; --rule:#D4DDE6;
+  --brand:#0B5381; --brand-soft:#E0ECF5; --green:#00865F; --green-soft:#DCF1E8; --lime:#7FA23A; --sky:#4F8FCF;
+  --ok:#0B7F3A; --ok-soft:#DCF1E3; --warn:#975F00; --warn-soft:#FAEED3; --bad:#B8342C; --bad-soft:#F7DFDC; --pend:#5E50AC; --pend-soft:#EAE7F8;
+  --on-brand:#FFFFFF;
+  --display:"Montserrat","Segoe UI",system-ui,sans-serif; --body:"Source Sans 3","Segoe UI",system-ui,-apple-system,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0C1520; --surface:#13202E; --sunk:#192838; --ink:#E6EDF4; --ink-2:#A3B1C3; --ink-3:#7A899B; --rule:#273748;
+    --brand:#7DB3E6; --brand-soft:#17304A; --green:#4CC59A; --green-soft:#133126; --lime:#A9CB62; --sky:#7DB3E6;
+    --ok:#52C47F; --ok-soft:#163222; --warn:#E3A94B; --warn-soft:#382A14; --bad:#EF7E74; --bad-soft:#3B1E1C; --pend:#A99CEB; --pend-soft:#262140;
+    --on-brand:#0C1520;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--brand);text-underline-offset:2px}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}}
+[hidden]{display:none!important}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px}
+@media (max-width:480px){.wrap{padding-inline:16px}}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(24px,3.2vw,32px);line-height:1.15;font-weight:700}
+h2{font-size:21px;line-height:1.25;font-weight:700}
+h3{font-size:15.5px;line-height:1.3;font-weight:600}
+p{margin:0}
+.muted{color:var(--ink-2)} .small{font-size:14px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--green);font-weight:600}
+.lede{color:var(--ink-2);max-width:68ch;font-size:16.5px}
+
+/* encabezado */
+header.app{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--rule)}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding-block:10px}
+.brand{display:flex;align-items:center;gap:14px;min-width:0;text-decoration:none;color:inherit}
+.logo-plate{background:#fff;border-radius:8px;padding:4px 6px;display:flex}
+.logo-plate img{height:42px;width:auto;display:block}
+.brand .t{border-left:1px solid var(--rule);padding-left:14px;min-width:0}
+.brand .t b{display:block;font-family:var(--display);font-weight:700;font-size:15.5px;line-height:1.2}
+.brand .t span{font-size:12.5px;color:var(--ink-2)}
+@media (max-width:600px){.brand .t{display:none}.logo-plate img{height:36px}}
+.acc{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:14px;flex-wrap:wrap;justify-content:flex-end}
+
+/* botones y campos */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--rule);background:var(--surface);border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:14.5px;text-decoration:none;color:var(--ink);white-space:nowrap}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.btn.green{background:var(--green);border-color:var(--green);color:var(--on-brand)}
+.btn.small{padding:5px 10px;font-size:13.5px}
+.btn.ghost{border-color:transparent;background:none;color:var(--brand)}
+.btn.ghost:hover{background:var(--brand-soft)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.x{border:0;background:none;color:var(--ink-3);cursor:pointer;font-size:20px;line-height:1;padding:4px 8px;border-radius:6px}
+.x:hover{color:var(--bad);background:var(--bad-soft)}
+input[type=text],input[type=password],select,textarea{background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:9px 11px;min-width:0;max-width:100%;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--brand);outline:none;box-shadow:0 0 0 3px var(--brand-soft)}
+textarea{min-height:84px;resize:vertical;line-height:1.5}
+label.f{display:grid;gap:6px}
+label.f>span{font-weight:700;font-size:15px}
+label.f>small{color:var(--ink-2);font-size:13.5px;margin-top:-3px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:4px;white-space:nowrap;line-height:1.6}
+.c-ok{background:var(--ok-soft);color:var(--ok)} .c-warn{background:var(--warn-soft);color:var(--warn)} .c-pend{background:var(--pend-soft);color:var(--pend)} .c-none{background:var(--sunk);color:var(--ink-2)} .c-acc{background:var(--brand-soft);color:var(--brand)}
+.msg{border-radius:8px;padding:10px 12px;font-size:14.5px}
+.msg.ok{background:var(--ok-soft);color:var(--ok)} .msg.bad{background:var(--bad-soft);color:var(--bad)} .msg.warn{background:var(--warn-soft);color:var(--warn)} .msg.info{background:var(--brand-soft);color:var(--brand)}
+.msg b{font-weight:700}
+
+main{padding-block:26px 90px;display:grid;gap:22px}
+.intro{display:grid;gap:8px}
+
+/* avance de las áreas */
+.avance{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}
+@media (max-width:900px){.avance{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:420px){.avance{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.av{background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:8px 10px;display:grid;gap:3px;min-width:0}
+.av b{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ink-2)}
+.av span{font-size:12.5px;line-height:1.25;min-width:0;overflow-wrap:anywhere}
+.av.mine{border-color:var(--brand);box-shadow:0 0 0 1px var(--brand)}
+.av .st{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700}
+.av .st i{width:8px;height:8px;border-radius:50%;flex:none;background:var(--ink-3)}
+.av.s-borrador .st{color:var(--warn)} .av.s-borrador .st i{background:var(--warn)}
+.av.s-enviada .st{color:var(--ok)} .av.s-enviada .st i{background:var(--ok)}
+.av.s-cambios .st{color:var(--pend)} .av.s-cambios .st i{background:var(--pend)}
+
+/* pestañas */
+nav.tabs{display:flex;gap:2px;border-bottom:1px solid var(--rule);overflow-x:auto;scrollbar-width:none}
+.tab-btn{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px 9px;font-weight:700;color:var(--ink-2);cursor:pointer;white-space:nowrap;font-size:15.5px;margin-bottom:-1px}
+.tab-btn[aria-selected="true"]{color:var(--brand);border-bottom-color:var(--brand)}
+
+/* acceso */
+.acceso{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:16px 18px;display:grid;gap:12px}
+.acceso .row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) auto;gap:10px;align-items:end}
+@media (max-width:700px){.acceso .row{grid-template-columns:1fr}}
+
+/* formulario por pasos */
+.form-grid{display:grid;grid-template-columns:250px minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:860px){.form-grid{grid-template-columns:1fr}}
+.pasos{position:sticky;top:96px;display:grid;gap:2px;list-style:none;margin:0;padding:0}
+@media (max-width:860px){.pasos{position:static;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px}}
+.paso{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-radius:8px;padding:9px 10px;cursor:pointer;color:var(--ink-2)}
+.paso:hover{background:var(--sunk)}
+.paso .n{width:30px;height:30px;border-radius:50%;border:2px solid var(--rule);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:13.5px;background:var(--surface)}
+.paso .l{font-weight:700;font-size:14.5px;line-height:1.25}
+.paso .l small{display:block;font-weight:400;font-size:12.5px;color:var(--ink-3)}
+.paso[aria-current="step"]{background:var(--brand-soft);color:var(--brand)}
+.paso[aria-current="step"] .n{border-color:var(--brand);background:var(--brand);color:var(--on-brand)}
+.paso.done .n{border-color:var(--green);color:var(--green)}
+.paso[aria-current="step"].done .n{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+@media (max-width:860px){.paso{grid-template-columns:1fr;justify-items:center;text-align:center;padding:8px 4px;gap:4px}.paso .l{font-size:12px}.paso .l small{display:none}}
+
+.hoja{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:26px 28px;display:grid;gap:20px;min-width:0}
+@media (max-width:520px){.hoja{padding:18px 16px}}
+.hoja-head{display:grid;gap:6px}
+.hoja-head .q{font-size:17px;color:var(--ink-2);max-width:62ch}
+.campos{display:grid;gap:18px}
+.nav-pasos{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:16px}
+
+.hint{font-size:14px;border-radius:6px;padding:7px 10px;display:flex;gap:8px;align-items:flex-start}
+.hint::before{content:"";width:7px;height:7px;border-radius:50%;margin-top:7px;flex:none;background:currentColor}
+.hint.warn{background:var(--warn-soft);color:var(--warn)}
+.hint.ok{background:var(--ok-soft);color:var(--ok)}
+.hint:empty{display:none}
+
+details.ej{border:1px dashed var(--rule);border-radius:8px;background:var(--bg)}
+details.ej summary{cursor:pointer;padding:9px 12px;font-weight:700;font-size:14px;color:var(--brand);list-style:none}
+details.ej summary::-webkit-details-marker{display:none}
+details.ej summary::before{content:"+ ";font-family:var(--mono)}
+details.ej[open] summary::before{content:"− "}
+details.ej .in{padding:0 14px 12px;display:grid;gap:8px;font-size:14.5px}
+details.ej .in p b{font-weight:700}
+details.ej .nota{font-size:12.5px;color:var(--ink-3)}
+
+/* objetivos específicos */
+.obj{border:1px solid var(--rule);border-radius:var(--r);padding:16px;display:grid;gap:14px;background:var(--surface)}
+.obj-h{display:flex;align-items:center;gap:10px}
+.obj-h .tag{font-family:var(--display);font-weight:800;font-size:13px;background:var(--green);color:var(--on-brand);border-radius:6px;padding:3px 8px}
+.obj-h .sp{flex:1}
+.acts{display:grid;gap:8px;background:var(--bg);border-radius:8px;padding:12px}
+.acts>.lab{font-weight:700;font-size:14px}
+.act{display:grid;grid-template-columns:22px minmax(0,1fr) minmax(0,190px) minmax(0,130px) 34px;gap:8px;align-items:center}
+.act .k{font-family:var(--mono);font-size:12px;color:var(--ink-3);text-align:right}
+@media (max-width:760px){.act{grid-template-columns:22px minmax(0,1fr) 34px}.act .q,.act .w{grid-column:2}}
+.add{justify-self:start}
+
+/* revisión */
+.tren{display:grid;gap:10px}
+.nivel{display:grid;gap:4px;border-radius:8px;padding:12px 14px}
+.nivel .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.nivel.prop{background:var(--brand);color:var(--on-brand)}
+.nivel.prop .k{opacity:.85}
+.nivel.gen{background:var(--brand-soft);color:var(--ink);border:1px solid var(--brand)}
+.nivel.gen .k{color:var(--brand)}
+.flecha{justify-self:center;color:var(--ink-3);font-size:13px;font-family:var(--mono);display:flex;gap:6px;align-items:center}
+.flecha::before{content:"↑";font-size:18px;line-height:1}
+.esps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.esp{border:1px solid var(--rule);border-radius:8px;overflow:hidden;display:grid;align-content:start;background:var(--surface)}
+.esp .t{padding:10px 12px;background:var(--green-soft);display:grid;gap:4px}
+.esp .t .k{font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.08em}
+.esp .ev{font-size:13px;color:var(--ink-2)}
+.esp ul{margin:0;padding:8px 12px 10px 28px;font-size:14px;display:grid;gap:4px}
+.esp li small{color:var(--ink-3)}
+.vacio{color:var(--ink-3);font-style:italic}
+.problema-box{border-left:3px solid var(--warn);background:var(--warn-soft);padding:10px 14px;border-radius:0 8px 8px 0;display:grid;gap:4px}
+.problema-box .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--warn)}
+.check{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.check li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;font-size:14.5px;align-items:start}
+.check li i{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:700;margin-top:1px}
+.check li.ok i{background:var(--ok-soft);color:var(--ok)}
+.check li.no i{background:var(--warn-soft);color:var(--warn)}
+.envio{display:grid;gap:10px;border:1px solid var(--rule);border-radius:var(--r);padding:16px;background:var(--bg)}
+
+/* barra inferior */
+.guardado{position:fixed;left:0;right:0;bottom:0;z-index:15;background:var(--surface);border-top:1px solid var(--rule);padding-bottom:env(safe-area-inset-bottom,0px)}
+.guardado .wrap{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;padding-block:10px}
+.guardado .estado{font-size:13.5px;color:var(--ink-2);display:flex;align-items:center;gap:7px;min-width:0;flex:1}
+.guardado .estado i{width:8px;height:8px;border-radius:50%;background:var(--ink-3);flex:none}
+.guardado .estado.sucio i{background:var(--warn)}
+.guardado .estado.limpio i{background:var(--ok)}
+
+/* todas las áreas */
+.lista{display:grid;gap:12px}
+.ficha{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:18px 20px;display:grid;gap:12px;min-width:0}
+.ficha-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px}
+.ficha-h h3{font-size:17px}
+.ficha details summary{cursor:pointer;font-weight:700;color:var(--brand);font-size:14.5px}
+.ficha details[open] summary{margin-bottom:12px}
+</style>
+</head>
+<body>
+<header class="app">
+  <div class="wrap bar">
+    <a class="brand" href="./">
+      <span class="logo-plate"><img src="assets/logo-vision-circular.png" alt="Visión Circular"></span>
+      <span class="t"><b>Preformulación de proyectos</b><span>Taller de formulación y gestión · tarea por área</span></span>
+    </a>
+    <div class="acc" id="acc"></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="intro">
+    <p class="eyebrow">Taller de formulación · siguiente paso</p>
+    <h1>Preformulación del proyecto de tu área</h1>
+    <p class="lede">Cada área escoge un proyecto y lo deja escrito en cinco pasos: el problema, el propósito superior, el objetivo general, de 3 a 4 objetivos específicos y las actividades de cada uno. Al final verás el proyecto armado como un tren lógico para revisar que todo conecte.</p>
+  </div>
+
+  <div>
+    <p class="eyebrow" style="margin-bottom:8px">Avance de las áreas</p>
+    <div class="avance" id="avance"></div>
+    <p class="small muted" id="avance-msg" style="margin-top:6px"></p>
+  </div>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn" role="tab" id="tb-form" aria-selected="true" data-tab="form">Proyecto de mi área</button>
+    <button class="tab-btn" role="tab" id="tb-todas" aria-selected="false" data-tab="todas">Las 8 preformulaciones</button>
+  </nav>
+
+  <section id="t-form" style="display:grid;gap:18px">
+    <div class="acceso" id="acceso"></div>
+    <div id="aviso"></div>
+
+    <div class="form-grid">
+      <ol class="pasos" id="pasos"></ol>
+
+      <div>
+        <!-- 1 -->
+        <div class="hoja" data-step="1">
+          <div class="hoja-head">
+            <p class="eyebrow">Paso 1 de 5</p>
+            <h2>El problema o la necesidad</h2>
+            <p class="q">Antes de pensar en la solución, describan lo que pasa hoy. Un buen problema se puede ver, se puede medir y le pasa a alguien.</p>
+          </div>
+          <div class="campos">
+            <label class="f"><span>Nombre del proyecto</span><small>Corto y reconocible. Lo pueden cambiar después.</small>
+              <input type="text" id="f-nombre" data-k="nombre" maxlength="160" placeholder="Ej.: Colegios que separan bien"></label>
+            <label class="f"><span>Personas del área que lo formulan</span>
+              <input type="text" id="f-equipo" data-k="equipo" maxlength="300" placeholder="Nombres separados por coma"></label>
+            <label class="f"><span>¿Qué pasa hoy?</span><small>La situación tal como se ve, sin mencionar todavía la solución.</small>
+              <textarea id="f-hoy" data-k="problema.hoy" maxlength="1500"></textarea></label>
+            <p class="hint" data-hint="hoy"></p>
+            <label class="f"><span>¿A quién afecta y cuánto?</span><small>Incluyan al menos una cifra, aunque sea aproximada: cuántas personas, toneladas, organizaciones o pesos.</small>
+              <textarea id="f-afectados" data-k="problema.afectados" maxlength="1000"></textarea></label>
+            <p class="hint" data-hint="afectados"></p>
+            <label class="f"><span>¿Qué pasa si no se hace nada?</span>
+              <textarea id="f-consecuencia" data-k="problema.consecuencia" maxlength="1000"></textarea></label>
+            <details class="ej"><summary>Ver un ejemplo</summary><div class="in">
+              <p><b>Qué pasa hoy:</b> en los colegios de la estrategia de consumo responsable el material aprovechable sale mezclado con orgánicos y llega contaminado al gestor.</p>
+              <p><b>A quién y cuánto:</b> cerca de 40 colegios y 3 gestores aliados; en las visitas, alrededor de la mitad del material se rechaza por contaminación.</p>
+              <p><b>Si no se hace nada:</b> los estudiantes aprenden a separar pero ven que no sirve, el gestor deja de recoger y la estrategia pierde credibilidad.</p>
+              <p class="nota">Ejemplo ilustrativo. Las cifras son inventadas para mostrar el formato.</p>
+            </div></details>
+          </div>
+        </div>
+
+        <!-- 2 -->
+        <div class="hoja" data-step="2" hidden>
+          <div class="hoja-head">
+            <p class="eyebrow">Paso 2 de 5</p>
+            <h2>El propósito superior</h2>
+            <p class="q">¿A qué cambio mayor contribuye este proyecto, aunque no lo logre solo? Es la razón de fondo: lo que haría que valga la pena aunque el proyecto termine.</p>
+          </div>
+          <div class="campos">
+            <label class="f"><span>Propósito superior</span><small>Una o dos frases. Piensen en el país, el sector o las personas, más allá del área.</small>
+              <textarea id="f-proposito" data-k="proposito" maxlength="800"></textarea></label>
+            <p class="hint" data-hint="proposito"></p>
+            <details class="ej"><summary>Ver un ejemplo</summary><div class="in">
+              <p>Que las nuevas generaciones adopten la separación en la fuente como un hábito, y que ese hábito se note en la calidad del material que llega al reciclaje en el país.</p>
+              <p class="nota">Fíjense que no se mide dentro del proyecto: es el norte al que apunta.</p>
+            </div></details>
+          </div>
+        </div>
+
+        <!-- 3 -->
+        <div class="hoja" data-step="3" hidden>
+          <div class="hoja-head">
+            <p class="eyebrow">Paso 3 de 5</p>
+            <h2>El objetivo general</h2>
+            <p class="q">Lo que el proyecto sí se compromete a lograr. Una sola frase: verbo en infinitivo + qué cambia + dónde o en quién + para cuándo.</p>
+          </div>
+          <div class="campos">
+            <label class="f"><span>Objetivo general</span>
+              <textarea id="f-general" data-k="general" maxlength="600"></textarea></label>
+            <p class="hint" data-hint="general"></p>
+            <details class="ej"><summary>Ver un ejemplo</summary><div class="in">
+              <p>Reducir a la mitad el material rechazado por contaminación en los colegios de la estrategia durante 2027.</p>
+              <p class="nota">Tiene verbo, qué cambia, en quién, cuánto y para cuándo. Y responde directamente al problema del paso 1.</p>
+            </div></details>
+          </div>
+        </div>
+
+        <!-- 4 -->
+        <div class="hoja" data-step="4" hidden>
+          <div class="hoja-head">
+            <p class="eyebrow">Paso 4 de 5</p>
+            <h2>Objetivos específicos y actividades</h2>
+            <p class="q">De 3 a 4 objetivos que, cumplidos juntos, logran el objetivo general. Cada uno lleva cómo se sabrá que se cumplió y las actividades que lo hacen posible.</p>
+          </div>
+          <div class="campos">
+            <div id="objs" style="display:grid;gap:14px"></div>
+            <button type="button" class="btn small add" id="add-obj">+ Agregar objetivo específico</button>
+            <details class="ej"><summary>Ver un ejemplo</summary><div class="in">
+              <p><b>OE1.</b> Diseñar con estudiantes y docentes un punto de separación que funcione en cada colegio. <i>Se sabrá porque:</i> el punto está instalado y en uso en cada colegio.<br>Actividades: taller de diseño con 5 colegios piloto (Consumo responsable, ene 2027) · prueba del punto durante un mes (docentes líderes, feb 2027).</p>
+              <p><b>OE2.</b> Acordar con los gestores la ruta de recolección y el reporte de calidad. <i>Se sabrá porque:</i> hay un acuerdo firmado y un reporte mensual de rechazo.</p>
+              <p><b>OE3.</b> Medir cada mes el material rechazado y devolver el dato a cada colegio. <i>Se sabrá porque:</i> cada colegio recibe su resultado mensual.</p>
+              <p class="nota">Un objetivo específico es un resultado; una actividad es algo que se hace. Si un objetivo cabe en una sola actividad, probablemente es una actividad.</p>
+            </div></details>
+          </div>
+        </div>
+
+        <!-- 5 -->
+        <div class="hoja" data-step="5" hidden>
+          <div class="hoja-head">
+            <p class="eyebrow">Paso 5 de 5</p>
+            <h2>Revisar el tren lógico y enviar</h2>
+            <p class="q">Léanlo de abajo hacia arriba: si hacemos estas actividades, logramos estos objetivos; si logramos estos objetivos, cumplimos el general; y eso aporta al propósito.</p>
+          </div>
+          <div id="tren"></div>
+          <div class="campos">
+            <div><h3 style="margin-bottom:8px">Revisión rápida</h3><ul class="check" id="checklist"></ul></div>
+            <div class="envio" id="envio"></div>
+          </div>
+        </div>
+
+        <div class="nav-pasos" style="border:0;padding-top:14px">
+          <button type="button" class="btn" id="prev">← Anterior</button>
+          <button type="button" class="btn primary" id="next">Siguiente →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="t-todas" hidden style="display:grid;gap:14px">
+    <div id="todas"></div>
+  </section>
+</main>
+
+<div class="guardado">
+  <div class="wrap">
+    <div class="estado" id="g-estado"><i></i><span>Los cambios se guardan en este equipo mientras escribes.</span></div>
+    <button type="button" class="btn small" id="g-guardar">Guardar borrador en la base</button>
+  </div>
+</div>
+
+<script src="assets/config.js"></script>
+<script>
+(function(){
+"use strict";
+const API=(window.VC_CONFIG||{}).api||'';
+const AREAS={IMP:'Implementación (Traza)',LB:'Gestión de Línea Base (ARCO)',INN:'Innovación y PMO',ISP:'Inclusión social y productiva',TER:'Proyectos territoriales y sectoriales',CON:'Consumo responsable',COM:'Comunicaciones y relacionamiento',FIN:'Administrativa y financiera'};
+const COD=Object.keys(AREAS);
+const PASOS=[['Problema','Qué pasa y a quién'],['Propósito','El cambio mayor'],['Objetivo general','Lo que se logra'],['Objetivos y actividades','De 3 a 4 objetivos'],['Revisar y enviar','El tren lógico']];
+const MESES=(()=>{const n=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'],o=[];for(let y=2026,m=10;y<2028;m++){if(m>11){m=0;y++;if(y>2027)break;}o.push([y+'-'+String(m+1).padStart(2,'0'),n[m]+' '+y]);}return o;})();
+const mesTxt=v=>{const x=MESES.find(m=>m[0]===v);return x?x[1]:'';};
+
+/* ---------- utilidades ---------- */
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ls={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},del:k=>{try{localStorage.removeItem(k)}catch(e){}}};
+const cuando=iso=>{if(!iso)return '';const d=new Date(iso);return d.toLocaleDateString('es-CO',{day:'numeric',month:'short'})+', '+d.toLocaleTimeString('es-CO',{hour:'numeric',minute:'2-digit'});};
+const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+const lleno=s=>!!String(s||'').trim();
+async function api(path,body){
+  const opt={method:body?'POST':'GET',headers:{}};if(S.codigo)opt.headers['X-Codigo']=S.codigo;
+  if(body){opt.headers['Content-Type']='application/json';opt.body=JSON.stringify(body);}
+  let r;try{r=await fetch(API+path,opt);}catch(e){const er=new Error('No hay conexión con la base de datos. Revisa tu internet e intenta de nuevo.');er.code='red';throw er;}
+  let j=null;try{j=await r.json();}catch(e){}
+  if(!r.ok){const er=new Error((j&&j.mensaje)||('Error '+r.status));er.status=r.status;throw er;}
+  return j;
+}
+
+/* ---------- estado ---------- */
+const vacio=()=>({nombre:'',equipo:'',problema:{hoy:'',afectados:'',consecuencia:''},proposito:'',general:'',
+  especificos:[0,1,2].map(()=>({texto:'',evidencia:'',actividades:[{texto:'',quien:'',cuando:''},{texto:'',quien:'',cuando:''}]}))});
+const S={codigo:ls.get('vc-codigo')||'',nombre:ls.get('vc-nombre')||'',rol:null,area:null,paso:1,tab:'form',
+  D:vacio(),base:null,sucio:false,remoto:{},cargado:false,error:null,msgEnvio:null,conflicto:null};
+const llave=a=>'vc-pref-'+(a||'sin');
+function guardarLocal(){ls.set(llave(S.area),JSON.stringify({D:S.D,base:S.base,sucio:S.sucio,mod:new Date().toISOString()}));}
+function leerLocal(a){try{const x=JSON.parse(ls.get(llave(a))||'null');return x&&x.D?x:null;}catch(e){return null;}}
+function tieneTexto(D){return D&&(lleno(D.nombre)||lleno(D.problema&&D.problema.hoy)||lleno(D.general)||lleno(D.proposito));}
+function completar(D){const v=vacio();D=Object.assign(v,D||{});D.problema=Object.assign(vacio().problema,D.problema||{});['hoy','afectados','consecuencia'].forEach(k=>{if(D.problema[k]==null)D.problema[k]='';});
+  D.especificos=(Array.isArray(D.especificos)&&D.especificos.length?D.especificos:v.especificos).map(o=>({texto:o.texto||'',evidencia:o.evidencia||'',actividades:(o.actividades&&o.actividades.length?o.actividades:[{}]).map(a=>({texto:a.texto||'',quien:a.quien||'',cuando:a.cuando||''}))}));
+  ['nombre','equipo','proposito','general'].forEach(k=>{if(D[k]==null)D[k]='';});return D;}
+const esValidador=()=>S.rol==='VALIDADOR';
+
+/* ---------- pistas de redacción ---------- */
+const DEBILES=['apoyar','fomentar','promover','propiciar','contribuir','impulsar','incentivar','buscar','procurar','intentar','sensibilizar','concientizar','gestionar','coadyuvar','propender','acompanar'];
+const MAGNITUD=['mejorar','fortalecer','aumentar','reducir','incrementar','disminuir','ampliar','elevar','optimizar'];
+function pistaObjetivo(t,general){
+  if(!lleno(t))return null;
+  const w=norm(t).split(/\s+/)[0].replace(/[^a-zñ]/g,'');
+  if(!/(ar|er|ir)(se)?$/.test(w))return ['warn','Empiecen con un verbo en infinitivo (diseñar, certificar, vincular, reducir…).'];
+  if(DEBILES.includes(w))return ['warn','"'+w.charAt(0).toUpperCase()+w.slice(1)+'" es difícil de verificar. Prueben un verbo que deje un resultado visible: diseñar, implementar, certificar, vincular, formar, medir.'];
+  if(general&&MAGNITUD.includes(w)&&!/\d/.test(t))return ['warn','Dice qué cambia. Agreguen cuánto o hasta dónde: una cifra, un porcentaje o un umbral.'];
+  if(general&&!/(20\d\d|mes|año|ano|semestre|trimestre|final de|al cierre|durante)/i.test(t))return ['warn','Falta el para cuándo: un año, un semestre o una fecha.'];
+  return ['ok','Bien redactado: empieza con un verbo que se puede verificar.'];
+}
+function pistas(){
+  const D=S.D,h={};
+  const hoy=norm(D.problema.hoy);
+  if(hoy){h.hoy=/^(la |el )?(falta|ausencia|carencia|inexistencia|no hay|no existe|no se cuenta|necesidad de)/.test(hoy)
+    ?['warn','Suena a la solución que falta. Describan lo que se observa hoy y por qué es un problema: ¿qué pasa por no tener eso?']
+    :['ok','Describe una situación, no una solución. Va bien.'];}
+  if(lleno(D.problema.afectados))h.afectados=/\d/.test(D.problema.afectados)?['ok','Tiene una cifra. Eso le da tamaño al problema.']:['warn','Agreguen al menos una cifra, aunque sea aproximada.'];
+  const p=norm(D.proposito);
+  if(p){const nw=p.split(/\s+/).length;
+    h.proposito=p&&p===norm(D.general)?['warn','Es igual al objetivo general. El propósito va un nivel más arriba: el cambio al que aporta.']
+      :nw<8?['warn','Muy corto. Cuenten a qué cambio mayor aporta y para quién.']:['ok','Va bien. Revisen que no se pueda cumplir solo con este proyecto: si se puede, es un objetivo.'];}
+  h.general=pistaObjetivo(D.general,true);
+  return h;
+}
+
+/* ---------- checklist y completitud ---------- */
+function revisar(){
+  const D=S.D, h=pistas(), esp=D.especificos.filter(o=>lleno(o.texto));
+  const acts=esp.reduce((a,o)=>a.concat(o.actividades.filter(x=>lleno(x.texto))),[]);
+  return [
+    [lleno(D.nombre)&&lleno(D.problema.hoy),'El proyecto tiene nombre y problema.'],
+    [!(h.hoy&&h.hoy[0]==='warn')&&lleno(D.problema.hoy),'El problema describe una situación y no una solución que falta.'],
+    [/\d/.test(D.problema.afectados||''),'El problema tiene al menos una cifra.'],
+    [lleno(D.proposito),'Hay propósito superior.'],
+    [!!(h.general&&h.general[0]==='ok'),'El objetivo general empieza con un verbo verificable y dice para cuándo.'],
+    [esp.length>=3&&esp.length<=4,'Tiene de 3 a 4 objetivos específicos.'],
+    [esp.length>0&&esp.every(o=>lleno(o.evidencia)),'Cada objetivo dice cómo se sabrá que se cumplió.'],
+    [esp.length>0&&esp.every(o=>o.actividades.filter(x=>lleno(x.texto)).length>=2),'Cada objetivo tiene al menos 2 actividades.'],
+    [acts.length>0&&acts.every(a=>lleno(a.quien)&&lleno(a.cuando)),'Cada actividad tiene responsable y mes.'],
+  ];
+}
+function pasoListo(n){const D=S.D;
+  if(n===1)return lleno(D.nombre)&&lleno(D.problema.hoy)&&lleno(D.problema.afectados);
+  if(n===2)return lleno(D.proposito);
+  if(n===3)return lleno(D.general);
+  if(n===4){const e=D.especificos.filter(o=>lleno(o.texto));return e.length>=3&&e.every(o=>o.actividades.some(a=>lleno(a.texto)));}
+  if(n===5){const r=S.remoto[S.area];return !!(r&&r.estado==='enviada');}
+}
+
+/* ---------- render ---------- */
+function renderAcc(){
+  const a=$('#acc');
+  if(S.rol)a.innerHTML='<span class="chip c-acc">'+esc(esValidador()?'Facilitación':S.rol)+'</span><span class="muted">'+esc(S.nombre||'Sin nombre')+'</span><button class="btn small ghost" id="salir">Salir</button>';
+  else a.innerHTML='<span class="muted small">Sin código de área</span>';
+}
+function renderAcceso(){
+  const el=$('#acceso');
+  if(S.rol){
+    let h='<div style="display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center">';
+    if(esValidador()){
+      h+='<label class="f" style="min-width:min(100%,320px)"><span>Área que estás viendo</span><select id="sel-area">'+COD.map(c=>'<option value="'+c+'"'+(c===S.area?' selected':'')+'>'+esc(AREAS[c])+'</option>').join('')+'</select></label>';
+    }else h+='<div><p class="eyebrow">Tu área</p><h3 style="font-size:18px">'+esc(AREAS[S.area])+'</h3></div>';
+    h+='<label class="f" style="min-width:min(100%,260px);flex:1"><span>Tu nombre</span><input type="text" id="f-quien" maxlength="120" value="'+esc(S.nombre)+'" placeholder="Queda registrado en cada guardado"></label></div>';
+    el.innerHTML=h;
+  }else{
+    el.innerHTML='<div><h3>Entren con el código de su área</h3><p class="small muted" style="margin-top:4px">Es el mismo código del Tablero de Resultados. Pueden empezar a escribir sin él: lo que escriban queda en este equipo y se guarda en la base cuando ingresen el código.</p></div>'+
+      '<form class="row" id="f-login"><label class="f"><span>Código del área</span><input type="password" id="f-cod" autocomplete="off" required></label>'+
+      '<label class="f"><span>Tu nombre</span><input type="text" id="f-nom" maxlength="120" value="'+esc(S.nombre)+'" required></label>'+
+      '<button class="btn primary" type="submit">Entrar</button></form><div id="login-msg"></div>';
+  }
+}
+function renderAvance(){
+  const r=S.remoto;
+  $('#avance').innerHTML=COD.map(c=>{const x=r[c];let cl='s-no',t='Sin iniciar';
+    if(x){if(x.estado==='enviada'){cl='s-enviada';t='Enviada';}else if(x.enviada){cl='s-cambios';t='Enviada, editando';}else{cl='s-borrador';t='En borrador';}}
+    return '<div class="av '+cl+(c===S.area?' mine':'')+'" title="'+esc(AREAS[c])+'"><b>'+c+'</b><span>'+esc(AREAS[c])+'</span><span class="st"><i></i>'+t+'</span></div>';}).join('');
+  const env=COD.filter(c=>r[c]&&r[c].enviada).length;
+  $('#avance-msg').textContent=S.error?S.error:!S.cargado?'Consultando la base…':env+' de 8 áreas han enviado su preformulación.';
+}
+function renderPasos(){
+  $('#pasos').innerHTML=PASOS.map((p,i)=>{const n=i+1;return '<li><button type="button" class="paso'+(pasoListo(n)?' done':'')+'" data-go="'+n+'"'+(n===S.paso?' aria-current="step"':'')+'><span class="n">'+(pasoListo(n)&&n!==S.paso?'✓':n)+'</span><span class="l">'+p[0]+'<small>'+p[1]+'</small></span></button></li>';}).join('');
+  $$('.hoja').forEach(h=>h.hidden=+h.dataset.step!==S.paso);
+  $('#prev').style.visibility=S.paso===1?'hidden':'visible';
+  $('#next').hidden=S.paso===5;
+}
+function renderPistas(){
+  const h=pistas();
+  $$('[data-hint]').forEach(el=>{const x=h[el.dataset.hint];el.className='hint'+(x?' '+x[0]:'');el.textContent=x?x[1]:'';});
+  S.D.especificos.forEach((o,i)=>{const el=document.getElementById('h-oe-'+i);if(!el)return;const x=pistaObjetivo(o.texto,false);el.className='hint'+(x?' '+x[0]:'');el.textContent=x?x[1]:'';});
+}
+function renderCampos(){
+  $$('[data-k]').forEach(el=>{const v=el.dataset.k.split('.').reduce((o,k)=>o&&o[k],S.D);if(el.value!==(v||''))el.value=v||'';});
+  renderObjs();
+}
+function renderObjs(){
+  const D=S.D;
+  $('#objs').innerHTML=D.especificos.map((o,i)=>
+    '<div class="obj"><div class="obj-h"><span class="tag">OE'+(i+1)+'</span><span class="sp"></span>'+(D.especificos.length>1?'<button type="button" class="x" data-del-obj="'+i+'" aria-label="Quitar objetivo '+(i+1)+'" title="Quitar objetivo">×</button>':'')+'</div>'+
+    '<label class="f"><span>Objetivo específico '+(i+1)+'</span><textarea id="oe-'+i+'" data-o="'+i+'" data-f="texto" maxlength="500" style="min-height:64px">'+esc(o.texto)+'</textarea></label>'+
+    '<p class="hint" id="h-oe-'+i+'"></p>'+
+    '<label class="f"><span>¿Cómo sabremos que se cumplió?</span><small>Un producto, una cifra o un cambio que se pueda mostrar.</small><input type="text" id="ev-'+i+'" data-o="'+i+'" data-f="evidencia" maxlength="400" value="'+esc(o.evidencia)+'"></label>'+
+    '<div class="acts"><span class="lab">Actividades</span>'+
+    o.actividades.map((a,j)=>'<div class="act"><span class="k">'+(i+1)+'.'+(j+1)+'</span>'+
+      '<input type="text" id="a-'+i+'-'+j+'" data-o="'+i+'" data-a="'+j+'" data-f="texto" maxlength="400" placeholder="Qué se hace" value="'+esc(a.texto)+'" aria-label="Actividad '+(i+1)+'.'+(j+1)+'">'+
+      '<input type="text" class="q" id="q-'+i+'-'+j+'" data-o="'+i+'" data-a="'+j+'" data-f="quien" maxlength="120" placeholder="Responsable" value="'+esc(a.quien)+'" aria-label="Responsable de la actividad '+(i+1)+'.'+(j+1)+'">'+
+      '<select class="w" id="w-'+i+'-'+j+'" data-o="'+i+'" data-a="'+j+'" data-f="cuando" aria-label="Mes de la actividad '+(i+1)+'.'+(j+1)+'"><option value="">Mes</option>'+MESES.map(m=>'<option value="'+m[0]+'"'+(m[0]===a.cuando?' selected':'')+'>'+m[1]+'</option>').join('')+'</select>'+
+      (o.actividades.length>1?'<button type="button" class="x" data-del-act="'+i+'-'+j+'" aria-label="Quitar actividad" title="Quitar actividad">×</button>':'<span></span>')+'</div>').join('')+
+    (o.actividades.length<6?'<button type="button" class="btn small ghost add" data-add-act="'+i+'">+ Agregar actividad</button>':'')+
+    '</div></div>').join('');
+  $('#add-obj').hidden=D.especificos.length>=4;
+  renderPistas();
+}
+function trenHTML(D){
+  const t=v=>lleno(v)?esc(v):'<span class="vacio">Sin escribir</span>';
+  const esp=D.especificos.filter(o=>lleno(o.texto)||o.actividades.some(a=>lleno(a.texto)));
+  return '<div class="tren">'+
+    '<div class="nivel prop"><span class="k">Propósito superior</span><span>'+t(D.proposito)+'</span></div>'+
+    '<span class="flecha">aporta a</span>'+
+    '<div class="nivel gen"><span class="k">Objetivo general</span><span>'+t(D.general)+'</span></div>'+
+    '<span class="flecha">se logra si se cumplen</span>'+
+    '<div class="esps">'+(esp.length?esp.map((o,i)=>'<div class="esp"><div class="t"><span class="k">OE'+(i+1)+'</span><span>'+t(o.texto)+'</span>'+(lleno(o.evidencia)?'<span class="ev">Se sabrá porque: '+esc(o.evidencia)+'</span>':'')+'</div>'+
+      '<ul>'+(o.actividades.filter(a=>lleno(a.texto)).map(a=>'<li>'+esc(a.texto)+(a.quien||a.cuando?' <small>· '+esc([a.quien,mesTxt(a.cuando)].filter(Boolean).join(', '))+'</small>':'')+'</li>').join('')||'<li class="vacio">Sin actividades</li>')+'</ul></div>').join(''):'<p class="vacio">Aún no hay objetivos específicos.</p>')+'</div>'+
+    '<span class="flecha">para resolver</span>'+
+    '<div class="problema-box"><span class="k">Problema</span><span>'+t(D.problema.hoy)+'</span>'+(lleno(D.problema.afectados)?'<span class="small">'+esc(D.problema.afectados)+'</span>':'')+'</div>'+
+  '</div>';
+}
+function renderRevision(){
+  $('#tren').innerHTML=trenHTML(S.D);
+  $('#checklist').innerHTML=revisar().map(c=>'<li class="'+(c[0]?'ok':'no')+'"><i>'+(c[0]?'✓':'!')+'</i><span>'+esc(c[1])+'</span></li>').join('');
+  const r=S.remoto[S.area];
+  let h='<h3>Enviar la preformulación</h3><p class="small muted">Al enviar, el facilitador la ve en la pestaña "Las 8 preformulaciones". Pueden seguir editando y volver a enviar; cada envío queda como una versión nueva.</p>';
+  if(!S.rol)h+='<div class="msg info">Para enviar, ingresen arriba el código de su área.</div>';
+  if(r&&r.enviada)h+='<p class="small"><span class="chip c-ok">Enviada</span> '+esc(cuando(r.enviada))+'</p>';
+  if(S.msgEnvio)h+='<div class="msg '+S.msgEnvio[0]+'">'+esc(S.msgEnvio[1])+'</div>';
+  h+='<div><button type="button" class="btn green" id="enviar"'+(S.rol?'':' disabled')+'>'+(r&&r.enviada?'Enviar de nuevo':'Enviar preformulación')+'</button></div>';
+  $('#envio').innerHTML=h;
+}
+function renderGuardado(){
+  const el=$('#g-estado'),r=S.remoto[S.area];let t,cl;
+  if(!S.rol){t='Guardado solo en este equipo. Ingresen el código del área para guardarlo en la base.';cl='sucio';}
+  else if(S.errBarra){t=S.errBarra;cl='sucio';}
+  else if(S.sucio){t='Hay cambios que aún no están en la base.';cl='sucio';}
+  else if(r){t=(r.estado==='enviada'?'Enviada':'Borrador guardado en la base')+' · '+cuando(r.ts)+(r.por?' por '+r.por:'');cl='limpio';}
+  else{t='Aún no hay nada guardado en la base.';cl='';}
+  el.className='estado '+cl;el.querySelector('span').textContent=t;
+  $('#g-guardar').disabled=!S.rol||!S.sucio;
+}
+function renderAviso(){
+  const c=S.conflicto;
+  $('#aviso').innerHTML=c?'<div class="msg warn" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center"><span style="flex:1;min-width:200px">Hay una versión guardada en la base ('+esc(cuando(c.ts))+(c.por?', '+esc(c.por):'')+') más reciente que lo que tienen en este equipo.</span><button class="btn small" id="usar-remota">Cargar la versión guardada</button><button class="btn small ghost" id="usar-local">Seguir con la de este equipo</button></div>':'';
+}
+function renderTodas(){
+  const el=$('#todas');
+  if(!S.rol){el.innerHTML='<div class="msg info">El contenido de las preformulaciones se ve con cualquier código de área o con el de facilitación. Arriba ven qué áreas ya enviaron.</div>';return;}
+  const hay=COD.filter(c=>S.remoto[c]&&S.remoto[c].datos);
+  el.innerHTML='<div class="lista">'+COD.map(c=>{const r=S.remoto[c];
+    if(!r||!r.datos)return '<div class="ficha"><div class="ficha-h"><span class="chip c-none">'+c+'</span><h3>'+esc(AREAS[c])+'</h3></div><p class="vacio">Todavía no ha guardado nada.</p></div>';
+    const D=completar(r.datos),chip=r.estado==='enviada'?'<span class="chip c-ok">Enviada</span>':r.enviada?'<span class="chip c-pend">Enviada, editando</span>':'<span class="chip c-warn">Borrador</span>';
+    return '<div class="ficha"><div class="ficha-h"><span class="chip c-acc">'+c+'</span><h3>'+esc(D.nombre||'Sin nombre')+'</h3>'+chip+'<span class="small muted">'+esc(AREAS[c])+' · '+esc(cuando(r.ts))+(r.por?' · '+esc(r.por):'')+'</span></div>'+
+      (D.equipo?'<p class="small muted">Formulan: '+esc(D.equipo)+'</p>':'')+
+      '<details><summary>Ver el tren lógico</summary>'+trenHTML(D)+(lleno(D.problema.consecuencia)?'<p class="small" style="margin-top:10px"><b>Si no se hace nada:</b> '+esc(D.problema.consecuencia)+'</p>':'')+'</details></div>';}).join('')+'</div>'+
+    (hay.length?'':'<p class="muted small" style="margin-top:8px">Cuando las áreas guarden, aparecerán aquí.</p>');
+}
+function renderTodo(){renderAcc();renderAcceso();renderAvance();renderAviso();renderCampos();renderPasos();renderRevision();renderGuardado();if(S.tab==='todas')renderTodas();}
+
+/* ---------- datos ---------- */
+async function cargarRemoto(){
+  try{const d=await api('/api/preformulaciones');S.remoto=d.areas||{};S.cargado=true;S.error=null;
+    if(S.codigo&&!d.rol){S.codigo='';S.rol=null;ls.del('vc-codigo');}
+    else if(d.rol){S.rol=d.rol;}
+  }catch(e){S.error=e.message;}
+}
+function fijarArea(a){
+  S.area=a;const loc=leerLocal(a),r=S.remoto[a];S.conflicto=null;
+  if(!loc&&a){const sin=leerLocal(null);if(sin&&tieneTexto(sin.D)){S.D=completar(sin.D);S.base=null;S.sucio=true;if(r&&r.datos)S.conflicto=r;ls.del(llave(null));guardarLocal();return;}}
+  if(loc){S.D=completar(loc.D);S.base=loc.base;S.sucio=!!loc.sucio;
+    if(r&&r.datos&&(!loc.base||r.ts>loc.base)){if(S.sucio)S.conflicto=r;else{S.D=completar(r.datos);S.base=r.ts;guardarLocal();}}}
+  else if(r&&r.datos){S.D=completar(r.datos);S.base=r.ts;S.sucio=false;guardarLocal();}
+  else{S.D=vacio();S.base=null;S.sucio=false;}
+}
+async function guardar(estado){
+  if(!S.rol)return;
+  if(!lleno(S.nombre)){S.msgEnvio=['bad','Escriban su nombre arriba antes de guardar.'];renderRevision();$('#f-quien')&&$('#f-quien').focus();return;}
+  const b=$('#g-guardar'),e=$('#enviar');b.disabled=true;if(e)e.disabled=true;
+  try{const j=await api('/api/preformulaciones',{area:S.area,estado,datos:S.D,por:S.nombre});
+    S.base=j.ts;S.sucio=false;S.conflicto=null;S.errBarra=null;
+    const prev=S.remoto[S.area]||{};
+    S.remoto[S.area]=Object.assign({},prev,{estado,ts:j.ts,por:S.nombre,datos:JSON.parse(JSON.stringify(S.D)),enviada:estado==='enviada'?j.ts:prev.enviada||null});
+    guardarLocal();
+    S.msgEnvio=estado==='enviada'?['ok','Preformulación enviada. ¡Gracias! Pueden seguir ajustándola y volver a enviar.']:null;
+  }catch(err){if(estado==='enviada')S.msgEnvio=['bad',err.message];else S.errBarra=err.message;}
+  renderTodo();
+}
+
+/* ---------- eventos ---------- */
+let tGuardar=null;
+function cambio(){S.sucio=true;S.msgEnvio=null;S.errBarra=null;clearTimeout(tGuardar);tGuardar=setTimeout(guardarLocal,400);renderPistas();renderPasos();renderGuardado();}
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.dataset.k){const ks=t.dataset.k.split('.');let o=S.D;for(let i=0;i<ks.length-1;i++)o=o[ks[i]];o[ks[ks.length-1]]=t.value;cambio();return;}
+  if(t.dataset.o!=null&&t.dataset.f){const o=S.D.especificos[+t.dataset.o];if(!o)return;
+    if(t.dataset.a!=null)o.actividades[+t.dataset.a][t.dataset.f]=t.value;else o[t.dataset.f]=t.value;cambio();return;}
+  if(t.id==='f-quien'){S.nombre=t.value.trim();ls.set('vc-nombre',S.nombre);renderAcc();}
+});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.tagName==='SELECT'&&t.dataset.f==='cuando'){S.D.especificos[+t.dataset.o].actividades[+t.dataset.a].cuando=t.value;cambio();}
+  if(t.id==='sel-area'){guardarLocal();fijarArea(t.value);ls.set('vc-party',t.value);S.msgEnvio=null;renderTodo();}
+});
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.go){S.paso=+t.dataset.go;renderPasos();if(S.paso===5)renderRevision();window.scrollTo({top:$('#t-form').offsetTop-80,behavior:'smooth'});return;}
+  if(t.dataset.tab){S.tab=t.dataset.tab;$$('.tab-btn').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===S.tab));$('#t-form').hidden=S.tab!=='form';$('#t-todas').hidden=S.tab!=='todas';
+    if(S.tab==='todas'){renderTodas();cargarRemoto().then(()=>{renderAvance();renderTodas();});}return;}
+  if(t.dataset.addAct!=null){const o=S.D.especificos[+t.dataset.addAct];o.actividades.push({texto:'',quien:'',cuando:''});renderObjs();cambio();const j=o.actividades.length-1;const n=document.getElementById('a-'+t.dataset.addAct+'-'+j);n&&n.focus();return;}
+  if(t.dataset.delAct){const [i,j]=t.dataset.delAct.split('-').map(Number);S.D.especificos[i].actividades.splice(j,1);renderObjs();cambio();return;}
+  if(t.dataset.delObj!=null){S.D.especificos.splice(+t.dataset.delObj,1);renderObjs();cambio();return;}
+  switch(t.id){
+    case 'add-obj':if(S.D.especificos.length<4){S.D.especificos.push({texto:'',evidencia:'',actividades:[{texto:'',quien:'',cuando:''},{texto:'',quien:'',cuando:''}]});renderObjs();cambio();const n=document.getElementById('oe-'+(S.D.especificos.length-1));n&&n.focus();}break;
+    case 'prev':if(S.paso>1){S.paso--;renderPasos();window.scrollTo({top:$('#t-form').offsetTop-80,behavior:'smooth'});}break;
+    case 'next':if(S.paso<5){S.paso++;renderPasos();if(S.paso===5)renderRevision();window.scrollTo({top:$('#t-form').offsetTop-80,behavior:'smooth'});}break;
+    case 'g-guardar':guardar('borrador');break;
+    case 'enviar':guardar('enviada');break;
+    case 'usar-remota':S.D=completar(S.conflicto.datos);S.base=S.conflicto.ts;S.sucio=false;S.conflicto=null;guardarLocal();renderTodo();break;
+    case 'usar-local':S.base=S.conflicto.ts;S.conflicto=null;guardarLocal();renderTodo();break;
+    case 'salir':guardarLocal();S.codigo='';S.rol=null;ls.del('vc-codigo');cargarRemoto().then(()=>{fijarArea(null);renderTodo();});break;
+  }
+});
+document.addEventListener('submit',async e=>{
+  if(e.target.id!=='f-login')return;e.preventDefault();
+  const code=$('#f-cod').value.trim().toUpperCase(),nom=$('#f-nom').value.trim(),msg=$('#login-msg');
+  const prev=S.codigo;S.codigo=code;
+  try{const q=await api('/api/quien');
+    S.rol=q.rol;S.nombre=nom;ls.set('vc-codigo',code);ls.set('vc-nombre',nom);
+    await cargarRemoto();
+    const pref=ls.get('vc-party');
+    fijarArea(esValidador()?(COD.includes(pref)?pref:COD[0]):S.rol);
+    renderTodo();
+  }catch(err){S.codigo=prev;msg.innerHTML='<div class="msg bad" style="margin-top:4px">'+esc(err.status===401?'Ese código no es válido. Revísenlo o pídanlo a quien facilita el taller.':err.message)+'</div>';}
+});
+window.addEventListener('beforeunload',()=>{clearTimeout(tGuardar);guardarLocal();});
+
+/* ---------- arranque ---------- */
+(function(){const loc=leerLocal(null);if(loc)S.D=completar(loc.D);})();
+renderTodo();
+cargarRemoto().then(()=>{
+  if(S.rol){const pref=ls.get('vc-party');fijarArea(esValidador()?(COD.includes(pref)?pref:COD[0]):S.rol);}
+  renderTodo();
+});
+})();
+</script>
+</body>
+</html>
