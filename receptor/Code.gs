@@ -1,8 +1,10 @@
 /**
  * Receptor de la Preformulación de proyectos · Visión Circular
  *
- * Qué hace: recibe cada ficha que se envía desde preformulacion.html, la manda por correo
- * (con copia) y la agrega como una fila nueva en una hoja de Google (abre en Excel).
+ * Qué hace: recibe cada ficha que se envía desde preformulacion.html y
+ *   1) la guarda como un documento de Google en la carpeta "Preformulaciones · Visión Circular" de tu Drive,
+ *   2) la agrega como una fila nueva en la hoja de respuestas (dentro de la misma carpeta),
+ *   3) la manda por correo, con copia.
  * Es el Code.gs de la carpeta de la consultoría, actualizado al orden nuevo de la ficha:
  * quién la diligencia, análisis del problema, posibles soluciones, definición y alcance,
  * propósito, objetivo general, objetivos con actividades y conexiones.
@@ -32,8 +34,10 @@ function doPost(e) {
     var o = limpiar(JSON.parse(raw));
     if (!o.nombre || !o.problema || !o.objetivoGeneral) return salida({ ok: false, error: 'incompleta' });
 
-    registrar(o);          // primero la hoja: si el correo falla, la ficha no se pierde
-    enviarCorreo(o);
+    // primero lo que queda guardado: si el correo falla, la ficha no se pierde
+    var doc = guardarDocumento(o);
+    registrar(o);
+    enviarCorreo(o, doc);
     return salida({ ok: true });
   } catch (err) {
     return salida({ ok: false, error: 'no se pudo procesar' });
@@ -126,15 +130,53 @@ function cuerpoTexto(o) {
   return L.join('\n');
 }
 
-function enviarCorreo(o) {
+function enviarCorreo(o, doc) {
+  var enlace = doc ? '<p style="margin-top:18px"><a href="' + doc.getUrl() + '">Abrir la ficha en Drive</a></p>' : '';
   MailApp.sendEmail({
     to: PARA,
     cc: CC,
     subject: ASUNTO + ': ' + o.nombre + (o.area ? ' · ' + o.area : ''),
-    body: cuerpoTexto(o),
-    htmlBody: cuerpoHtml(o),
+    body: cuerpoTexto(o) + (doc ? '\n\nFicha en Drive: ' + doc.getUrl() : ''),
+    htmlBody: cuerpoHtml(o) + enlace,
     name: 'Preformulación · Visión Circular'
   });
+}
+
+/* La carpeta se crea sola la primera vez, en la raíz de Mi unidad. Se puede mover a donde quieras:
+   el script la sigue encontrando por su id. */
+function carpeta() {
+  var props = PropertiesService.getScriptProperties();
+  var id = props.getProperty('CARPETA_ID');
+  if (id) { try { return DriveApp.getFolderById(id); } catch (e) {} }
+  var f = DriveApp.createFolder('Preformulaciones · Visión Circular');
+  props.setProperty('CARPETA_ID', f.getId());
+  return f;
+}
+
+/* Un documento por ficha: "AAAA-MM-DD · Línea o área · Proyecto". */
+function guardarDocumento(o) {
+  var hoy = Utilities.formatDate(new Date(), Session.getScriptTimeZone() || 'America/Bogota', 'yyyy-MM-dd');
+  var d = DocumentApp.create([hoy, o.area, o.nombre].filter(Boolean).join(' · '));
+  var b = d.getBody();
+  b.appendParagraph(o.nombre).setHeading(DocumentApp.ParagraphHeading.TITLE);
+  b.appendParagraph([o.area, o.responsable, o.tipo].filter(Boolean).join(' · ')).setItalic(true);
+  secciones(o).forEach(function (s) {
+    if (s[2]) {
+      if (!s[2].length) return;
+      b.appendParagraph(s[0]).setHeading(DocumentApp.ParagraphHeading.HEADING2).setItalic(false);
+      s[2].forEach(function (x, i) {
+        b.appendParagraph('Objetivo ' + (i + 1) + ': ' + x.texto).setItalic(false);
+        x.actividades.forEach(function (a) { b.appendListItem(a).setGlyphType(DocumentApp.GlyphType.BULLET).setItalic(false); });
+      });
+    } else if (s[1]) {
+      b.appendParagraph(s[0]).setHeading(DocumentApp.ParagraphHeading.HEADING2).setItalic(false);
+      b.appendParagraph(s[1]).setItalic(false);
+    }
+  });
+  d.saveAndClose();
+  var archivo = DriveApp.getFileById(d.getId());
+  archivo.moveTo(carpeta());
+  return archivo;
 }
 
 var ENCABEZADOS = ['Fecha', 'Quién diligencia', 'Línea o área', 'Qué está pasando', 'A quién afecta', 'Por qué pasa', 'Si no se atiende',
@@ -149,6 +191,7 @@ function hoja() {
   if (!ss) {
     ss = SpreadsheetApp.create('Respuestas · Preformulación de proyectos · Visión Circular');
     props.setProperty('HOJA_ID', ss.getId());
+    DriveApp.getFileById(ss.getId()).moveTo(carpeta());
     var sh = ss.getSheets()[0];
     sh.setName('Respuestas');
     var H = ENCABEZADOS.slice();
@@ -184,7 +227,8 @@ function probar() {
     proposito: 'Comprobar la conexión.', objetivoGeneral: 'Verificar el envío de fichas.',
     objetivos: [{ texto: 'Probar el correo', actividades: ['Enviar un correo de prueba'] }, { texto: 'Probar la hoja', actividades: ['Agregar una fila'] }]
   });
+  var doc = guardarDocumento(o);
   registrar(o);
-  enviarCorreo(o);
-  Logger.log('Listo. Hoja: ' + SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty('HOJA_ID')).getUrl());
+  enviarCorreo(o, doc);
+  Logger.log('Listo. Carpeta: ' + carpeta().getUrl());
 }
