@@ -256,14 +256,12 @@ section.blk.who .n{background:var(--lime);color:#1E305D}
 <script src="assets/config.js"></script>
 <script>
 (function(){
-/* Cada ficha se guarda en la base del tablero (Worker + D1) y además llega por correo (Formspree)
-   y como fila a la pestaña "Preformulación taller VC" del archivo madre de resultados (Apps Script).
-   Si se despliega el receptor propio (Code.gs de la carpeta de la consultoría), pegar su URL en RECEPTOR:
-   manda un correo con formato a Daniel con copia a Pahola y lleva su propia hoja de respuestas. */
+/* Cada ficha se guarda en la base del tablero (Worker + D1), que alimenta el banco de fichas, y va al
+   receptor de Apps Script (receptor/Code.gs, desplegado con la cuenta de Daniel): un documento por ficha
+   en la carpeta "Preformulaciones · Visión Circular" de su Drive, una fila en la hoja de respuestas y un
+   correo a Daniel con copia a Pahola. */
 var API=((window.VC_CONFIG||{}).api||'')+'/api/preformulaciones';
-var RECEPTOR='';
-var SHEET='https://script.google.com/macros/s/AKfycbwsPJcVWWBIXPebWZkJadjFkflREf_EKf2g-rvAYk_ig7NWbpnPtC6erI0u4OUasFOC_Q/exec';
-var FORMSPREE='https://formspree.io/f/xzdqznry';
+var RECEPTOR='https://script.google.com/macros/s/AKfycbzXXTibiDvi8i3XehXHfjZCTpIqRqGGjgaiLQBLwu1jJjF1ve_CAky3jcsH0S0elbjh/exec';
 var $=function(i){return document.getElementById(i)};
 var LS='vc-preformulacion-borrador-web', LS_MIAS='vc-preformulacion-mias', busy=false;
 var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
@@ -469,14 +467,9 @@ function falta(o){
   for(var k=0;k<3;k++){ if(!o.objetivos[k].texto)return {el:ot[k],t:'el objetivo específico '+(k+1)}; if(!o.objetivos[k].actividades.length)return {el:objs.querySelectorAll('.obj')[k].querySelector('.ai'),t:'al menos una actividad del objetivo '+(k+1)}; }
   return null;
 }
-function avisar(o,ts){
-  var texto=fichaTxt(o).replace(/\r\n/g,'\n');
-  var silencio=function(){};
-  try{fetch(FORMSPREE,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},
-    body:JSON.stringify({_subject:'Preformulación de proyecto: '+o.nombre+' · '+o.area,tipo:'Preformulación de proyecto',nombre:o.responsable,area:o.area,proyecto:o.nombre,ficha:texto,fecha:ts})}).catch(silencio)}catch(_){}
-  try{fetch(SHEET,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body:JSON.stringify({herramienta:'Preformulación taller VC',nombre:o.responsable,empresa:o.area,sector:o.tipo,resumen:o.nombre+' — '+o.objetivoGeneral,respuestas:texto,notas:o.conexiones,fecha:ts})}).catch(silencio)}catch(_){}
-  if(RECEPTOR.indexOf('http')===0){try{fetch(RECEPTOR,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(o)}).catch(silencio)}catch(_){}} /* receptor/Code.gs del repo */
+function avisar(o){
+  /* text/plain evita la consulta previa de CORS, que Apps Script no responde */
+  try{fetch(RECEPTOR,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(o),keepalive:true}).catch(function(){})}catch(_){}
 }
 $('send').onclick=function(){
   if(busy)return;
