@@ -32,24 +32,17 @@ const MAX_REPORTES = 20000;
 const MAX_PREF = 5000;
 const txt = (v, n = 600) => (v == null ? null : String(v).trim().slice(0, n) || null);
 
-/* Deja solo los campos esperados de una preformulación, con largo y cantidad acotados. */
+/* Deja solo los campos esperados de una ficha de preformulación, con largo y cantidad acotados. */
 function limpiarPref(d) {
   d = d && typeof d === "object" ? d : {};
-  const pr = d.problema && typeof d.problema === "object" ? d.problema : {};
-  const lista = (a, n) => (Array.isArray(a) ? a.slice(0, n) : []);
   return {
-    nombre: txt(d.nombre, 160),
-    equipo: txt(d.equipo, 300),
-    problema: { hoy: txt(pr.hoy, 1500), afectados: txt(pr.afectados, 1000), consecuencia: txt(pr.consecuencia, 1000) },
-    proposito: txt(d.proposito, 800),
-    general: txt(d.general, 600),
-    especificos: lista(d.especificos, 4).map((o) => ({
-      texto: txt(o && o.texto, 500),
-      evidencia: txt(o && o.evidencia, 400),
-      actividades: lista(o && o.actividades, 6).map((a) => ({
-        texto: txt(a && a.texto, 400), quien: txt(a && a.quien, 120), cuando: txt(a && a.cuando, 20),
-      })),
-    })),
+    nombre: txt(d.nombre, 150), area: txt(d.area, 100), responsable: txt(d.responsable, 100), tipo: txt(d.tipo, 40),
+    problema: txt(d.problema, 1500), proposito: txt(d.proposito, 800), objetivoGeneral: txt(d.objetivoGeneral, 500),
+    conexiones: txt(d.conexiones, 700),
+    objetivos: (Array.isArray(d.objetivos) ? d.objetivos.slice(0, 6) : []).map((o) => ({
+      texto: txt(o && o.texto, 400),
+      actividades: (o && Array.isArray(o.actividades) ? o.actividades.slice(0, 6) : []).map((x) => txt(x, 250)).filter(Boolean),
+    })).filter((o) => o.texto || o.actividades.length),
   };
 }
 
@@ -100,39 +93,30 @@ export default {
 
       /* ---------- preformulaciones: libre acceso ---------- */
       if (url.pathname === "/api/preformulaciones" && req.method === "GET") {
-        const r = await env.DB.prepare(
-          `SELECT p.* FROM preformulaciones p
-           JOIN (SELECT area, por, MAX(ts) AS m FROM preformulaciones GROUP BY area, por) x
-             ON p.area = x.area AND p.por = x.por AND p.ts = x.m
-           ORDER BY p.ts DESC`
-        ).all();
-        return json({ envios: r.results.map((x) => ({ id: x.id, area: x.area, por: x.por, ts: x.ts, datos: JSON.parse(x.datos) })), ahora: new Date().toISOString() });
+        const r = await env.DB.prepare("SELECT id, datos, ts FROM preformulaciones ORDER BY ts DESC LIMIT 500").all();
+        return json({ fichas: r.results.map((x) => ({ id: x.id, ts: x.ts, ...JSON.parse(x.datos) })), ahora: new Date().toISOString() });
       }
       if (url.pathname === "/api/preformulaciones" && req.method === "POST") {
         let b;
         try { b = await req.json(); } catch { return json({ error: "json", mensaje: "El cuerpo no es JSON." }, 400); }
-        const por = txt(b.por, 120);
-        if (!por) return json({ error: "datos", mensaje: "Escribe tu nombre." }, 400);
-        const otra = txt(b.otra, 80);
-        const area = AREAS.includes(b.area) ? b.area : b.area === "OTRA" && otra ? "Otra: " + otra : null;
-        if (!area) return json({ error: "datos", mensaje: "Elige tu área o línea estratégica." }, 400);
-        const datos = limpiarPref(b.datos);
+        if (txt(b.web)) return json({ ok: true, id: "x", ts: new Date().toISOString() }); // campo trampa para robots
+        const o = limpiarPref(b);
         const falta = [];
-        if (!datos.nombre) falta.push("nombre del proyecto");
-        if (!datos.problema.hoy) falta.push("problema");
-        if (!datos.proposito) falta.push("propósito superior");
-        if (!datos.general) falta.push("objetivo general");
-        const esp = datos.especificos.filter((o) => o.texto);
-        if (esp.length < 3) falta.push("al menos 3 objetivos específicos");
-        else if (esp.some((o) => !o.actividades.some((a) => a.texto))) falta.push("actividades en cada objetivo");
-        if (falta.length) return json({ error: "datos", mensaje: "Para enviar falta: " + falta.join(", ") + "." }, 400);
+        if (!o.nombre) falta.push("el nombre del proyecto");
+        if (!o.area) falta.push("la línea o área");
+        if (!o.responsable) falta.push("quién diligencia");
+        if (!o.problema) falta.push("el problema o necesidad");
+        if (!o.proposito) falta.push("el propósito superior");
+        if (!o.objetivoGeneral) falta.push("el objetivo general");
+        if (o.objetivos.filter((x) => x.texto && x.actividades.length).length < 3) falta.push("tres objetivos específicos con al menos una actividad");
+        if (falta.length) return json({ error: "datos", mensaje: "Falta " + falta.join(", ") + "." }, 400);
         const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM preformulaciones").first();
-        if (n && n.n >= MAX_PREF) return json({ error: "cupo", mensaje: "La base llegó a su límite de envíos." }, 507);
+        if (n && n.n >= MAX_PREF) return json({ error: "cupo", mensaje: "La base llegó a su límite de fichas." }, 507);
         const id = "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
         const ts = new Date().toISOString();
         await env.DB.prepare("INSERT INTO preformulaciones (id, area, estado, datos, por, ts) VALUES (?, ?, 'enviada', ?, ?, ?)")
-          .bind(id, area, JSON.stringify(datos), por, ts).run();
-        await bitacora(env, "preformulacion", { id, area, nombre: datos.nombre }, por, "libre");
+          .bind(id, o.area, JSON.stringify(o), o.responsable, ts).run();
+        await bitacora(env, "preformulacion", { id, area: o.area, nombre: o.nombre }, o.responsable, "libre");
         return json({ ok: true, id, ts });
       }
 

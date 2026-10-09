@@ -1,654 +1,457 @@
 <!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Preformulación de proyectos · Visión Circular</title>
-<meta name="description" content="Tarea del taller de formulación: cada área preformula un proyecto con problema, propósito superior, objetivos y actividades.">
 <link rel="icon" type="image/png" href="assets/simbolo.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
-/* Misma paleta del Tablero de Resultados (colores del logo de Visión Circular).
-   Composición: una columna de pasos a la izquierda y el paso abierto a la derecha; al final, el tren lógico. */
+/* Layout: encabezado de marca, dos pestañas (formulario guiado y banco del equipo); cada sección del formulario lleva su guía al lado en pantallas anchas */
 :root{
-  --bg:#F2F5F8; --surface:#FFFFFF; --sunk:#E8EEF3; --ink:#12263D; --ink-2:#53657A; --ink-3:#7B8A9C; --rule:#D4DDE6;
-  --brand:#0B5381; --brand-soft:#E0ECF5; --green:#00865F; --green-soft:#DCF1E8; --lime:#7FA23A; --sky:#4F8FCF;
-  --ok:#0B7F3A; --ok-soft:#DCF1E3; --warn:#975F00; --warn-soft:#FAEED3; --bad:#B8342C; --bad-soft:#F7DFDC; --pend:#5E50AC; --pend-soft:#EAE7F8;
-  --on-brand:#FFFFFF;
-  --display:"Montserrat","Segoe UI",system-ui,sans-serif; --body:"Source Sans 3","Segoe UI",system-ui,-apple-system,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
-  --r:10px;
+  --bg:#F3F6FA; --surface:#FFFFFF; --ink:#1E305D; --muted:#5A6B85; --line:#D5DEEA;
+  --blue:#2C67B0; --lime:#B1D357; --green:#00AB6D; --teal:#006F63; --sky:#7FB8D9;
+  --soft:#E8F1F8; --hint:#F1F7DF; --warn:#9A5B12; --warnbg:#FBF1E3;
+  --font:"Trebuchet MS","Segoe UI",Helvetica,Arial,sans-serif;
 }
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:#0C1520; --surface:#13202E; --sunk:#192838; --ink:#E6EDF4; --ink-2:#A3B1C3; --ink-3:#7A899B; --rule:#273748;
-    --brand:#7DB3E6; --brand-soft:#17304A; --green:#4CC59A; --green-soft:#133126; --lime:#A9CB62; --sky:#7DB3E6;
-    --ok:#52C47F; --ok-soft:#163222; --warn:#E3A94B; --warn-soft:#382A14; --bad:#EF7E74; --bad-soft:#3B1E1C; --pend:#A99CEB; --pend-soft:#262140;
-    --on-brand:#0C1520;
-    color-scheme:dark;
-  }
-}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1729; --surface:#162340; --ink:#E6EEF8; --muted:#9FB1C9; --line:#2A3B5E;
+  --blue:#6FA3E0; --lime:#B1D357; --green:#2CCB8F; --teal:#4FC3B3; --sky:#7FB8D9;
+  --soft:#1B2D52; --hint:#22331F; --warn:#F0B669; --warnbg:#3A2C17; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1729; --surface:#162340; --ink:#E6EEF8; --muted:#9FB1C9; --line:#2A3B5E;
+  --blue:#6FA3E0; --lime:#B1D357; --green:#2CCB8F; --teal:#4FC3B3; --sky:#7FB8D9;
+  --soft:#1B2D52; --hint:#22331F; --warn:#F0B669; --warnbg:#3A2C17; color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;margin:0}
-button,input,select,textarea{font:inherit;color:inherit}
-a{color:var(--brand);text-underline-offset:2px}
-:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
-@media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}}
-[hidden]{display:none!important}
-.wrap{max-width:1180px;margin:0 auto;padding-inline:20px}
-@media (max-width:480px){.wrap{padding-inline:16px}}
-h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
-h1{font-size:clamp(24px,3.2vw,32px);line-height:1.15;font-weight:700}
-h2{font-size:21px;line-height:1.25;font-weight:700}
-h3{font-size:15.5px;line-height:1.3;font-weight:600}
-p{margin:0}
-.muted{color:var(--ink-2)} .small{font-size:14px}
-.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--green);font-weight:600}
-.lede{color:var(--ink-2);max-width:68ch;font-size:16.5px}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5;padding-inline:16px}
+.wrap{max-width:1040px;margin:0 auto;padding-block:20px 56px}
+header.top{display:flex;gap:20px;align-items:center;flex-wrap:wrap;background:linear-gradient(120deg,#1E305D 0%,#2C67B0 100%);color:#fff;border-radius:14px;padding:22px 24px;border-bottom:5px solid var(--lime)}
+header.top .lg{background:#fff;border-radius:10px;padding:8px 12px;display:flex}
+header.top img{height:46px;width:auto;display:block}
+header.top .tx{flex:1;min-width:240px}
+header.top .kick{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--lime);font-weight:700}
+header.top h1{font-size:clamp(24px,4vw,32px);line-height:1.15;margin:4px 0 6px;text-wrap:balance}
+header.top p{margin:0;color:#DCE7F5;font-size:15px;max-width:60ch}
+nav.tabs{display:flex;gap:6px;margin:20px 0 16px;border-bottom:2px solid var(--line)}
+nav.tabs button{font:inherit;font-weight:700;background:none;border:0;color:var(--muted);padding:10px 16px;cursor:pointer;border-bottom:4px solid transparent;margin-bottom:-2px}
+nav.tabs button[aria-selected="true"]{color:var(--blue);border-bottom-color:var(--lime)}
+nav.tabs button:focus-visible,.btn:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.intro{background:var(--soft);border-radius:12px;padding:14px 18px;display:grid;gap:10px;margin-bottom:18px}
+.intro h2{font-size:15px;margin:0;color:var(--blue)}
+.intro ol{margin:0;padding-left:20px;display:grid;gap:4px;font-size:15px}
+.intro .meta{color:var(--muted);font-size:14px}
+.prog{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;margin-bottom:10px}
+.prog .row{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:4px}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--lime));transition:width .25s}
+section.blk{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,300px);gap:20px}
+section.blk>.main{min-width:0;display:grid;gap:12px;align-content:start}
+section.blk>.side{min-width:0}
+.sec-h{display:flex;gap:12px;align-items:flex-start}
+.sec-h .n{flex:none;width:34px;height:34px;border-radius:50%;background:var(--blue);color:#fff;font-weight:700;display:grid;place-items:center}
+.sec-h h2{font-size:20px;margin:0;line-height:1.2}
+.sec-h p{margin:2px 0 0;color:var(--muted);font-size:14px}
+label{font-weight:700;font-size:14px;display:block;margin-bottom:4px}
+label .opt{font-weight:400;color:var(--muted)}
+input[type=text],textarea,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:9px;padding:10px 12px}
+textarea{min-height:104px;resize:vertical}
+input:focus,textarea:focus,select:focus{border-color:var(--blue)}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.cnt{font-size:12px;color:var(--muted);text-align:right;margin-top:2px}
+.hint{background:var(--hint);border-radius:10px;padding:12px 14px;font-size:14px}
+.hint b.t{display:block;color:var(--teal);margin-bottom:4px;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.hint ul{margin:0;padding-left:18px;display:grid;gap:3px}
+.hint details{margin-top:8px}
+.hint summary{cursor:pointer;font-weight:700;color:var(--blue)}
+.hint details p{margin:6px 0 0;font-style:italic;color:var(--ink)}
+.obj{border:1.5px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:10px;background:var(--bg)}
+.obj h3{margin:0;font-size:15px;display:flex;align-items:center;gap:8px}
+.obj h3 .tag{font-size:11px;font-weight:700;background:var(--soft);color:var(--blue);border-radius:99px;padding:2px 9px;text-transform:uppercase;letter-spacing:.06em}
+.acts{display:grid;gap:8px;margin-left:4px;padding-left:14px;border-left:3px solid var(--lime)}
+.acts .a{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center}
+.acts .a .nn{font-size:12px;font-weight:700;color:var(--teal);min-width:26px}
+.rm{font:inherit;font-size:13px;font-weight:700;background:none;border:0;color:var(--warn);cursor:pointer;padding:4px 6px;border-radius:6px}
+.rm:focus-visible{outline:3px solid var(--sky)}
+.addact{font:inherit;font-size:13px;font-weight:700;background:none;border:0;color:var(--blue);cursor:pointer;padding:4px 0;justify-self:start}
+.obj h3 .sp{flex:1}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;position:sticky;bottom:0;background:var(--bg);padding-block:12px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
+.btn{font:inherit;font-weight:700;border-radius:10px;padding:11px 20px;border:2px solid var(--blue);background:var(--blue);color:#fff;cursor:pointer}
+.btn.sec{background:transparent;color:var(--blue)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.msg{font-size:14px;color:var(--muted);flex:1;min-width:200px}
+.msg.ok{color:var(--green);font-weight:700}.msg.err{color:var(--warn);font-weight:700}
+.note{background:var(--warnbg);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:14px;margin-bottom:14px}
+.bank-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.bank-tools input[type=text]{flex:1;min-width:200px}
+.bank-tools label.chk{display:flex;gap:6px;align-items:center;font-weight:400;margin:0;white-space:nowrap}
+.cards{display:grid;gap:12px}
+.how{background:var(--soft);border-radius:12px;padding:12px 16px;font-size:15px;margin-bottom:14px}
+.how b{color:var(--blue)}
+.ta{width:100%;min-height:140px;font-size:13px;margin-top:8px}
+.imp{background:var(--soft);border-radius:12px;padding:14px 18px;display:grid;gap:8px;margin-bottom:14px;font-size:14px;justify-items:start}
+.imp b{color:var(--blue)}
+.pc{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:0;overflow:hidden}
+.pc summary{list-style:none;cursor:pointer;padding:14px 18px;display:grid;gap:4px}
+.pc summary::-webkit-details-marker{display:none}
+.pc .h{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pc .h b{font-size:17px}
+.pill{font-size:11px;font-weight:700;border-radius:99px;padding:2px 10px;text-transform:uppercase;letter-spacing:.06em}
+.pill.ok{background:#DDF3E8;color:#04683F}.pill.dr{background:var(--warnbg);color:var(--warn)}.pill.mine{background:var(--soft);color:var(--blue)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .pill.ok{background:#12402F;color:#7EE0B4}}
+:root[data-theme="dark"] .pill.ok{background:#12402F;color:#7EE0B4}
+.pc .sub{color:var(--muted);font-size:14px}
+.pc .body{padding:0 18px 16px;display:grid;gap:10px;border-top:1px solid var(--line);padding-top:14px}
+.pc .body h4{margin:0;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal)}
+.pc .body p{margin:2px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.pc .body ol{margin:4px 0 0;padding-left:20px;display:grid;gap:8px}
+.pc .body ul{margin:3px 0 0;padding-left:18px;color:var(--muted);font-size:15px}
+.empty{background:var(--surface);border:2px dashed var(--line);border-radius:14px;padding:28px;text-align:center;color:var(--muted)}
+footer.f{margin-top:28px;color:var(--muted);font-size:13px;text-align:center}
+@media (max-width:760px){section.blk{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion: reduce){.bar i{transition:none}}
 
-/* encabezado */
-header.app{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--rule)}
-.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding-block:10px}
-.brand{display:flex;align-items:center;gap:14px;min-width:0;text-decoration:none;color:inherit}
-.logo-plate{background:#fff;border-radius:8px;padding:4px 6px;display:flex}
-.logo-plate img{height:42px;width:auto;display:block}
-.brand .t{border-left:1px solid var(--rule);padding-left:14px;min-width:0}
-.brand .t b{display:block;font-family:var(--display);font-weight:700;font-size:15.5px;line-height:1.2}
-.brand .t span{font-size:12.5px;color:var(--ink-2)}
-@media (max-width:600px){.brand .t{display:none}.logo-plate img{height:36px}}
-.acc{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:14px;flex-wrap:wrap;justify-content:flex-end}
-
-/* botones y campos */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--rule);background:var(--surface);border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:14.5px;text-decoration:none;color:var(--ink);white-space:nowrap}
-.btn:hover{border-color:var(--ink-3)}
-.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
-.btn.green{background:var(--green);border-color:var(--green);color:var(--on-brand)}
-.btn.small{padding:5px 10px;font-size:13.5px}
-.btn.ghost{border-color:transparent;background:none;color:var(--brand)}
-.btn.ghost:hover{background:var(--brand-soft)}
-.btn[disabled]{opacity:.45;cursor:not-allowed}
-.x{border:0;background:none;color:var(--ink-3);cursor:pointer;font-size:20px;line-height:1;padding:4px 8px;border-radius:6px}
-.x:hover{color:var(--bad);background:var(--bad-soft)}
-input[type=text],input[type=password],select,textarea{background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:9px 11px;min-width:0;max-width:100%;width:100%}
-input:focus,select:focus,textarea:focus{border-color:var(--brand);outline:none;box-shadow:0 0 0 3px var(--brand-soft)}
-textarea{min-height:84px;resize:vertical;line-height:1.5}
-label.f{display:grid;gap:6px}
-label.f>span{font-weight:700;font-size:15px}
-label.f>small{color:var(--ink-2);font-size:13.5px;margin-top:-3px}
-.chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:4px;white-space:nowrap;line-height:1.6}
-.c-ok{background:var(--ok-soft);color:var(--ok)} .c-warn{background:var(--warn-soft);color:var(--warn)} .c-pend{background:var(--pend-soft);color:var(--pend)} .c-none{background:var(--sunk);color:var(--ink-2)} .c-acc{background:var(--brand-soft);color:var(--brand)}
-.msg{border-radius:8px;padding:10px 12px;font-size:14.5px}
-.msg.ok{background:var(--ok-soft);color:var(--ok)} .msg.bad{background:var(--bad-soft);color:var(--bad)} .msg.warn{background:var(--warn-soft);color:var(--warn)} .msg.info{background:var(--brand-soft);color:var(--brand)}
-.msg b{font-weight:700}
-
-main{padding-block:26px 90px;display:grid;gap:22px}
-.intro{display:grid;gap:8px}
-
-/* avance de las áreas */
-.avance{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}
-@media (max-width:900px){.avance{grid-template-columns:repeat(4,minmax(0,1fr))}}
-@media (max-width:420px){.avance{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.av{background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:8px 10px;display:grid;gap:3px;min-width:0}
-.av b{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ink-2)}
-.av span{font-size:12.5px;line-height:1.25;min-width:0;overflow-wrap:anywhere}
-.av.mine{border-color:var(--brand);box-shadow:0 0 0 1px var(--brand)}
-.av .st{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700}
-.av .st i{width:8px;height:8px;border-radius:50%;flex:none;background:var(--ink-3)}
-.av.s-borrador .st{color:var(--warn)} .av.s-borrador .st i{background:var(--warn)}
-.av.s-enviada .st{color:var(--ok)} .av.s-enviada .st i{background:var(--ok)}
-.av.s-cambios .st{color:var(--pend)} .av.s-cambios .st i{background:var(--pend)}
-
-/* pestañas */
-nav.tabs{display:flex;gap:2px;border-bottom:1px solid var(--rule);overflow-x:auto;scrollbar-width:none}
-.tab-btn{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px 9px;font-weight:700;color:var(--ink-2);cursor:pointer;white-space:nowrap;font-size:15.5px;margin-bottom:-1px}
-.tab-btn[aria-selected="true"]{color:var(--brand);border-bottom-color:var(--brand)}
-
-/* acceso */
-.acceso{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:16px 18px;display:grid;gap:12px}
-.acceso .row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) auto;gap:10px;align-items:end}
-@media (max-width:700px){.acceso .row{grid-template-columns:1fr}}
-
-/* formulario por pasos */
-.form-grid{display:grid;grid-template-columns:250px minmax(0,1fr);gap:24px;align-items:start}
-@media (max-width:860px){.form-grid{grid-template-columns:1fr}}
-.pasos{position:sticky;top:96px;display:grid;gap:2px;list-style:none;margin:0;padding:0}
-@media (max-width:860px){.pasos{position:static;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px}}
-.paso{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-radius:8px;padding:9px 10px;cursor:pointer;color:var(--ink-2)}
-.paso:hover{background:var(--sunk)}
-.paso .n{width:30px;height:30px;border-radius:50%;border:2px solid var(--rule);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:13.5px;background:var(--surface)}
-.paso .l{font-weight:700;font-size:14.5px;line-height:1.25}
-.paso .l small{display:block;font-weight:400;font-size:12.5px;color:var(--ink-3)}
-.paso[aria-current="step"]{background:var(--brand-soft);color:var(--brand)}
-.paso[aria-current="step"] .n{border-color:var(--brand);background:var(--brand);color:var(--on-brand)}
-.paso.done .n{border-color:var(--green);color:var(--green)}
-.paso[aria-current="step"].done .n{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
-@media (max-width:860px){.paso{grid-template-columns:1fr;justify-items:center;text-align:center;padding:8px 4px;gap:4px}.paso .l{font-size:12px}.paso .l small{display:none}}
-
-.hoja{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:26px 28px;display:grid;gap:20px;min-width:0}
-@media (max-width:520px){.hoja{padding:18px 16px}}
-.hoja-head{display:grid;gap:6px}
-.hoja-head .q{font-size:17px;color:var(--ink-2);max-width:62ch}
-.campos{display:grid;gap:18px}
-.nav-pasos{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:16px}
-
-.hint{font-size:14px;border-radius:6px;padding:7px 10px;display:flex;gap:8px;align-items:flex-start}
-.hint::before{content:"";width:7px;height:7px;border-radius:50%;margin-top:7px;flex:none;background:currentColor}
-.hint.warn{background:var(--warn-soft);color:var(--warn)}
-.hint.ok{background:var(--ok-soft);color:var(--ok)}
-.hint:empty{display:none}
-
-details.ej{border:1px dashed var(--rule);border-radius:8px;background:var(--bg)}
-details.ej summary{cursor:pointer;padding:9px 12px;font-weight:700;font-size:14px;color:var(--brand);list-style:none}
-details.ej summary::-webkit-details-marker{display:none}
-details.ej summary::before{content:"+ ";font-family:var(--mono)}
-details.ej[open] summary::before{content:"− "}
-details.ej .in{padding:0 14px 12px;display:grid;gap:8px;font-size:14.5px}
-details.ej .in p b{font-weight:700}
-details.ej .nota{font-size:12.5px;color:var(--ink-3)}
-
-/* objetivos específicos */
-.obj{border:1px solid var(--rule);border-radius:var(--r);padding:16px;display:grid;gap:14px;background:var(--surface)}
-.obj-h{display:flex;align-items:center;gap:10px}
-.obj-h .tag{font-family:var(--display);font-weight:800;font-size:13px;background:var(--green);color:var(--on-brand);border-radius:6px;padding:3px 8px}
-.obj-h .sp{flex:1}
-.acts{display:grid;gap:8px;background:var(--bg);border-radius:8px;padding:12px}
-.acts>.lab{font-weight:700;font-size:14px}
-.act{display:grid;grid-template-columns:22px minmax(0,1fr) minmax(0,190px) minmax(0,130px) 34px;gap:8px;align-items:center}
-.act .k{font-family:var(--mono);font-size:12px;color:var(--ink-3);text-align:right}
-@media (max-width:760px){.act{grid-template-columns:22px minmax(0,1fr) 34px}.act .q,.act .w{grid-column:2}}
-.add{justify-self:start}
-
-/* revisión */
-.tren{display:grid;gap:10px}
-.nivel{display:grid;gap:4px;border-radius:8px;padding:12px 14px}
-.nivel .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
-.nivel.prop{background:var(--brand);color:var(--on-brand)}
-.nivel.prop .k{opacity:.85}
-.nivel.gen{background:var(--brand-soft);color:var(--ink);border:1px solid var(--brand)}
-.nivel.gen .k{color:var(--brand)}
-.flecha{justify-self:center;color:var(--ink-3);font-size:13px;font-family:var(--mono);display:flex;gap:6px;align-items:center}
-.flecha::before{content:"↑";font-size:18px;line-height:1}
-.esps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
-.esp{border:1px solid var(--rule);border-radius:8px;overflow:hidden;display:grid;align-content:start;background:var(--surface)}
-.esp .t{padding:10px 12px;background:var(--green-soft);display:grid;gap:4px}
-.esp .t .k{font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.08em}
-.esp .ev{font-size:13px;color:var(--ink-2)}
-.esp ul{margin:0;padding:8px 12px 10px 28px;font-size:14px;display:grid;gap:4px}
-.esp li small{color:var(--ink-3)}
-.vacio{color:var(--ink-3);font-style:italic}
-.problema-box{border-left:3px solid var(--warn);background:var(--warn-soft);padding:10px 14px;border-radius:0 8px 8px 0;display:grid;gap:4px}
-.problema-box .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--warn)}
-.check{list-style:none;margin:0;padding:0;display:grid;gap:6px}
-.check li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;font-size:14.5px;align-items:start}
-.check li i{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:700;margin-top:1px}
-.check li.ok i{background:var(--ok-soft);color:var(--ok)}
-.check li.no i{background:var(--warn-soft);color:var(--warn)}
-.envio{display:grid;gap:10px;border:1px solid var(--rule);border-radius:var(--r);padding:16px;background:var(--bg)}
-
-/* barra inferior */
-.guardado{position:fixed;left:0;right:0;bottom:0;z-index:15;background:var(--surface);border-top:1px solid var(--rule);padding-bottom:env(safe-area-inset-bottom,0px)}
-.guardado .wrap{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;padding-block:10px}
-.guardado .estado{font-size:13.5px;color:var(--ink-2);display:flex;align-items:center;gap:7px;min-width:0;flex:1}
-.guardado .estado i{width:8px;height:8px;border-radius:50%;background:var(--ink-3);flex:none}
-.guardado .estado.sucio i{background:var(--warn)}
-.guardado .estado.limpio i{background:var(--ok)}
-
-.quien{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;padding:14px;border-radius:8px;background:var(--brand-soft)}
-.quien #l-otra{grid-column:1/-1}
-@media (max-width:620px){.quien{grid-template-columns:1fr}}
-.av .nn{font-family:var(--mono);font-size:12px;font-weight:600}
-/* todas las áreas */
-.lista{display:grid;gap:12px}
-.ficha{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:18px 20px;display:grid;gap:12px;min-width:0}
-.ficha-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px}
-.ficha-h h3{font-size:17px}
-.ficha details summary{cursor:pointer;font-weight:700;color:var(--brand);font-size:14.5px}
-.ficha details[open] summary{margin-bottom:12px}
-</style>
-</head>
-<body>
-<header class="app">
-  <div class="wrap bar">
-    <a class="brand" href="./">
-      <span class="logo-plate"><img src="assets/logo-vision-circular.png" alt="Visión Circular"></span>
-      <span class="t"><b>Preformulación de proyectos</b><span>Taller de formulación y gestión · tarea por área</span></span>
-    </a>
-    <div class="acc" id="acc"></div>
+.ok-box{background:var(--surface);border:2px solid var(--green);border-radius:14px;padding:26px;text-align:center;display:grid;gap:12px;justify-items:center}
+.ok-box h2{margin:0;color:var(--green)}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.live{background:var(--warnbg);color:var(--warn);border-radius:8px;padding:7px 10px;font-size:13.5px;margin-top:6px}
+.bank-tools .btn{padding:9px 16px}
+#t-banco .lede{margin:0 0 14px;color:var(--muted);font-size:15px}
+.foot-note{font-size:13px;color:var(--muted);margin-top:6px}
+</style></head><body>
+<div class="wrap">
+<header class="top">
+  <div class="lg"><img alt="Visión Circular" src="assets/logo-vision-circular.png"></div>
+  <div class="tx">
+    <div class="kick">Taller ejecutivo · Siguiente paso</div>
+    <h1>Preformulación de proyectos</h1>
+    <p>Una ficha por idea. Escribe lo que ya sabes; lo demás lo trabajamos juntos. No necesitas cuenta ni registro.</p>
   </div>
 </header>
 
-<main class="wrap">
+<nav class="tabs" role="tablist">
+  <button type="button" role="tab" data-tab="ficha" aria-selected="true">Mi ficha</button>
+  <button type="button" role="tab" data-tab="banco" aria-selected="false">Banco de fichas <span id="bank-n" style="font-weight:400"></span></button>
+</nav>
+
+<div id="t-ficha">
+<div id="v-form">
   <div class="intro">
-    <p class="eyebrow">Taller de formulación · siguiente paso</p>
-    <h1>Preformulación del proyecto de tu área</h1>
-    <p class="lede">Escojan un proyecto y déjenlo escrito en cinco pasos: el problema, el propósito superior, el objetivo general, de 3 a 4 objetivos específicos y las actividades de cada uno. Al final verás el proyecto armado como un tren lógico para revisar que todo conecte.</p>
+    <h2>Antes de empezar</h2>
+    <ol>
+      <li>Piensa en una idea concreta que quieras impulsar. Si tienes varias, llena una ficha por cada una.</li>
+      <li>Escribe con tus palabras. Lo que escribes se conserva en este navegador mientras terminas.</li>
+      <li>Si dudas si tu idea es un proyecto, una alianza o un proceso, hazte las cuatro preguntas de la ficha del taller. Aquí puedes marcar "No estoy seguro".</li>
+    </ol>
+    <div class="meta">Toma unos 20 minutos. Cada bloque tiene una guía y un ejemplo ilustrativo.</div>
   </div>
-
-  <div>
-    <p class="eyebrow" style="margin-bottom:8px">Proyectos enviados por área</p>
-    <div class="avance" id="avance"></div>
-    <p class="small muted" id="avance-msg" style="margin-top:6px"></p>
-  </div>
-
-  <nav class="tabs" role="tablist">
-    <button class="tab-btn" role="tab" id="tb-form" aria-selected="true" data-tab="form">Mi proyecto</button>
-    <button class="tab-btn" role="tab" id="tb-todas" aria-selected="false" data-tab="todas">Proyectos enviados</button>
-  </nav>
-
-  <section id="t-form" style="display:grid;gap:18px">
-
-    <div class="form-grid">
-      <ol class="pasos" id="pasos"></ol>
-
-      <div>
-        <!-- 1 -->
-        <div class="hoja" data-step="1">
-          <div class="hoja-head">
-            <p class="eyebrow">Paso 1 de 5</p>
-            <h2>El problema o la necesidad</h2>
-            <p class="q">Antes de pensar en la solución, describan lo que pasa hoy. Un buen problema se puede ver, se puede medir y le pasa a alguien.</p>
-          </div>
-          <div class="campos">
-            <div class="quien">
-              <label class="f"><span>Tu nombre</span><input type="text" id="f-quien" maxlength="120" autocomplete="name"></label>
-              <label class="f"><span>Área o línea estratégica</span><select id="f-area"></select></label>
-              <label class="f" id="l-otra" hidden><span>¿Cuál?</span><input type="text" id="f-otra" maxlength="80"></label>
-            </div>
-            <label class="f"><span>Nombre del proyecto</span><small>Corto y reconocible. Lo pueden cambiar después.</small>
-              <input type="text" id="f-nombre" data-k="nombre" maxlength="160" placeholder="Ej.: Colegios que separan bien"></label>
-            <label class="f"><span>Otras personas que lo formulan contigo</span><small>Opcional.</small>
-              <input type="text" id="f-equipo" data-k="equipo" maxlength="300" placeholder="Nombres separados por coma"></label>
-            <label class="f"><span>¿Qué pasa hoy?</span><small>La situación tal como se ve, sin mencionar todavía la solución.</small>
-              <textarea id="f-hoy" data-k="problema.hoy" maxlength="1500"></textarea></label>
-            <p class="hint" data-hint="hoy"></p>
-            <label class="f"><span>¿A quién afecta y cuánto?</span><small>Incluyan al menos una cifra, aunque sea aproximada: cuántas personas, toneladas, organizaciones o pesos.</small>
-              <textarea id="f-afectados" data-k="problema.afectados" maxlength="1000"></textarea></label>
-            <p class="hint" data-hint="afectados"></p>
-            <label class="f"><span>¿Qué pasa si no se hace nada?</span>
-              <textarea id="f-consecuencia" data-k="problema.consecuencia" maxlength="1000"></textarea></label>
-            <details class="ej"><summary>Ver un ejemplo</summary><div class="in">
-              <p><b>Qué pasa hoy:</b> en los colegios de la estrategia de consumo responsable el material aprovechable sale mezclado con orgánicos y llega contaminado al gestor.</p>
-              <p><b>A quién y cuánto:</b> cerca de 40 colegios y 3 gestores aliados; en las visitas, alrededor de la mitad del material se rechaza por contaminación.</p>
-              <p><b>Si no se hace nada:</b> los estudiantes aprenden a separar pero ven que no sirve, el gestor deja de recoger y la estrategia pierde credibilidad.</p>
-              <p class="nota">Ejemplo ilustrativo. Las cifras son inventadas para mostrar el formato.</p>
-            </div></details>
-          </div>
-        </div>
-
-        <!-- 2 -->
-        <div class="hoja" data-step="2" hidden>
-          <div class="hoja-head">
-            <p class="eyebrow">Paso 2 de 5</p>
-            <h2>El propósito superior</h2>
-            <p class="q">¿A qué cambio mayor contribuye este proyecto, aunque no lo logre solo? Es la razón de fondo: lo que haría que valga la pena aunque el proyecto termine.</p>
-          </div>
-          <div class="campos">
-            <label class="f"><span>Propósito superior</span><small>Una o dos frases. Piensen en el país, el sector o las personas, más allá del área.</small>
-              <textarea id="f-proposito" data-k="proposito" maxlength="800"></textarea></label>
-            <p class="hint" data-hint="proposito"></p>
-            <details class="ej"><summary>Ver un ejemplo</summary><div class="in">
-              <p>Que las nuevas generaciones adopten la separación en la fuente como un hábito, y que ese hábito se note en la calidad del material que llega al reciclaje en el país.</p>
-              <p class="nota">Fíjense que no se mide dentro del proyecto: es el norte al que apunta.</p>
-            </div></details>
-          </div>
-        </div>
-
-        <!-- 3 -->
-        <div class="hoja" data-step="3" hidden>
-          <div class="hoja-head">
-            <p class="eyebrow">Paso 3 de 5</p>
-            <h2>El objetivo general</h2>
-            <p class="q">Lo que el proyecto sí se compromete a lograr. Una sola frase: verbo en infinitivo + qué cambia + dónde o en quién + para cuándo.</p>
-          </div>
-          <div class="campos">
-            <label class="f"><span>Objetivo general</span>
-              <textarea id="f-general" data-k="general" maxlength="600"></textarea></label>
-            <p class="hint" data-hint="general"></p>
-            <details class="ej"><summary>Ver un ejemplo</summary><div class="in">
-              <p>Reducir a la mitad el material rechazado por contaminación en los colegios de la estrategia durante 2027.</p>
-              <p class="nota">Tiene verbo, qué cambia, en quién, cuánto y para cuándo. Y responde directamente al problema del paso 1.</p>
-            </div></details>
-          </div>
-        </div>
-
-        <!-- 4 -->
-        <div class="hoja" data-step="4" hidden>
-          <div class="hoja-head">
-            <p class="eyebrow">Paso 4 de 5</p>
-            <h2>Objetivos específicos y actividades</h2>
-            <p class="q">De 3 a 4 objetivos que, cumplidos juntos, logran el objetivo general. Cada uno lleva cómo se sabrá que se cumplió y las actividades que lo hacen posible.</p>
-          </div>
-          <div class="campos">
-            <div id="objs" style="display:grid;gap:14px"></div>
-            <button type="button" class="btn small add" id="add-obj">+ Agregar objetivo específico</button>
-            <details class="ej"><summary>Ver un ejemplo</summary><div class="in">
-              <p><b>OE1.</b> Diseñar con estudiantes y docentes un punto de separación que funcione en cada colegio. <i>Se sabrá porque:</i> el punto está instalado y en uso en cada colegio.<br>Actividades: taller de diseño con 5 colegios piloto (Consumo responsable, ene 2027) · prueba del punto durante un mes (docentes líderes, feb 2027).</p>
-              <p><b>OE2.</b> Acordar con los gestores la ruta de recolección y el reporte de calidad. <i>Se sabrá porque:</i> hay un acuerdo firmado y un reporte mensual de rechazo.</p>
-              <p><b>OE3.</b> Medir cada mes el material rechazado y devolver el dato a cada colegio. <i>Se sabrá porque:</i> cada colegio recibe su resultado mensual.</p>
-              <p class="nota">Un objetivo específico es un resultado; una actividad es algo que se hace. Si un objetivo cabe en una sola actividad, probablemente es una actividad.</p>
-            </div></details>
-          </div>
-        </div>
-
-        <!-- 5 -->
-        <div class="hoja" data-step="5" hidden>
-          <div class="hoja-head">
-            <p class="eyebrow">Paso 5 de 5</p>
-            <h2>Revisar el tren lógico y enviar</h2>
-            <p class="q">Léanlo de abajo hacia arriba: si hacemos estas actividades, logramos estos objetivos; si logramos estos objetivos, cumplimos el general; y eso aporta al propósito.</p>
-          </div>
-          <div id="tren"></div>
-          <div class="campos">
-            <div><h3 style="margin-bottom:8px">Revisión rápida</h3><ul class="check" id="checklist"></ul></div>
-            <div class="envio" id="envio"></div>
-          </div>
-        </div>
-
-        <div class="nav-pasos" style="border:0;padding-top:14px">
-          <button type="button" class="btn" id="prev">← Anterior</button>
-          <button type="button" class="btn primary" id="next">Siguiente →</button>
-        </div>
-      </div>
+  <div class="prog"><div class="row"><span>Avance de la ficha</span><span id="pt">0 de 12</span></div><div class="bar"><i id="pb"></i></div></div>
+  <section class="blk"><div class="main">
+    <div class="sec-h"><div class="n">1</div><div><h2>Datos de la idea</h2><p>Para que el equipo sepa de quién es y de qué trata.</p></div></div>
+    <div><label for="nombre">Nombre provisional del proyecto</label><input type="text" id="nombre" maxlength="120" placeholder="Un nombre corto que se entienda solo"></div>
+    <div class="g2">
+      <div><label for="area">Línea o área</label><input type="text" id="area" maxlength="80" placeholder="Ej.: Innovación" list="areas-vc"><datalist id="areas-vc"><option>Implementación (Traza)</option><option>Gestión de Línea Base (ARCO)</option><option>Innovación y PMO</option><option>Inclusión social y productiva</option><option>Proyectos territoriales y sectoriales</option><option>Consumo responsable</option><option>Comunicaciones y relacionamiento</option><option>Administrativa y financiera</option></datalist></div>
+      <div><label for="responsable">Quién la diligencia</label><input type="text" id="responsable" maxlength="80" placeholder="Nombre y rol"></div>
     </div>
-  </section>
+    <div><label for="tipo">¿Cómo la clasificarías hoy?</label>
+      <select id="tipo"><option value="">Elige una opción</option><option>Proyecto</option><option>Iniciativa</option><option>Alianza</option><option>Programa</option><option>Proceso continuo</option><option>No estoy seguro</option></select></div>
+  </div><div class="side"><div class="hint"><b class="t">Para decidir el tipo</b><ul>
+    <li>¿Es nuevo o ya sabemos hacerlo?</li><li>¿El valor está en lo que entrega o en el cambio que deja?</li><li>¿Depende de otra organización que decide por sí misma?</li><li>¿Cuánto cuesta equivocarnos frente a cuánto cuesta planear?</li></ul></div></div></section>
 
-  <section id="t-todas" hidden style="display:grid;gap:14px">
-    <div id="todas"></div>
-  </section>
-</main>
+  <section class="blk"><div class="main">
+    <div class="sec-h"><div class="n">2</div><div><h2>Problema o necesidad</h2><p>Qué situación quieres atender y por qué importa.</p></div></div>
+    <div><label for="problema">Planteamiento</label><textarea id="problema" maxlength="1200" placeholder="Describe la situación actual, a quién afecta y qué pasa si no se atiende."></textarea><div class="cnt" data-for="problema"></div><div class="live" id="lv-problema" hidden></div></div>
+  </div><div class="side"><div class="hint"><b class="t">Guía</b><ul><li>¿Qué está pasando hoy?</li><li>¿A quién afecta o quién lo necesita?</li><li>¿Qué cambia si lo atendemos?</li></ul>
+    <details><summary>Ver ejemplo</summary><p>Los pequeños comercios del municipio generan empaques que hoy se mezclan con otros residuos. Quien los recoge no sabe cuáles se aprovechan, y los comerciantes no ven qué ganan al separarlos.</p></details></div></div></section>
 
-<div class="guardado">
-  <div class="wrap">
-    <div class="estado" id="g-estado"><i></i><span>Los cambios se guardan en este equipo mientras escribes.</span></div>
-    <button type="button" class="btn small primary" id="g-ir">Revisar y enviar</button>
+  <section class="blk"><div class="main">
+    <div class="sec-h"><div class="n">3</div><div><h2>Propósito superior</h2><p>El cambio de fondo al que tu idea aporta.</p></div></div>
+    <div><label for="proposito">Propósito</label><textarea id="proposito" maxlength="600" placeholder="El cambio de largo plazo que buscamos, más allá de este proyecto."></textarea><div class="cnt" data-for="proposito"></div></div>
+  </div><div class="side"><div class="hint"><b class="t">Guía</b><ul><li>Es un cambio, no una actividad.</li><li>Debería poder compartirlo otra área que trabaje en lo suyo.</li><li>Una o dos frases bastan.</li></ul>
+    <details><summary>Ver ejemplo</summary><p>Aumentar el aprovechamiento verificable de los materiales posconsumo en el país.</p></details></div></div></section>
+
+  <section class="blk"><div class="main">
+    <div class="sec-h"><div class="n">4</div><div><h2>Objetivo general</h2><p>Lo que este proyecto se propone lograr.</p></div></div>
+    <div><label for="general">Objetivo general</label><textarea id="general" maxlength="400" style="min-height:84px" placeholder="Verbo en infinitivo + qué + para quién o dónde."></textarea><div class="cnt" data-for="general"></div><div class="live" id="lv-general" hidden></div></div>
+  </div><div class="side"><div class="hint"><b class="t">Guía</b><ul><li>Un solo objetivo, con un resultado que se pueda comprobar.</li><li>Empieza con un verbo: diseñar, validar, implementar, consolidar.</li></ul>
+    <details><summary>Ver ejemplo</summary><p>Diseñar y validar un esquema de separación de empaques con pequeños comercios de un municipio, que pueda replicarse en otros.</p></details></div></div></section>
+
+  <section class="blk"><div class="main">
+    <div class="sec-h"><div class="n">5</div><div><h2>Objetivos específicos y actividades</h2><p>Mínimo tres objetivos, hasta seis. Cada uno con las actividades que necesite, de una a seis.</p></div></div>
+    <div id="objs" style="display:grid;gap:14px"></div>
+    <div><button class="btn sec" id="addobj" type="button">+ Agregar objetivo específico</button></div>
+  </div><div class="side"><div class="hint"><b class="t">Guía</b><ul><li>Cada objetivo específico aporta una parte del general.</li><li>Una actividad es trabajo que se ejecuta; un objetivo es lo que queda logrado.</li><li>Si una actividad no ayuda a un objetivo, probablemente sobra.</li></ul>
+    <details><summary>Ver ejemplo</summary><p><b>Objetivo:</b> Validar la ruta de recolección con los comercios.<br><b>Actividades:</b> mapear los comercios participantes; acordar días y puntos de entrega; ejecutar la prueba durante un mes.</p></details></div></div></section>
+
+  <section class="blk"><div class="main">
+    <div class="sec-h"><div class="n">6</div><div><h2>Con quién se conecta</h2><p>Opcional, pero ayuda a evitar trabajo repetido.</p></div></div>
+    <div><label for="conexiones">Áreas, líneas o aliados <span class="opt">(opcional)</span></label><textarea id="conexiones" maxlength="500" style="min-height:84px" placeholder="¿Quién más trabaja en algo parecido o necesitaría enterarse?"></textarea><div class="cnt" data-for="conexiones"></div></div>
+  </div><div class="side"><div class="hint"><b class="t">Por qué importa</b><ul><li>Las ideas que se conectan entre áreas suman más que las que van solas.</li></ul></div></div></section>
+
+  
+  <div class="hp" aria-hidden="true"><label for="web">No llenar este campo</label><input type="text" id="web" tabindex="-1" autocomplete="off"></div>
+  <div class="actions">
+    <button class="btn" id="send" type="button">Enviar ficha</button>
+    <button class="btn sec" id="copy" type="button">Descargar copia para mí</button>
+    <span class="msg" id="msg">Al enviar, la ficha le llega al equipo de Projectability.</span>
   </div>
+</div>
+
+<div id="v-ok" hidden>
+  <div class="ok-box">
+    <h2>Recibimos tu preformulación</h2>
+    <p>Gracias por sumar tu idea. Si quieres una copia para ti, puedes descargarla.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+      <button class="btn" id="copy2" type="button">Descargar mi copia</button>
+      <button class="btn sec" id="again" type="button">Llenar otra ficha</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<div id="t-banco" hidden>
+  <div class="how">Aquí están <b>todas las fichas que ha enviado el equipo</b>. Léelas para encontrar ideas parecidas a la tuya o con quién conectarte. Ábrelas para ver el detalle completo.</div>
+  <div class="bank-tools">
+    <input type="text" id="q" placeholder="Buscar por proyecto, área, persona o palabra" aria-label="Buscar fichas">
+    <label class="chk"><input type="checkbox" id="solo"> Solo las que envié</label>
+    <button type="button" class="btn sec" id="dl">Descargar en Word</button>
+  </div>
+  <div class="cards" id="cards"></div>
+</div>
+
+<footer class="f">Visión Circular · Projectability · Impulsando el país hacia la economía circular</footer>
 </div>
 
 <script src="assets/config.js"></script>
 <script>
 (function(){
-"use strict";
-const API=(window.VC_CONFIG||{}).api||'';
-/* Cada envío llega también al archivo madre de resultados (Google Sheet, una pestaña por herramienta)
-   y por correo (Formspree): los mismos destinos de assets/lead-capture.js en herramientas-y-assessment. */
-const SHEET="https://script.google.com/macros/s/AKfycbwsPJcVWWBIXPebWZkJadjFkflREf_EKf2g-rvAYk_ig7NWbpnPtC6erI0u4OUasFOC_Q/exec";
-const FORMSPREE="https://formspree.io/f/xzdqznry";
-const HERRAMIENTA="Preformulación taller VC";
-const AREAS={IMP:'Implementación (Traza)',LB:'Gestión de Línea Base (ARCO)',INN:'Innovación y PMO',ISP:'Inclusión social y productiva',TER:'Proyectos territoriales y sectoriales',CON:'Consumo responsable',COM:'Comunicaciones y relacionamiento',FIN:'Administrativa y financiera'};
-const COD=Object.keys(AREAS);
-const PASOS=[['Problema','Quién formula y qué pasa'],['Propósito','El cambio mayor'],['Objetivo general','Lo que se logra'],['Objetivos y actividades','De 3 a 4 objetivos'],['Revisar y enviar','El tren lógico']];
-const MESES=(()=>{const n=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'],o=[];for(let y=2026,m=10;y<2028;m++){if(m>11){m=0;y++;if(y>2027)break;}o.push([y+'-'+String(m+1).padStart(2,'0'),n[m]+' '+y]);}return o;})();
-const mesTxt=v=>{const x=MESES.find(m=>m[0]===v);return x?x[1]:'';};
+/* Cada ficha se guarda en la base del tablero (Worker + D1) y además llega por correo (Formspree)
+   y como fila a la pestaña "Preformulación taller VC" del archivo madre de resultados (Apps Script).
+   Si se despliega el receptor propio (Code.gs de la carpeta de la consultoría), pegar su URL en RECEPTOR:
+   manda un correo con formato a Daniel con copia a Pahola y lleva su propia hoja de respuestas. */
+var API=((window.VC_CONFIG||{}).api||'')+'/api/preformulaciones';
+var RECEPTOR='';
+var SHEET='https://script.google.com/macros/s/AKfycbwsPJcVWWBIXPebWZkJadjFkflREf_EKf2g-rvAYk_ig7NWbpnPtC6erI0u4OUasFOC_Q/exec';
+var FORMSPREE='https://formspree.io/f/xzdqznry';
+var $=function(i){return document.getElementById(i)};
+var LS='vc-preformulacion-borrador-web', LS_MIAS='vc-preformulacion-mias', busy=false;
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+function mias(){try{return JSON.parse(localStorage.getItem(LS_MIAS)||'[]')}catch(_){return []}}
 
-/* ---------- utilidades ---------- */
-const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
-const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const ls={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
-const cuando=iso=>{if(!iso)return '';const d=new Date(iso);return d.toLocaleDateString('es-CO',{day:'numeric',month:'short'})+', '+d.toLocaleTimeString('es-CO',{hour:'numeric',minute:'2-digit'});};
-const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
-const lleno=s=>!!String(s||'').trim();
-const areaTxt=a=>AREAS[a]||String(a||'').replace(/^Otra: /,'');
-async function api(path,body){
-  const opt={method:body?'POST':'GET',headers:{}};
-  if(body){opt.headers['Content-Type']='application/json';opt.body=JSON.stringify(body);}
-  let r;try{r=await fetch(API+path,opt);}catch(e){throw new Error('No hay conexión con la base de datos. Revisa tu internet e intenta de nuevo.');}
-  let j=null;try{j=await r.json();}catch(e){}
-  if(!r.ok)throw new Error((j&&j.mensaje)||('Error '+r.status));
-  return j;
+/* ---------- objetivos y actividades (se pueden agregar y quitar) ---------- */
+var MIN_OBJ=3, MAX_OBJ=6, MAX_ACT=6, DEF_ACT=3, seq=0;
+var objs=$('objs');
+function addAct(box,text){
+  var list=box.querySelector('.alist'); if(list.children.length>=MAX_ACT)return;
+  var id='act'+(++seq), r=document.createElement('div'); r.className='a';
+  r.innerHTML='<span class="nn"></span><input type="text" class="ai" id="'+id+'" maxlength="200" aria-label="Actividad"><button type="button" class="rm" data-act="rm" aria-label="Quitar actividad">Quitar</button>';
+  r.querySelector('input').value=text||''; list.appendChild(r);
 }
-
-/* ---------- estado ---------- */
-const vacio=()=>({nombre:'',equipo:'',problema:{hoy:'',afectados:'',consecuencia:''},proposito:'',general:'',
-  especificos:[0,1,2].map(()=>({texto:'',evidencia:'',actividades:[{texto:'',quien:'',cuando:''},{texto:'',quien:'',cuando:''}]}))});
-function completar(D){const v=vacio();D=Object.assign(v,D||{});D.problema=Object.assign(vacio().problema,D.problema||{});['hoy','afectados','consecuencia'].forEach(k=>{if(D.problema[k]==null)D.problema[k]='';});
-  D.especificos=(Array.isArray(D.especificos)&&D.especificos.length?D.especificos:v.especificos).map(o=>({texto:o.texto||'',evidencia:o.evidencia||'',actividades:(o.actividades&&o.actividades.length?o.actividades:[{}]).map(a=>({texto:a.texto||'',quien:a.quien||'',cuando:a.cuando||''}))}));
-  ['nombre','equipo','proposito','general'].forEach(k=>{if(D[k]==null)D[k]='';});return D;}
-const S={D:vacio(),Q:{por:'',area:'',otra:''},paso:1,tab:'form',envios:[],cargado:false,error:null,msgEnvio:null,enviado:null,enviando:false};
-try{const x=JSON.parse(ls.get('vc-pref')||'null');if(x){if(x.D)S.D=completar(x.D);if(x.Q)S.Q=Object.assign(S.Q,x.Q);S.enviado=x.enviado||null;}}catch(e){}
-if(!S.Q.por)S.Q.por=ls.get('vc-nombre')||'';
-function guardarLocal(){ls.set('vc-pref',JSON.stringify({D:S.D,Q:S.Q,enviado:S.enviado,mod:new Date().toISOString()}));}
-const areaElegida=()=>S.Q.area==='OTRA'?(lleno(S.Q.otra)?'Otra: '+S.Q.otra.trim():''):S.Q.area;
-
-/* ---------- pistas de redacción ---------- */
-const DEBILES=['apoyar','fomentar','promover','propiciar','contribuir','impulsar','incentivar','buscar','procurar','intentar','sensibilizar','concientizar','gestionar','coadyuvar','propender','acompanar'];
-const MAGNITUD=['mejorar','fortalecer','aumentar','reducir','incrementar','disminuir','ampliar','elevar','optimizar'];
-function pistaObjetivo(t,general){
-  if(!lleno(t))return null;
-  const w=norm(t).split(/\s+/)[0].replace(/[^a-zñ]/g,'');
-  if(!/(ar|er|ir)(se)?$/.test(w))return ['warn','Empiecen con un verbo en infinitivo (diseñar, certificar, vincular, reducir…).'];
-  if(DEBILES.includes(w))return ['warn','"'+w.charAt(0).toUpperCase()+w.slice(1)+'" es difícil de verificar. Prueben un verbo que deje un resultado visible: diseñar, implementar, certificar, vincular, formar, medir.'];
-  if(general&&MAGNITUD.includes(w)&&!/\d|mitad|doble|triple|tercera|cuarta/i.test(t))return ['warn','Dice qué cambia. Agreguen cuánto o hasta dónde: una cifra, un porcentaje o un umbral.'];
-  if(general&&!/(20\d\d|mes|año|ano|semestre|trimestre|final de|al cierre|durante)/i.test(t))return ['warn','Falta el para cuándo: un año, un semestre o una fecha.'];
-  return ['ok','Bien redactado: empieza con un verbo que se puede verificar.'];
+function addObj(texto,acts){
+  if(objs.children.length>=MAX_OBJ)return;
+  var d=document.createElement('div'); d.className='obj'; var id='obj'+(++seq);
+  d.innerHTML='<h3><span class="ot-t"></span><span class="tag" hidden>Opcional</span><span class="sp"></span><button type="button" class="rm" data-act="rmobj" hidden>Quitar objetivo</button></h3>'+
+  '<div><label for="'+id+'">¿Qué debe quedar logrado?</label><textarea class="ot" id="'+id+'" maxlength="300" style="min-height:72px" placeholder="Verbo en infinitivo + qué se logra"></textarea><div class="live" hidden></div></div>'+
+  '<div class="acts"><label style="margin:0">Actividades para lograrlo</label><div class="alist" style="display:grid;gap:8px"></div><button type="button" class="addact" data-act="add">+ Agregar actividad</button></div>';
+  d.querySelector('.ot').value=texto||''; objs.appendChild(d);
+  var n=Math.max(DEF_ACT,(acts||[]).length); for(var j=0;j<n;j++)addAct(d,(acts||[])[j]);
+  renumber();
 }
-function pistas(){
-  const D=S.D,h={};
-  const hoy=norm(D.problema.hoy);
-  if(hoy){h.hoy=/^(la |el )?(falta|ausencia|carencia|inexistencia|no hay|no existe|no se cuenta|necesidad de)/.test(hoy)
-    ?['warn','Suena a la solución que falta. Describan lo que se observa hoy y por qué es un problema: ¿qué pasa por no tener eso?']
-    :['ok','Describe una situación, no una solución. Va bien.'];}
-  if(lleno(D.problema.afectados))h.afectados=/\d/.test(D.problema.afectados)?['ok','Tiene una cifra. Eso le da tamaño al problema.']:['warn','Agreguen al menos una cifra, aunque sea aproximada.'];
-  const p=norm(D.proposito);
-  if(p){const nw=p.split(/\s+/).length;
-    h.proposito=p===norm(D.general)?['warn','Es igual al objetivo general. El propósito va un nivel más arriba: el cambio al que aporta.']
-      :nw<8?['warn','Muy corto. Cuenten a qué cambio mayor aporta y para quién.']:['ok','Va bien. Revisen que no se pueda cumplir solo con este proyecto: si se puede, es un objetivo.'];}
-  h.general=pistaObjetivo(D.general,true);
-  return h;
-}
-
-/* ---------- checklist y completitud ---------- */
-function revisar(){
-  const D=S.D, h=pistas(), esp=D.especificos.filter(o=>lleno(o.texto));
-  const acts=esp.reduce((a,o)=>a.concat(o.actividades.filter(x=>lleno(x.texto))),[]);
-  return [
-    [lleno(S.Q.por)&&!!areaElegida(),'Tiene tu nombre y tu área o línea.'],
-    [lleno(D.nombre)&&lleno(D.problema.hoy),'El proyecto tiene nombre y problema.'],
-    [!(h.hoy&&h.hoy[0]==='warn')&&lleno(D.problema.hoy),'El problema describe una situación y no una solución que falta.'],
-    [/\d/.test(D.problema.afectados||''),'El problema tiene al menos una cifra.'],
-    [lleno(D.proposito),'Hay propósito superior.'],
-    [!!(h.general&&h.general[0]==='ok'),'El objetivo general empieza con un verbo verificable y dice para cuándo.'],
-    [esp.length>=3&&esp.length<=4,'Tiene de 3 a 4 objetivos específicos.'],
-    [esp.length>0&&esp.every(o=>lleno(o.evidencia)),'Cada objetivo dice cómo se sabrá que se cumplió.'],
-    [esp.length>0&&esp.every(o=>o.actividades.filter(x=>lleno(x.texto)).length>=2),'Cada objetivo tiene al menos 2 actividades.'],
-    [acts.length>0&&acts.every(a=>lleno(a.quien)&&lleno(a.cuando)),'Cada actividad tiene responsable y mes.'],
-  ];
-}
-function pasoListo(n){const D=S.D;
-  if(n===1)return lleno(S.Q.por)&&!!areaElegida()&&lleno(D.nombre)&&lleno(D.problema.hoy)&&lleno(D.problema.afectados);
-  if(n===2)return lleno(D.proposito);
-  if(n===3)return lleno(D.general);
-  if(n===4){const e=D.especificos.filter(o=>lleno(o.texto));return e.length>=3&&e.every(o=>o.actividades.some(a=>lleno(a.texto)));}
-  if(n===5)return !!S.enviado;
-}
-
-/* ---------- texto para el correo, la hoja y la descarga ---------- */
-const detalleAct=a=>{const x=[a.quien,mesTxt(a.cuando)].filter(lleno);return x.length?' ('+x.join(', ')+')':'';};
-function textoPlano(D,por,area){
-  const L=[],v=x=>lleno(x)?String(x).trim():'(sin escribir)';
-  L.push('PREFORMULACIÓN: '+v(D.nombre));
-  L.push('Formula: '+v(por)+' · '+areaTxt(area)+(lleno(D.equipo)?' · Con: '+D.equipo.trim():''));
-  L.push('','PROBLEMA','Qué pasa hoy: '+v(D.problema.hoy),'A quién afecta y cuánto: '+v(D.problema.afectados),'Si no se hace nada: '+v(D.problema.consecuencia));
-  L.push('','PROPÓSITO SUPERIOR',v(D.proposito),'','OBJETIVO GENERAL',v(D.general),'','OBJETIVOS ESPECÍFICOS Y ACTIVIDADES');
-  D.especificos.filter(o=>lleno(o.texto)).forEach((o,i)=>{
-    L.push('','OE'+(i+1)+'. '+o.texto.trim());
-    if(lleno(o.evidencia))L.push('   Se sabrá porque: '+o.evidencia.trim());
-    o.actividades.filter(a=>lleno(a.texto)).forEach((a,j)=>L.push('   '+(i+1)+'.'+(j+1)+' '+a.texto.trim()+detalleAct(a)));
-  });
-  return L.join('\n');
-}
-function avisar(D,por,area,ts){
-  const texto=textoPlano(D,por,area);
-  const fila={herramienta:HERRAMIENTA,nombre:por,empresa:areaTxt(area),sector:'Taller de formulación · Visión Circular',
-    resumen:(D.nombre||'')+' — '+(D.general||''),respuestas:texto,notas:D.equipo?'Con: '+D.equipo:'',fecha:ts};
-  try{fetch(SHEET,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(fila)}).catch(()=>{});}catch(e){}
-  try{fetch(FORMSPREE,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},
-    body:JSON.stringify({_subject:'Preformulación taller VC — '+areaTxt(area)+' — '+por,tipo:'Preformulación de proyecto',nombre:por,area:areaTxt(area),proyecto:D.nombre,preformulacion:texto,fecha:ts})}).catch(()=>{});}catch(e){}
-}
-
-/* ---------- render ---------- */
-function renderQuien(){
-  const sel=$('#f-area');
-  if(!sel.options.length)sel.innerHTML='<option value="">Elige una</option>'+COD.map(c=>'<option value="'+c+'">'+esc(AREAS[c])+'</option>').join('')+'<option value="OTRA">Otra área o línea</option>';
-  if($('#f-quien').value!==S.Q.por)$('#f-quien').value=S.Q.por;
-  sel.value=S.Q.area;$('#f-otra').value=S.Q.otra;$('#l-otra').hidden=S.Q.area!=='OTRA';
-}
-function renderAvance(){
-  const cnt={};let otras=0;S.envios.forEach(e=>{if(AREAS[e.area])cnt[e.area]=(cnt[e.area]||0)+1;else otras++;});
-  $('#avance').innerHTML=COD.map(c=>{const n=cnt[c]||0;
-    return '<div class="av '+(n?'s-enviada':'s-no')+(c===S.Q.area?' mine':'')+'" title="'+esc(AREAS[c])+'"><b>'+c+'</b><span>'+esc(AREAS[c])+'</span><span class="st"><i></i>'+(n?n+(n===1?' proyecto':' proyectos'):'Sin envíos')+'</span></div>';}).join('');
-  $('#avance-msg').textContent=S.error?S.error:!S.cargado?'Consultando los envíos…':S.envios.length+(S.envios.length===1?' proyecto enviado':' proyectos enviados')+(otras?' (incluye '+otras+' de otras áreas o líneas)':'')+'.';
-}
-function renderPasos(){
-  $('#pasos').innerHTML=PASOS.map((p,i)=>{const n=i+1;return '<li><button type="button" class="paso'+(pasoListo(n)?' done':'')+'" data-go="'+n+'"'+(n===S.paso?' aria-current="step"':'')+'><span class="n">'+(pasoListo(n)&&n!==S.paso?'✓':n)+'</span><span class="l">'+p[0]+'<small>'+p[1]+'</small></span></button></li>';}).join('');
-  $$('.hoja').forEach(h=>h.hidden=+h.dataset.step!==S.paso);
-  $('#prev').style.visibility=S.paso===1?'hidden':'visible';
-  $('#next').hidden=S.paso===5;
-}
-function renderPistas(){
-  const h=pistas();
-  $$('[data-hint]').forEach(el=>{const x=h[el.dataset.hint];el.className='hint'+(x?' '+x[0]:'');el.textContent=x?x[1]:'';});
-  S.D.especificos.forEach((o,i)=>{const el=document.getElementById('h-oe-'+i);if(!el)return;const x=pistaObjetivo(o.texto,false);el.className='hint'+(x?' '+x[0]:'');el.textContent=x?x[1]:'';});
-}
-function renderCampos(){
-  $$('[data-k]').forEach(el=>{const v=el.dataset.k.split('.').reduce((o,k)=>o&&o[k],S.D);if(el.value!==(v||''))el.value=v||'';});
-  renderObjs();
-}
-function renderObjs(){
-  const D=S.D;
-  $('#objs').innerHTML=D.especificos.map((o,i)=>
-    '<div class="obj"><div class="obj-h"><span class="tag">OE'+(i+1)+'</span><span class="sp"></span>'+(D.especificos.length>1?'<button type="button" class="x" data-del-obj="'+i+'" aria-label="Quitar objetivo '+(i+1)+'" title="Quitar objetivo">×</button>':'')+'</div>'+
-    '<label class="f"><span>Objetivo específico '+(i+1)+'</span><textarea id="oe-'+i+'" data-o="'+i+'" data-f="texto" maxlength="500" style="min-height:64px">'+esc(o.texto)+'</textarea></label>'+
-    '<p class="hint" id="h-oe-'+i+'"></p>'+
-    '<label class="f"><span>¿Cómo sabremos que se cumplió?</span><small>Un producto, una cifra o un cambio que se pueda mostrar.</small><input type="text" id="ev-'+i+'" data-o="'+i+'" data-f="evidencia" maxlength="400" value="'+esc(o.evidencia)+'"></label>'+
-    '<div class="acts"><span class="lab">Actividades</span>'+
-    o.actividades.map((a,j)=>'<div class="act"><span class="k">'+(i+1)+'.'+(j+1)+'</span>'+
-      '<input type="text" id="a-'+i+'-'+j+'" data-o="'+i+'" data-a="'+j+'" data-f="texto" maxlength="400" placeholder="Qué se hace" value="'+esc(a.texto)+'" aria-label="Actividad '+(i+1)+'.'+(j+1)+'">'+
-      '<input type="text" class="q" id="q-'+i+'-'+j+'" data-o="'+i+'" data-a="'+j+'" data-f="quien" maxlength="120" placeholder="Responsable" value="'+esc(a.quien)+'" aria-label="Responsable de la actividad '+(i+1)+'.'+(j+1)+'">'+
-      '<select class="w" id="w-'+i+'-'+j+'" data-o="'+i+'" data-a="'+j+'" data-f="cuando" aria-label="Mes de la actividad '+(i+1)+'.'+(j+1)+'"><option value="">Mes</option>'+MESES.map(m=>'<option value="'+m[0]+'"'+(m[0]===a.cuando?' selected':'')+'>'+m[1]+'</option>').join('')+'</select>'+
-      (o.actividades.length>1?'<button type="button" class="x" data-del-act="'+i+'-'+j+'" aria-label="Quitar actividad" title="Quitar actividad">×</button>':'<span></span>')+'</div>').join('')+
-    (o.actividades.length<6?'<button type="button" class="btn small ghost add" data-add-act="'+i+'">+ Agregar actividad</button>':'')+
-    '</div></div>').join('');
-  $('#add-obj').hidden=D.especificos.length>=4;
-  renderPistas();
-}
-function trenHTML(D){
-  const t=v=>lleno(v)?esc(v):'<span class="vacio">Sin escribir</span>';
-  const esp=D.especificos.filter(o=>lleno(o.texto)||o.actividades.some(a=>lleno(a.texto)));
-  return '<div class="tren">'+
-    '<div class="nivel prop"><span class="k">Propósito superior</span><span>'+t(D.proposito)+'</span></div>'+
-    '<span class="flecha">aporta a</span>'+
-    '<div class="nivel gen"><span class="k">Objetivo general</span><span>'+t(D.general)+'</span></div>'+
-    '<span class="flecha">se logra si se cumplen</span>'+
-    '<div class="esps">'+(esp.length?esp.map((o,i)=>'<div class="esp"><div class="t"><span class="k">OE'+(i+1)+'</span><span>'+t(o.texto)+'</span>'+(lleno(o.evidencia)?'<span class="ev">Se sabrá porque: '+esc(o.evidencia)+'</span>':'')+'</div>'+
-      '<ul>'+(o.actividades.filter(a=>lleno(a.texto)).map(a=>'<li>'+esc(a.texto)+(a.quien||a.cuando?' <small>· '+esc([a.quien,mesTxt(a.cuando)].filter(Boolean).join(', '))+'</small>':'')+'</li>').join('')||'<li class="vacio">Sin actividades</li>')+'</ul></div>').join(''):'<p class="vacio">Aún no hay objetivos específicos.</p>')+'</div>'+
-    '<span class="flecha">para resolver</span>'+
-    '<div class="problema-box"><span class="k">Problema</span><span>'+t(D.problema.hoy)+'</span>'+(lleno(D.problema.afectados)?'<span class="small">'+esc(D.problema.afectados)+'</span>':'')+'</div>'+
-  '</div>';
-}
-function renderRevision(){
-  $('#tren').innerHTML=trenHTML(S.D);
-  $('#checklist').innerHTML=revisar().map(c=>'<li class="'+(c[0]?'ok':'no')+'"><i>'+(c[0]?'✓':'!')+'</i><span>'+esc(c[1])+'</span></li>').join('');
-  let h='<h3>Enviar la preformulación</h3><p class="small muted">Al enviarla le llega a quien facilita el taller y aparece en la pestaña "Proyectos enviados". Si después la ajustan, pueden volver a enviarla: queda la versión más reciente.</p>';
-  if(S.enviado)h+='<p class="small"><span class="chip c-ok">Enviada</span> '+esc(cuando(S.enviado))+'</p>';
-  if(S.msgEnvio)h+='<div class="msg '+S.msgEnvio[0]+'">'+esc(S.msgEnvio[1])+'</div>';
-  h+='<div><button type="button" class="btn green" id="enviar"'+(S.enviando?' disabled':'')+'>'+(S.enviando?'Enviando…':S.enviado?'Enviar de nuevo':'Enviar preformulación')+'</button></div>';
-  $('#envio').innerHTML=h;
-}
-function renderGuardado(){
-  const el=$('#g-estado');
-  el.className='estado '+(S.enviado?'limpio':'');
-  el.querySelector('span').textContent=S.enviado?'Enviada el '+cuando(S.enviado)+'. Lo que cambien queda en este equipo hasta que la envíen de nuevo.':'Lo que escriben se guarda en este equipo. Cuando terminen, revísenlo y envíenlo.';
-  $('#g-ir').hidden=S.paso===5&&S.tab==='form';
-}
-const ordenar=l=>{const o=e=>{const i=COD.indexOf(e.area);return i<0?99:i;};return l.slice().sort((a,b)=>o(a)-o(b)||String(a.por).localeCompare(b.por));};
-function renderTodas(){
-  const el=$('#todas');
-  if(!S.cargado){el.innerHTML='<p class="muted">'+esc(S.error||'Consultando los envíos…')+'</p>';return;}
-  if(!S.envios.length){el.innerHTML='<div class="msg info">Todavía no hay proyectos enviados. Cuando alguien envíe el suyo, aparecerá aquí.</div>';return;}
-  const lista=ordenar(S.envios);
-  el.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px"><p class="muted small">'+lista.length+(lista.length===1?' proyecto':' proyectos')+'. Se muestra la versión más reciente de cada persona.</p><button type="button" class="btn small" id="descargar">Descargar todos en Word</button></div>'+
-    '<div class="lista">'+lista.map(e=>{const D=completar(e.datos);
-      return '<div class="ficha"><div class="ficha-h"><span class="chip c-acc">'+esc(AREAS[e.area]?e.area:'Otra')+'</span><h3>'+esc(D.nombre||'Sin nombre')+'</h3><span class="small muted">'+esc(e.por)+' · '+esc(areaTxt(e.area))+' · '+esc(cuando(e.ts))+'</span></div>'+
-        (D.equipo?'<p class="small muted">Con: '+esc(D.equipo)+'</p>':'')+
-        '<details><summary>Ver el tren lógico</summary>'+trenHTML(D)+(lleno(D.problema.consecuencia)?'<p class="small" style="margin-top:10px"><b>Si no se hace nada:</b> '+esc(D.problema.consecuencia)+'</p>':'')+'</details></div>';}).join('')+'</div>';
-}
-function renderTodo(){renderQuien();renderAvance();renderCampos();renderPasos();renderRevision();renderGuardado();if(S.tab==='todas')renderTodas();}
-
-/* ---------- datos ---------- */
-async function cargarEnvios(){
-  try{const d=await api('/api/preformulaciones');S.envios=d.envios||[];S.cargado=true;S.error=null;}
-  catch(e){S.error=e.message;}
-}
-async function enviar(){
-  const area=areaElegida();
-  if(!lleno(S.Q.por)||!area){S.msgEnvio=['bad','Antes de enviar, escriban su nombre y elijan su área o línea en el paso 1.'];renderRevision();return;}
-  S.enviando=true;S.msgEnvio=null;renderRevision();
-  try{
-    const b={por:S.Q.por.trim(),area:S.Q.area,otra:S.Q.otra,datos:S.D};
-    const j=await api('/api/preformulaciones',b);
-    avisar(S.D,b.por,area,j.ts);
-    S.enviado=j.ts;guardarLocal();
-    S.msgEnvio=['ok','Preformulación enviada. ¡Gracias! Si la ajustan, pueden volver a enviarla.'];
-    cargarEnvios().then(()=>{renderAvance();if(S.tab==='todas')renderTodas();});
-  }catch(err){S.msgEnvio=['bad',err.message];}
-  S.enviando=false;renderPasos();renderRevision();renderGuardado();
-}
-function descargarWord(){
-  const cuerpo=ordenar(S.envios).map(e=>{const D=completar(e.datos);
-    const p=(t,x)=>'<p><b>'+t+':</b> '+esc(x||'')+'</p>';
-    return '<h1>'+esc(D.nombre||'Sin nombre')+'</h1><p><i>'+esc(e.por)+' · '+esc(areaTxt(e.area))+(D.equipo?' · Con: '+esc(D.equipo):'')+' · '+esc(cuando(e.ts))+'</i></p>'+
-      '<h2>Problema</h2>'+p('Qué pasa hoy',D.problema.hoy)+p('A quién afecta y cuánto',D.problema.afectados)+p('Si no se hace nada',D.problema.consecuencia)+
-      '<h2>Propósito superior</h2><p>'+esc(D.proposito)+'</p><h2>Objetivo general</h2><p>'+esc(D.general)+'</p><h2>Objetivos específicos y actividades</h2>'+
-      D.especificos.filter(o=>lleno(o.texto)).map((o,i)=>'<p><b>OE'+(i+1)+'.</b> '+esc(o.texto)+(lleno(o.evidencia)?'<br><i>Se sabrá porque:</i> '+esc(o.evidencia):'')+'</p><ul>'+
-        o.actividades.filter(a=>lleno(a.texto)).map(a=>'<li>'+esc(a.texto+detalleAct(a))+'</li>').join('')+'</ul>').join('');}).join('<br style="page-break-before:always">');
-  const html='<html><head><meta charset="utf-8"><title>Preformulaciones</title><style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt}h1{font-size:16pt;color:#0B5381}h2{font-size:12pt;color:#00865F;margin-top:14pt}</style></head><body>'+cuerpo+'</body></html>';
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿',html],{type:'application/msword'}));
-  a.download='preformulaciones-taller-vc-'+new Date().toISOString().slice(0,10)+'.doc';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
-}
-
-/* ---------- eventos ---------- */
-let tGuardar=null;
-function cambio(){S.msgEnvio=null;clearTimeout(tGuardar);tGuardar=setTimeout(guardarLocal,400);renderPistas();renderPasos();}
-document.addEventListener('input',e=>{
-  const t=e.target;
-  if(t.dataset.k){const ks=t.dataset.k.split('.');let o=S.D;for(let i=0;i<ks.length-1;i++)o=o[ks[i]];o[ks[ks.length-1]]=t.value;cambio();return;}
-  if(t.dataset.o!=null&&t.dataset.f){const o=S.D.especificos[+t.dataset.o];if(!o)return;
-    if(t.dataset.a!=null)o.actividades[+t.dataset.a][t.dataset.f]=t.value;else o[t.dataset.f]=t.value;cambio();return;}
-  if(t.id==='f-quien'){S.Q.por=t.value;ls.set('vc-nombre',t.value.trim());cambio();}
-  if(t.id==='f-otra'){S.Q.otra=t.value;cambio();}
-});
-document.addEventListener('change',e=>{
-  const t=e.target;
-  if(t.tagName==='SELECT'&&t.dataset.f==='cuando'){S.D.especificos[+t.dataset.o].actividades[+t.dataset.a].cuando=t.value;cambio();}
-  if(t.id==='f-area'){S.Q.area=t.value;$('#l-otra').hidden=t.value!=='OTRA';if(t.value==='OTRA')$('#f-otra').focus();renderAvance();cambio();}
-});
-const subir=()=>window.scrollTo({top:$('#t-form').offsetTop-80,behavior:'smooth'});
-function irA(n){S.paso=n;renderPasos();if(n===5)renderRevision();renderGuardado();subir();}
-document.addEventListener('click',e=>{
-  const t=e.target.closest('button');if(!t)return;
-  if(t.dataset.go){irA(+t.dataset.go);return;}
-  if(t.dataset.tab){S.tab=t.dataset.tab;$$('.tab-btn').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===S.tab));$('#t-form').hidden=S.tab!=='form';$('#t-todas').hidden=S.tab!=='todas';
-    renderGuardado();if(S.tab==='todas'){renderTodas();cargarEnvios().then(()=>{renderAvance();renderTodas();});}return;}
-  if(t.dataset.addAct!=null){const o=S.D.especificos[+t.dataset.addAct];o.actividades.push({texto:'',quien:'',cuando:''});renderObjs();cambio();const n=document.getElementById('a-'+t.dataset.addAct+'-'+(o.actividades.length-1));n&&n.focus();return;}
-  if(t.dataset.delAct){const [i,j]=t.dataset.delAct.split('-').map(Number);S.D.especificos[i].actividades.splice(j,1);renderObjs();cambio();return;}
-  if(t.dataset.delObj!=null){S.D.especificos.splice(+t.dataset.delObj,1);renderObjs();cambio();return;}
-  switch(t.id){
-    case 'add-obj':if(S.D.especificos.length<4){S.D.especificos.push({texto:'',evidencia:'',actividades:[{texto:'',quien:'',cuando:''},{texto:'',quien:'',cuando:''}]});renderObjs();cambio();const n=document.getElementById('oe-'+(S.D.especificos.length-1));n&&n.focus();}break;
-    case 'prev':if(S.paso>1)irA(S.paso-1);break;
-    case 'next':if(S.paso<5)irA(S.paso+1);break;
-    case 'g-ir':if(S.tab!=='form')$('#tb-form').click();irA(5);break;
-    case 'enviar':enviar();break;
-    case 'descargar':descargarWord();break;
+function renumber(){
+  var os=objs.children;
+  for(var i=0;i<os.length;i++){
+    var o=os[i];
+    o.querySelector('.ot-t').textContent='Objetivo específico '+(i+1);
+    o.querySelector('.tag').hidden=i<MIN_OBJ; o.querySelector('[data-act=rmobj]').hidden=i<MIN_OBJ;
+    var rows=o.querySelectorAll('.a');
+    rows.forEach(function(r,j){r.querySelector('.nn').textContent=(i+1)+'.'+(j+1);r.querySelector('input').placeholder=j==0?'Primera actividad':j==1?'Segunda actividad':'Actividad '+(j+1);r.querySelector('.rm').hidden=rows.length<=1});
+    o.querySelector('.addact').hidden=rows.length>=MAX_ACT;
   }
+  $('addobj').hidden=os.length>=MAX_OBJ;
+}
+objs.addEventListener('click',function(e){
+  var b=e.target.closest('[data-act]'); if(!b)return; var o=b.closest('.obj'), k=b.dataset.act;
+  if(k==='add'){addAct(o,'');renumber();var ins=o.querySelectorAll('.ai');ins[ins.length-1].focus()}
+  else if(k==='rm'){var r=b.closest('.a');if(o.querySelectorAll('.a').length>1){r.remove();renumber();refresh();persist()}}
+  else if(k==='rmobj'){o.remove();renumber();refresh();persist()}
 });
-window.addEventListener('beforeunload',()=>{clearTimeout(tGuardar);guardarLocal();});
+$('addobj').onclick=function(){addObj('',[]);var t=objs.querySelectorAll('.ot');t[t.length-1].focus();refresh()};
+
+/* ---------- pistas de redacción mientras escriben ---------- */
+var norm=function(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim()};
+var DEBILES=['apoyar','fomentar','promover','propiciar','contribuir','impulsar','incentivar','buscar','procurar','intentar','sensibilizar','concientizar','coadyuvar','propender','acompanar'];
+function pistaVerbo(t){
+  if(!t)return '';
+  var w=norm(t).split(/\s+/)[0].replace(/[^a-zñ]/g,'');
+  if(!/(ar|er|ir)(se)?$/.test(w))return 'Empieza con un verbo en infinitivo: diseñar, validar, implementar, consolidar.';
+  if(DEBILES.indexOf(w)>=0)return '"'+w.charAt(0).toUpperCase()+w.slice(1)+'" es difícil de comprobar. Prueba con un verbo que deje un resultado visible: diseñar, validar, implementar, certificar.';
+  return '';
+}
+function pistaProblema(t){
+  return /^(la |el )?(falta|ausencia|carencia|inexistencia|no hay|no existe|no se cuenta|necesidad de)/.test(norm(t))
+    ?'Suena a la solución que falta. Cuenta lo que se ve hoy y a quién afecta: ¿qué pasa por no tener eso?':'';
+}
+function mostrar(el,t){el.textContent=t;el.hidden=!t}
+function pistas(){
+  mostrar($('lv-problema'),pistaProblema(val('problema')));
+  mostrar($('lv-general'),pistaVerbo(val('general')));
+  objs.querySelectorAll('.obj').forEach(function(o){mostrar(o.querySelector('.live'),pistaVerbo((o.querySelector('.ot').value||'').trim()))});
+}
+
+function val(id){return ($(id).value||'').trim()}
+function read(){
+  var o={nombre:val('nombre'),area:val('area'),responsable:val('responsable'),tipo:val('tipo'),problema:val('problema'),proposito:val('proposito'),objetivoGeneral:val('general'),conexiones:val('conexiones'),objetivos:[]};
+  objs.querySelectorAll('.obj').forEach(function(el){
+    var acts=[].map.call(el.querySelectorAll('.ai'),function(x){return (x.value||'').trim()}).filter(Boolean);
+    o.objetivos.push({texto:(el.querySelector('.ot').value||'').trim(),actividades:acts});
+  });
+  return o;
+}
+function write(o){
+  o=o||{};
+  $('nombre').value=o.nombre||'';$('area').value=o.area||'';$('responsable').value=o.responsable||'';$('tipo').value=o.tipo||'';
+  $('problema').value=o.problema||'';$('proposito').value=o.proposito||'';$('general').value=o.objetivoGeneral||'';$('conexiones').value=o.conexiones||'';
+  objs.innerHTML=''; var list=(o.objetivos||[]).slice(0,MAX_OBJ);
+  for(var i=0;i<Math.max(MIN_OBJ,list.length);i++){var ob=list[i]||{};addObj(ob.texto||'',ob.actividades||[]);}
+  refresh();
+}
+function checks(o){
+  var c=[o.nombre,o.area,o.responsable,o.problema,o.proposito,o.objetivoGeneral];
+  for(var i=0;i<3;i++)c.push(o.objetivos[i].texto);
+  for(var i=0;i<3;i++)c.push(o.objetivos[i].actividades.length>=1?'x':'');
+  return c;
+}
+function refresh(){
+  var o=read(), c=checks(o), n=c.filter(Boolean).length;
+  $('pt').textContent=n+' de '+c.length; $('pb').style.width=(100*n/c.length)+'%';
+  document.querySelectorAll('.cnt').forEach(function(e){var t=$(e.dataset['for']);e.textContent=t.value.length+' / '+t.maxLength});
+  pistas();
+  return {o:o,n:n,total:c.length};
+}
+var tm=null;
+function persist(){clearTimeout(tm); tm=setTimeout(function(){try{localStorage.setItem(LS,JSON.stringify(read()))}catch(_){}},500)}
+document.addEventListener('input',function(e){ if(!e.target.closest('#v-form'))return; refresh(); persist(); });
+document.addEventListener('change',function(e){ if(e.target.id==='tipo'){refresh();persist();} });
+function say(t,k){var m=$('msg');m.textContent=t;m.className='msg'+(k?' '+k:'')}
+
+/* ---------- copia descargable ---------- */
+function fichaTxt(o){
+  var L=['PREFORMULACIÓN DE PROYECTO · VISIÓN CIRCULAR','',
+   'Proyecto: '+(o.nombre||''),'Línea o área: '+(o.area||''),'Quién la diligencia: '+(o.responsable||''),'Clasificación: '+(o.tipo||''),'',
+   'PROBLEMA O NECESIDAD',o.problema||'','','PROPÓSITO SUPERIOR',o.proposito||'','','OBJETIVO GENERAL',o.objetivoGeneral||'','','OBJETIVOS ESPECÍFICOS Y ACTIVIDADES'];
+  (o.objetivos||[]).forEach(function(x,i){
+    if(!x.texto&&!(x.actividades||[]).length)return;
+    L.push('Objetivo '+(i+1)+': '+(x.texto||''));
+    (x.actividades||[]).forEach(function(a,j){L.push('   '+(i+1)+'.'+(j+1)+' '+a)});L.push('');
+  });
+  L.push('CON QUIÉN SE CONECTA',o.conexiones||'');
+  return L.join('\r\n');
+}
+function bajar(nombre,contenido,tipo){
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+contenido],{type:tipo}));a.download=nombre;
+  document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500);
+}
+var lastSent=null;
+function descarga(o){
+  var slug=(o.nombre||'ficha').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,40)||'ficha';
+  bajar('Ficha_'+slug+'.txt',fichaTxt(o),'text/plain;charset=utf-8');
+}
+$('copy').onclick=function(){var o=read();if(!o.nombre){say('Ponle al menos un nombre provisional para descargarla.','err');$('nombre').focus();return}descarga(o)};
+$('copy2').onclick=function(){if(lastSent)descarga(lastSent)};
+$('again').onclick=function(){write({});try{localStorage.removeItem(LS)}catch(_){}$('v-ok').hidden=true;$('v-form').hidden=false;say('Al enviar, la ficha le llega al equipo de Projectability.');window.scrollTo({top:0})};
+
+/* ---------- envío ---------- */
+function falta(o){
+  var m=[['nombre','el nombre del proyecto',o.nombre],['area','la línea o área',o.area],['responsable','quién diligencia',o.responsable],['problema','el problema o necesidad',o.problema],['proposito','el propósito superior',o.proposito],['general','el objetivo general',o.objetivoGeneral]];
+  for(var i=0;i<m.length;i++)if(!m[i][2])return {id:m[i][0],t:m[i][1]};
+  var ot=objs.querySelectorAll('.ot');
+  for(var k=0;k<3;k++){ if(!o.objetivos[k].texto)return {el:ot[k],t:'el objetivo específico '+(k+1)}; if(!o.objetivos[k].actividades.length)return {el:objs.querySelectorAll('.obj')[k].querySelector('.ai'),t:'al menos una actividad del objetivo '+(k+1)}; }
+  return null;
+}
+function avisar(o,ts){
+  var texto=fichaTxt(o).replace(/\r\n/g,'\n');
+  var silencio=function(){};
+  try{fetch(FORMSPREE,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},
+    body:JSON.stringify({_subject:'Preformulación de proyecto: '+o.nombre+' · '+o.area,tipo:'Preformulación de proyecto',nombre:o.responsable,area:o.area,proyecto:o.nombre,ficha:texto,fecha:ts})}).catch(silencio)}catch(_){}
+  try{fetch(SHEET,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({herramienta:'Preformulación taller VC',nombre:o.responsable,empresa:o.area,sector:o.tipo,resumen:o.nombre+' — '+o.objetivoGeneral,respuestas:texto,notas:o.conexiones,fecha:ts})}).catch(silencio)}catch(_){}
+  if(RECEPTOR.indexOf('http')===0){try{fetch(RECEPTOR,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(o)}).catch(silencio)}catch(_){}}
+}
+$('send').onclick=function(){
+  if(busy)return;
+  var o=read(); if(val('web'))return; /* campo trampa para robots */
+  var f=falta(o);
+  if(f){say('Falta '+f.t+'.','err');var el=f.el||$(f.id);el.scrollIntoView({block:'center'});el.focus();return}
+  busy=true;$('send').disabled=true;say('Enviando…');
+  var ctl=new AbortController(), to=setTimeout(function(){ctl.abort()},30000);
+  fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o),signal:ctl.signal})
+  .then(function(r){return r.json().then(function(j){if(!r.ok||!j||!j.ok)throw new Error((j&&j.mensaje)||'fallo');return j})})
+  .then(function(j){
+    avisar(o,j.ts);
+    lastSent=o; try{localStorage.removeItem(LS);var m=mias();m.push(j.id);localStorage.setItem(LS_MIAS,JSON.stringify(m))}catch(_){}
+    $('v-form').hidden=true;$('v-ok').hidden=false;window.scrollTo({top:0});
+    cargarBanco();
+  })
+  .catch(function(err){say((err&&err.message&&err.message!=='fallo'&&err.name!=='AbortError'&&err.name!=='TypeError'?err.message+' ':'')+'No pudimos confirmar el envío. Descarga tu copia con el botón de al lado y vuelve a intentarlo en un momento.','err')})
+  .then(function(){clearTimeout(to);busy=false;$('send').disabled=false});
+};
+
+/* ---------- banco de fichas ---------- */
+var banco=[], cargado=false, errBanco='';
+function fecha(iso){var d=new Date(iso);return d.toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'})}
+function cargarBanco(){
+  return fetch(API).then(function(r){return r.json()}).then(function(j){banco=j.fichas||[];cargado=true;errBanco='';pintarBanco()})
+    .catch(function(){errBanco='No pudimos traer las fichas. Revisa tu conexión y vuelve a abrir esta pestaña.';pintarBanco()});
+}
+function pintarBanco(){
+  $('bank-n').textContent=cargado?banco.length+(banco.length===1?' ficha':' fichas'):'';
+  var box=$('cards');
+  if(!cargado){box.innerHTML='<div class="empty">'+esc(errBanco||'Cargando las fichas…')+'</div>';return}
+  var q=norm($('q').value), solo=$('solo').checked, m=mias();
+  var lista=banco.filter(function(f){
+    if(solo&&m.indexOf(f.id)<0)return false;
+    if(!q)return true;
+    return norm([f.nombre,f.area,f.responsable,f.tipo,f.problema,f.objetivoGeneral].join(' ')).indexOf(q)>=0;
+  });
+  $('dl').disabled=!lista.length;
+  if(!banco.length){box.innerHTML='<div class="empty">Todavía no hay fichas. La primera que se envíe aparecerá aquí.</div>';return}
+  if(!lista.length){box.innerHTML='<div class="empty">Ninguna ficha coincide con la búsqueda.</div>';return}
+  box.innerHTML=lista.map(function(f){
+    var tuya=m.indexOf(f.id)>=0;
+    var bl=function(t,c){return c?'<div><h4>'+t+'</h4><p>'+esc(c)+'</p></div>':''};
+    return '<details class="pc"><summary><span class="h"><b>'+esc(f.nombre)+'</b>'+(f.tipo?'<span class="pill ok">'+esc(f.tipo)+'</span>':'')+(tuya?'<span class="pill mine">Tuya</span>':'')+'</span>'+
+      '<span class="sub">'+esc([f.area,f.responsable,fecha(f.ts)].filter(Boolean).join(' · '))+'</span></summary>'+
+      '<div class="body">'+bl('Problema o necesidad',f.problema)+bl('Propósito superior',f.proposito)+bl('Objetivo general',f.objetivoGeneral)+
+      '<div><h4>Objetivos específicos y actividades</h4><ol>'+(f.objetivos||[]).map(function(x){return '<li>'+esc(x.texto)+'<ul>'+(x.actividades||[]).map(function(a){return '<li>'+esc(a)+'</li>'}).join('')+'</ul></li>'}).join('')+'</ol></div>'+
+      bl('Con quién se conecta',f.conexiones)+'</div></details>';
+  }).join('');
+  pintarBanco.lista=lista;
+}
+$('q').addEventListener('input',pintarBanco);
+$('solo').addEventListener('change',pintarBanco);
+$('dl').onclick=function(){
+  var lista=pintarBanco.lista||[];
+  var p=function(t,c){return c?'<h3>'+t+'</h3><p>'+esc(c).replace(/\n/g,'<br>')+'</p>':''};
+  var cuerpo=lista.map(function(f){
+    return '<h1>'+esc(f.nombre)+'</h1><p class="m">'+esc([f.area,f.responsable,f.tipo,fecha(f.ts)].filter(Boolean).join(' · '))+'</p>'+
+      p('Problema o necesidad',f.problema)+p('Propósito superior',f.proposito)+p('Objetivo general',f.objetivoGeneral)+
+      '<h3>Objetivos específicos y actividades</h3><ol>'+(f.objetivos||[]).map(function(x){return '<li>'+esc(x.texto)+'<ul>'+(x.actividades||[]).map(function(a){return '<li>'+esc(a)+'</li>'}).join('')+'</ul></li>'}).join('')+'</ol>'+
+      p('Con quién se conecta',f.conexiones);
+  }).join('<br style="page-break-before:always">');
+  bajar('Preformulaciones_Vision_Circular_'+new Date().toISOString().slice(0,10)+'.doc',
+    '<html><head><meta charset="utf-8"><title>Preformulaciones</title><style>body{font-family:"Trebuchet MS",Arial,sans-serif;font-size:11pt;color:#1E305D}h1{font-size:16pt;color:#2C67B0;margin:0}.m{color:#5A6B85;margin:2pt 0 10pt}h3{font-size:10pt;color:#006F63;text-transform:uppercase;letter-spacing:.06em;margin:12pt 0 2pt}ul{color:#5A6B85}</style></head><body>'+cuerpo+'</body></html>',
+    'application/msword');
+};
+
+/* ---------- pestañas ---------- */
+function verTab(t){
+  document.querySelectorAll('nav.tabs button').forEach(function(b){b.setAttribute('aria-selected',b.dataset.tab===t)});
+  $('t-ficha').hidden=t!=='ficha';$('t-banco').hidden=t!=='banco';
+  if(t==='banco'){pintarBanco();cargarBanco();}
+}
+document.querySelectorAll('nav.tabs button').forEach(function(b){b.onclick=function(){verTab(b.dataset.tab)}});
 
 /* ---------- arranque ---------- */
-renderTodo();
-cargarEnvios().then(()=>{renderAvance();if(S.tab==='todas')renderTodas();});
+try{var s=JSON.parse(localStorage.getItem(LS)||'null');if(s&&s.nombre!==undefined){write(s);say('Recuperé tu borrador de este navegador.')}}catch(_){}
+if(!objs.children.length)write({});
+refresh();
+if(location.hash==='#banco')verTab('banco');
 })();
 </script>
-</body>
-</html>
+</body></html>
