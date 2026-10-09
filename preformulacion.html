@@ -4,7 +4,7 @@
 <title>Preformulación de proyectos · Visión Circular</title>
 <link rel="icon" type="image/png" href="assets/simbolo.png">
 <style>
-/* Layout: encabezado de marca, dos pestañas (formulario guiado y banco del equipo); cada sección del formulario lleva su guía al lado en pantallas anchas */
+/* Layout: encabezado de marca y formulario guiado; cada sección del formulario lleva su guía al lado en pantallas anchas */
 :root{
   --bg:#F3F6FA; --surface:#FFFFFF; --ink:#1E305D; --muted:#5A6B85; --line:#D5DEEA;
   --blue:#2C67B0; --lime:#B1D357; --green:#00AB6D; --teal:#006F63; --sky:#7FB8D9;
@@ -112,7 +112,6 @@ footer.f{margin-top:28px;color:var(--muted);font-size:13px;text-align:center}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 .live{background:var(--warnbg);color:var(--warn);border-radius:8px;padding:7px 10px;font-size:13.5px;margin-top:6px}
 .bank-tools .btn{padding:9px 16px}
-#t-banco .lede{margin:0 0 14px;color:var(--muted);font-size:15px}
 .fase{margin:22px 0 8px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);display:flex;align-items:center;gap:10px}
 .fase::after{content:"";flex:1;height:2px;background:var(--line)}
 section.blk.who{grid-template-columns:minmax(0,1fr);border:2px solid var(--blue);background:var(--soft)}
@@ -131,12 +130,6 @@ section.blk.who .n{background:var(--lime);color:#1E305D}
   </div>
 </header>
 
-<nav class="tabs" role="tablist">
-  <button type="button" role="tab" data-tab="ficha" aria-selected="true">Mi ficha</button>
-  <button type="button" role="tab" data-tab="banco" aria-selected="false">Banco de fichas <span id="bank-n" style="font-weight:400"></span></button>
-</nav>
-
-<div id="t-ficha">
 <div id="v-form">
   <div class="intro">
     <h2>Antes de empezar</h2>
@@ -152,7 +145,7 @@ section.blk.who .n{background:var(--lime);color:#1E305D}
     <div class="sec-h"><div class="n">✎</div><div><h2>¿Quién diligencia la ficha?</h2><p>Para que el equipo sepa de quién es y a qué línea aporta.</p></div></div>
     <div class="g2">
       <div><label for="responsable">Tu nombre</label><input type="text" id="responsable" maxlength="80" placeholder="Nombre y rol" autocomplete="name"></div>
-      <div><label for="area">Línea estratégica o área</label><input type="text" id="area" maxlength="80" placeholder="Ej.: Innovación y PMO" list="areas-vc"><datalist id="areas-vc"><option>Implementación (Traza)</option><option>Gestión de Línea Base (ARCO)</option><option>Innovación y PMO</option><option>Inclusión social y productiva</option><option>Proyectos territoriales y sectoriales</option><option>Consumo responsable</option><option>Comunicaciones y relacionamiento</option><option>Administrativa y financiera</option></datalist></div>
+      <div><label for="area">Línea estratégica o área</label><input type="text" id="area" maxlength="80" placeholder="Escríbela como la nombras en tu equipo"></div>
     </div>
   </div></section>
 
@@ -238,34 +231,21 @@ section.blk.who .n{background:var(--lime);color:#1E305D}
     </div>
   </div>
 </div>
-</div>
-
-<div id="t-banco" hidden>
-  <div class="how">Aquí están <b>todas las fichas que ha enviado el equipo</b>. Léelas para encontrar ideas parecidas a la tuya o con quién conectarte. Ábrelas para ver el detalle completo.</div>
-  <div class="bank-tools">
-    <input type="text" id="q" placeholder="Buscar por proyecto, área, persona o palabra" aria-label="Buscar fichas">
-    <label class="chk"><input type="checkbox" id="solo"> Solo las que envié</label>
-    <button type="button" class="btn sec" id="dl">Descargar en Word</button>
-  </div>
-  <div class="cards" id="cards"></div>
-</div>
-
 <footer class="f">Visión Circular · Projectability · Impulsando el país hacia la economía circular</footer>
 </div>
 
 <script src="assets/config.js"></script>
 <script>
 (function(){
-/* Cada ficha se guarda en la base del tablero (Worker + D1), que alimenta el banco de fichas, y va al
+/* Cada ficha se guarda en la base del tablero (Worker + D1, solo lectura con código) y va al
    receptor de Apps Script (receptor/Code.gs, desplegado con la cuenta de Daniel): un documento por ficha
    en la carpeta "Preformulaciones · Visión Circular" de su Drive, una fila en la hoja de respuestas y un
    correo a Daniel con copia a Pahola. */
 var API=((window.VC_CONFIG||{}).api||'')+'/api/preformulaciones';
 var RECEPTOR='https://script.google.com/macros/s/AKfycbzXXTibiDvi8i3XehXHfjZCTpIqRqGGjgaiLQBLwu1jJjF1ve_CAky3jcsH0S0elbjh/exec';
 var $=function(i){return document.getElementById(i)};
-var LS='vc-preformulacion-borrador-web', LS_MIAS='vc-preformulacion-mias', busy=false;
+var LS='vc-preformulacion-borrador-web', busy=false;
 var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
-function mias(){try{return JSON.parse(localStorage.getItem(LS_MIAS)||'[]')}catch(_){return []}}
 
 /* ---------- objetivos y actividades (se pueden agregar y quitar) ---------- */
 var MIN_OBJ=3, MAX_OBJ=6, MAX_ACT=6, DEF_ACT=3, seq=0;
@@ -409,7 +389,7 @@ ideas.addEventListener('input',opcionesElegida);
 function say(t,k){var m=$('msg');m.textContent=t;m.className='msg'+(k?' '+k:'')}
 
 /* ---------- copia descargable ---------- */
-/* Las mismas secciones, en el mismo orden, para la copia, el correo, el banco y el Word.
+/* Las secciones de la ficha, en orden, para la copia descargable.
    Cada una es [título, texto] o [título, null, lista]. */
 function secciones(o){
   var an=[['Qué está pasando',o.problema],['A quién afecta y en qué magnitud',o.afectados],['Por qué está pasando',o.causas],['Qué pasa si no se atiende',o.consecuencias]]
@@ -435,12 +415,6 @@ function fichaTxt(o){
     else if(s[1])L.push('',s[0].toUpperCase(),s[1]);
   });
   return L.join('\r\n');
-}
-function seccionesHtml(o,h4){
-  return secciones(o).map(function(s){
-    if(s[2])return '<div><'+h4+'>'+s[0]+'</'+h4+'><ol>'+s[2].map(function(x){return '<li>'+esc(x.texto)+'<ul>'+(x.actividades||[]).map(function(a){return '<li>'+esc(a)+'</li>'}).join('')+'</ul></li>'}).join('')+'</ol></div>';
-    return s[1]?'<div><'+h4+'>'+s[0]+'</'+h4+'><p>'+esc(s[1]).replace(/\n/g,'<br>')+'</p></div>':'';
-  }).join('');
 }
 function bajar(nombre,contenido,tipo){
   var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+contenido],{type:tipo}));a.download=nombre;
@@ -482,67 +456,17 @@ $('send').onclick=function(){
   .then(function(r){return r.json().then(function(j){if(!r.ok||!j||!j.ok)throw new Error((j&&j.mensaje)||'fallo');return j})})
   .then(function(j){
     avisar(o,j.ts);
-    lastSent=o; try{localStorage.removeItem(LS);var m=mias();m.push(j.id);localStorage.setItem(LS_MIAS,JSON.stringify(m))}catch(_){}
+    lastSent=o; try{localStorage.removeItem(LS)}catch(_){}
     $('v-form').hidden=true;$('v-ok').hidden=false;window.scrollTo({top:0});
-    cargarBanco();
   })
   .catch(function(err){say((err&&err.message&&err.message!=='fallo'&&err.name!=='AbortError'&&err.name!=='TypeError'?err.message+' ':'')+'No pudimos confirmar el envío. Descarga tu copia con el botón de al lado y vuelve a intentarlo en un momento.','err')})
   .then(function(){clearTimeout(to);busy=false;$('send').disabled=false});
 };
 
-/* ---------- banco de fichas ---------- */
-var banco=[], cargado=false, errBanco='';
-function fecha(iso){var d=new Date(iso);return d.toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'})}
-function cargarBanco(){
-  return fetch(API).then(function(r){return r.json()}).then(function(j){banco=j.fichas||[];cargado=true;errBanco='';pintarBanco()})
-    .catch(function(){errBanco='No pudimos traer las fichas. Revisa tu conexión y vuelve a abrir esta pestaña.';pintarBanco()});
-}
-function pintarBanco(){
-  $('bank-n').textContent=cargado?banco.length+(banco.length===1?' ficha':' fichas'):'';
-  var box=$('cards');
-  if(!cargado){box.innerHTML='<div class="empty">'+esc(errBanco||'Cargando las fichas…')+'</div>';return}
-  var q=norm($('q').value), solo=$('solo').checked, m=mias();
-  var lista=banco.filter(function(f){
-    if(solo&&m.indexOf(f.id)<0)return false;
-    if(!q)return true;
-    return norm([f.nombre,f.area,f.responsable,f.tipo,f.problema,f.objetivoGeneral].join(' ')).indexOf(q)>=0;
-  });
-  $('dl').disabled=!lista.length;
-  if(!banco.length){box.innerHTML='<div class="empty">Todavía no hay fichas. La primera que se envíe aparecerá aquí.</div>';return}
-  if(!lista.length){box.innerHTML='<div class="empty">Ninguna ficha coincide con la búsqueda.</div>';return}
-  box.innerHTML=lista.map(function(f){
-    var tuya=m.indexOf(f.id)>=0;
-    return '<details class="pc"><summary><span class="h"><b>'+esc(f.nombre)+'</b>'+(f.tipo?'<span class="pill ok">'+esc(f.tipo)+'</span>':'')+(tuya?'<span class="pill mine">Tuya</span>':'')+'</span>'+
-      '<span class="sub">'+esc([f.area,f.responsable,fecha(f.ts)].filter(Boolean).join(' · '))+'</span></summary>'+
-      '<div class="body">'+seccionesHtml(f,'h4')+'</div></details>';
-  }).join('');
-  pintarBanco.lista=lista;
-}
-$('q').addEventListener('input',pintarBanco);
-$('solo').addEventListener('change',pintarBanco);
-$('dl').onclick=function(){
-  var lista=pintarBanco.lista||[];
-  var cuerpo=lista.map(function(f){
-    return '<h1>'+esc(f.nombre)+'</h1><p class="m">'+esc([f.area,f.responsable,f.tipo,fecha(f.ts)].filter(Boolean).join(' · '))+'</p>'+seccionesHtml(f,'h3');
-  }).join('<br style="page-break-before:always">');
-  bajar('Preformulaciones_Vision_Circular_'+new Date().toISOString().slice(0,10)+'.doc',
-    '<html><head><meta charset="utf-8"><title>Preformulaciones</title><style>body{font-family:"Trebuchet MS",Arial,sans-serif;font-size:11pt;color:#1E305D}h1{font-size:16pt;color:#2C67B0;margin:0}.m{color:#5A6B85;margin:2pt 0 10pt}h3{font-size:10pt;color:#006F63;text-transform:uppercase;letter-spacing:.06em;margin:12pt 0 2pt}ul{color:#5A6B85}</style></head><body>'+cuerpo+'</body></html>',
-    'application/msword');
-};
-
-/* ---------- pestañas ---------- */
-function verTab(t){
-  document.querySelectorAll('nav.tabs button').forEach(function(b){b.setAttribute('aria-selected',b.dataset.tab===t)});
-  $('t-ficha').hidden=t!=='ficha';$('t-banco').hidden=t!=='banco';
-  if(t==='banco'){pintarBanco();cargarBanco();}
-}
-document.querySelectorAll('nav.tabs button').forEach(function(b){b.onclick=function(){verTab(b.dataset.tab)}});
-
 /* ---------- arranque ---------- */
 try{var s=JSON.parse(localStorage.getItem(LS)||'null');if(s&&s.nombre!==undefined){write(s);say('Recuperé tu borrador de este navegador.')}}catch(_){}
 if(!objs.children.length)write({});
 refresh();
-if(location.hash==='#banco')verTab('banco');
 })();
 </script>
 </body></html>

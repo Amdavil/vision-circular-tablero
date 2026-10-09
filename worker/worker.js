@@ -10,8 +10,8 @@
  * Los códigos no están en el repositorio: el secreto CODIGOS guarda un JSON
  * { "<sha256 del código en mayúsculas>": "IMP" | "LB" | ... | "VALIDADOR" }.
  *
- * Preformulación de proyectos (taller de formulación): cada área guarda un proyecto con su
- * código. Quién va en qué estado es abierto; el contenido solo se ve con un código válido.
+ * Preformulación de proyectos (taller ejecutivo): enviar una ficha es libre, sin código.
+ * Leer las fichas exige el código de validación; Daniel las revisa en su carpeta de Drive.
  *
  * Ningún reporte se sobrescribe: una corrección es un reporte nuevo con `corrige`.
  * Toda escritura queda en la tabla `bitacora`.
@@ -98,6 +98,9 @@ export default {
 
       /* ---------- preformulaciones: libre acceso ---------- */
       if (url.pathname === "/api/preformulaciones" && req.method === "GET") {
+        // Enviar es libre; leer las fichas solo con el código de validación (las revisa Daniel).
+        if ((await rolDe(req.headers.get("X-Codigo") || "", env)) !== "VALIDADOR")
+          return json({ error: "codigo", mensaje: "Las fichas solo se consultan con el código de validación." }, 401);
         const r = await env.DB.prepare("SELECT id, datos, ts FROM preformulaciones ORDER BY ts DESC LIMIT 500").all();
         return json({ fichas: r.results.map((x) => ({ id: x.id, ts: x.ts, ...JSON.parse(x.datos) })), ahora: new Date().toISOString() });
       }

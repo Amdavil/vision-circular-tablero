@@ -36,7 +36,7 @@ Los códigos **no están en este repositorio**. El Worker guarda el secreto `COD
 
 https://amdavil.github.io/vision-circular-tablero/preformulacion.html — ficha de preformulación del taller ejecutivo (oct 2026), con el diseño del `index.html` de la carpeta de la consultoría. Acceso libre, sin código; una ficha por problema u oportunidad. Orden: quién diligencia, análisis del problema, posibles soluciones, definición y alcance, propósito, objetivo general, objetivos con actividades y conexiones.
 
-Cada ficha va a dos destinos: la tabla `preformulaciones` (alimenta la pestaña "Banco de fichas", con búsqueda y descarga a Word) y el receptor `receptor/Code.gs`, desplegado como aplicación web con la cuenta de Daniel (constante `RECEPTOR` de la página). El receptor guarda un documento por ficha en la carpeta "Preformulaciones · Visión Circular" de su Drive, agrega una fila a la hoja de respuestas y manda un correo a Daniel con copia a Pahola. Si se cambia el receptor, usar Implementar > Administrar implementaciones > Nueva versión para conservar la URL.
+Cada ficha va a dos destinos: la tabla `preformulaciones` (no se muestra en la página; leerla por la API exige el código de validación) y el receptor `receptor/Code.gs`, desplegado como aplicación web con la cuenta de Daniel (constante `RECEPTOR` de la página). El receptor guarda un documento por ficha en la carpeta "Preformulaciones · Visión Circular" de su Drive, agrega una fila a la hoja de respuestas y manda un correo a Daniel con copia a Pahola. Si se cambia el receptor, usar Implementar > Administrar implementaciones > Nueva versión para conservar la URL.
 
 ## Auditoría
 
